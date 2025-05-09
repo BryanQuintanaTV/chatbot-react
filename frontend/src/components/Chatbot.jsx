@@ -52,10 +52,10 @@ function Chatbot() {
   return (
     <div className='relative grow flex flex-col gap-6 pt-6'>
       {messages.length === 0 && (
-        <div className='mt-3 font-urbanist text-primary-blue text-xl font-light space-y-2'>
+        <div className='mt-3 font-urbanist text-slate-500 text-xl font-light space-y-2'>
           <p>👋 Bienvenido</p>
           <p>Soy Un chatbot que te aydará a responder dudas generales sobre el TECNM</p>
-          <p><small>VERSIÓN: BETA</small></p>
+          <p><small>Versión Dataset: 3.0</small></p>
         </div>
       )}
       <ChatMessages
