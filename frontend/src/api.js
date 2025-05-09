@@ -15,7 +15,7 @@ async function sendChatMessage(chatId, message) {
 }
 
 async function sendReport(data) {
-  const res = await fetch(`http://127.0.0.1:8000/api/v1/report/`, {
+  const res = await fetch(`https://apichat.bryanquintana.com/api/v1/report/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
