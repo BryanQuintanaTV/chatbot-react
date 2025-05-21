@@ -55,7 +55,7 @@ function Chatbot() {
         <div className='mt-3 font-urbanist text-slate-500 text-xl font-light space-y-2'>
           <p>👋 Bienvenido</p>
           <p>Soy Un chatbot que te aydará a responder dudas generales sobre el TECNM</p>
-          <p><small>Versión Dataset: 3.0</small></p>
+          <p><small>Versión Dataset: 4.0</small></p>
         </div>
       )}
       <ChatMessages

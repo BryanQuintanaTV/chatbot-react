@@ -45,7 +45,7 @@ export default function ReportIssueDialog({ message, userMessage }) {
     message_send: userMessage,
     message_receive: message,
     date: new Date().toISOString(),
-    dataset_version: "3.0",
+    dataset_version: "4.0",
     message_report: feedback
   };
 
@@ -101,7 +101,7 @@ export default function ReportIssueDialog({ message, userMessage }) {
             <DialogTitle>Reportar Problema</DialogTitle>
             <DialogDescription>
               Describe qué salió mal con esta respuesta. <br />
-              <small>Dataset v3.0</small>
+              <small>Dataset v4.0</small>
             </DialogDescription>
           </DialogHeader>
           {form}
@@ -126,7 +126,7 @@ export default function ReportIssueDialog({ message, userMessage }) {
           <DrawerTitle>Reportar Problema</DrawerTitle>
           <DrawerDescription>
             Describe qué salió mal con esta respuesta. <br />
-            <small>Dataset v3.0</small>
+            <small>Dataset v4.0</small>
           </DrawerDescription>
         </DrawerHeader>
         <div className="px-4 pb-4">{form}</div>
