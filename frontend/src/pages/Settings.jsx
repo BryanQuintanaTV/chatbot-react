@@ -14,8 +14,9 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { Sidebar } from '@/components/Sidebar';
-import { ArrowLeft, Moon, Sun } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/images/itch_II_logo.png';
 
@@ -75,10 +76,6 @@ export function Settings() {
       return `${names[0][0]}${names[1][0]}`.toUpperCase();
     }
     return user.name[0].toUpperCase();
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   return (
@@ -195,13 +192,7 @@ export function Settings() {
                   {theme === 'light' ? 'Modo Claro' : 'Modo Oscuro'}
                 </p>
               </div>
-              <Button onClick={toggleTheme} variant="outline" size="icon">
-                {theme === 'light' ? (
-                  <Moon className="h-5 w-5" />
-                ) : (
-                  <Sun className="h-5 w-5" />
-                )}
-              </Button>
+              <AnimatedThemeToggler />
             </div>
           </CardContent>
         </Card>

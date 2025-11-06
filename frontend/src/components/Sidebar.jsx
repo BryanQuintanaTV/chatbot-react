@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/components/theme-provider';
 import {
   Sheet,
   SheetContent,
@@ -11,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import {
   Menu,
   User,
@@ -18,15 +18,12 @@ import {
   History,
   LogOut,
   LogIn,
-  Moon,
-  Sun,
   MessageSquare,
 } from 'lucide-react';
 import { useState } from 'react';
 
 export function Sidebar() {
   const { user, logout, isAuthenticated } = useAuth();
-  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -39,10 +36,6 @@ export function Sidebar() {
   const handleLogin = () => {
     setOpen(false);
     navigate('/login');
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   const getUserInitials = () => {
@@ -137,24 +130,11 @@ export function Sidebar() {
           <Separator />
 
           {/* Theme Toggle */}
-          <div className="px-2">
-            <Button
-              onClick={toggleTheme}
-              variant="outline"
-              className="w-full justify-start"
-            >
-              {theme === 'light' ? (
-                <>
-                  <Moon className="h-4 w-4 mr-2" />
-                  Modo Oscuro
-                </>
-              ) : (
-                <>
-                  <Sun className="h-4 w-4 mr-2" />
-                  Modo Claro
-                </>
-              )}
-            </Button>
+          <div className="px-2 flex flex-col gap-2">
+            <p className="text-sm font-medium px-2">Tema</p>
+            <div className="flex justify-center">
+              <AnimatedThemeToggler />
+            </div>
           </div>
 
           {/* Chat History Section */}
