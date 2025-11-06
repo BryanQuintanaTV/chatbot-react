@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,10 +13,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { SCHOOL_NAME } from '@/lib/constants';
 import logo from '@/assets/images/itch_II_logo.png';
 import { toast } from 'sonner';
 
 export function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,14 +41,14 @@ export function Login() {
         email: email,
         name: 'Usuario Demo',
         semester: '5',
-        school: 'Tecnológico Nacional de México Campus Chihuahua II',
+        school: SCHOOL_NAME,
       };
 
       login(userData);
-      toast.success('¡Inicio de sesión exitoso!');
+      toast.success(t('login.success'));
       navigate('/');
     } catch (error) {
-      toast.error('Error al iniciar sesión. Por favor, intenta de nuevo.');
+      toast.error(t('login.error'));
     } finally {
       setLoading(false);
     }
@@ -57,35 +60,35 @@ export function Login() {
         {/* Logo and Header */}
         <div className="flex flex-col items-center space-y-2">
           <img src={logo} className="w-32" alt="logo" />
-          <h1 className="font-urbanist text-2xl font-semibold">Tec Bot</h1>
+          <h1 className="font-urbanist text-2xl font-semibold">{t('common.appName')}</h1>
           <p className="text-sm text-muted-foreground">
-            Tecnológico Nacional de México Campus Chihuahua II
+            {t('common.school')}
           </p>
         </div>
 
         {/* Login Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Iniciar Sesión</CardTitle>
+            <CardTitle>{t('login.title')}</CardTitle>
             <CardDescription>
-              Ingresa tus credenciales para acceder a tu cuenta
+              {t('login.description')}
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="tu.email@ejemplo.com"
+                  placeholder="user@chihuahua2.tecnm.mx"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -98,21 +101,21 @@ export function Login() {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                {loading ? t('login.loggingIn') : t('login.loginButton')}
               </Button>
               <div className="text-sm text-center space-y-2">
                 <p className="text-muted-foreground">
-                  ¿No tienes cuenta?{' '}
+                  {t('auth.dontHaveAccount')}{' '}
                   <Link
                     to="/register"
                     className="text-primary hover:underline font-medium"
                   >
-                    Regístrate aquí
+                    {t('auth.signUpHere')}
                   </Link>
                 </p>
                 <p className="text-muted-foreground">
                   <Link to="/" className="text-primary hover:underline">
-                    Continuar sin iniciar sesión
+                    {t('auth.continueWithout')}
                   </Link>
                 </p>
               </div>

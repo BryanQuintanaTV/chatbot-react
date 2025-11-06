@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
@@ -23,14 +24,15 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { Sidebar } from '@/components/Sidebar';
-import { TECNM_CAREERS, SCHOOL_NAME } from '@/lib/constants';
+import { getTecnmCareers, SCHOOL_NAME, LANGUAGES } from '@/lib/constants';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function Settings() {
+  const { t, i18n } = useTranslation();
   const { user, updateUser, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -54,13 +56,18 @@ export function Settings() {
     });
   };
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     // Validation
     if (formData.semester && (formData.semester < 1 || formData.semester > 12)) {
-      toast.error('El semestre debe estar entre 1 y 12');
+      toast.error(t('settings.semesterError'));
       setLoading(false);
       return;
     }
@@ -77,26 +84,22 @@ export function Settings() {
       updateUser(updatedData);
 
       if (updatedData.profileCompleted) {
-        toast.success('Perfil actualizado y completado correctamente');
+        toast.success(t('settings.profileCompleteSuccess'));
       } else {
-        toast.success('Configuración actualizada correctamente');
+        toast.success(t('settings.updateSuccess'));
       }
     } catch (error) {
-      toast.error('Error al actualizar la configuración');
+      toast.error(t('settings.updateError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteAccount = () => {
-    if (
-      window.confirm(
-        '¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.'
-      )
-    ) {
+    if (window.confirm(t('settings.deleteAccountConfirm'))) {
       // TODO: Implement actual account deletion with backend
       logout();
-      toast.success('Cuenta eliminada correctamente');
+      toast.success(t('settings.accountDeleted'));
       navigate('/');
     }
   };
@@ -126,7 +129,7 @@ export function Settings() {
             </Button>
             <img src={logo} className="w-24" alt="logo" />
             <h1 className="font-urbanist text-xl font-semibold">
-              Configuración
+              {t('settings.title')}
             </h1>
           </div>
         </div>
@@ -137,9 +140,9 @@ export function Settings() {
         {/* Profile Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Perfil</CardTitle>
+            <CardTitle>{t('settings.profile')}</CardTitle>
             <CardDescription>
-              Actualiza tu información personal
+              {t('settings.profileDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -164,10 +167,10 @@ export function Settings() {
                 <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-medium text-amber-900 dark:text-amber-100">
-                    Perfil Incompleto
+                    {t('settings.profileIncomplete')}
                   </p>
                   <p className="text-amber-700 dark:text-amber-200 mt-1">
-                    Por favor completa tu información académica (semestre y carrera) para obtener respuestas más personalizadas.
+                    {t('settings.profileIncompleteDescription')}
                   </p>
                 </div>
               </div>
@@ -176,7 +179,7 @@ export function Settings() {
             {/* Profile Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Nombre Completo</Label>
+                <Label htmlFor="name">{t('settings.name')}</Label>
                 <Input
                   id="name"
                   name="name"
@@ -187,7 +190,7 @@ export function Settings() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
+                <Label htmlFor="email">{t('settings.email')}</Label>
                 <Input
                   id="email"
                   name="email"
@@ -198,26 +201,26 @@ export function Settings() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="semester">Semestre (1-12)</Label>
+                <Label htmlFor="semester">{t('settings.semester')}</Label>
                 <Input
                   id="semester"
                   name="semester"
                   type="number"
                   min="1"
                   max="12"
-                  placeholder="Ej: 5"
+                  placeholder={t('settings.semesterPlaceholder')}
                   value={formData.semester}
                   onChange={handleChange}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="career">Carrera</Label>
+                <Label htmlFor="career">{t('settings.career')}</Label>
                 <Select value={formData.career} onValueChange={handleCareerChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecciona tu carrera" />
+                    <SelectValue placeholder={t('settings.careerPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {TECNM_CAREERS.map((career) => (
+                    {getTecnmCareers(t).map((career) => (
                       <SelectItem key={career.value} value={career.value}>
                         {career.label}
                       </SelectItem>
@@ -226,13 +229,13 @@ export function Settings() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Institución</Label>
+                <Label>{t('settings.institution')}</Label>
                 <div className="rounded-md bg-muted p-3 text-sm">
                   {SCHOOL_NAME}
                 </div>
               </div>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Guardando...' : 'Guardar Cambios'}
+                {loading ? t('settings.saving') : t('settings.saveChanges')}
               </Button>
             </form>
           </CardContent>
@@ -241,20 +244,43 @@ export function Settings() {
         {/* Appearance Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Apariencia</CardTitle>
+            <CardTitle>{t('settings.appearance')}</CardTitle>
             <CardDescription>
-              Personaliza la apariencia de la aplicación
+              {t('settings.appearanceDescription')}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Tema</p>
+                <p className="font-medium">{t('settings.theme')}</p>
                 <p className="text-sm text-muted-foreground">
-                  {theme === 'light' ? 'Modo Claro' : 'Modo Oscuro'}
+                  {theme === 'light' ? t('settings.lightMode') : t('settings.darkMode')}
                 </p>
               </div>
               <AnimatedThemeToggler />
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">{t('settings.language')}</p>
+                <p className="text-sm text-muted-foreground">
+                  {LANGUAGES.find(l => l.value === i18n.language)?.label || 'Español'}
+                </p>
+              </div>
+              <Select value={i18n.language} onValueChange={changeLanguage}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGES.map((lang) => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
@@ -262,9 +288,9 @@ export function Settings() {
         {/* Danger Zone */}
         <Card className="border-destructive">
           <CardHeader>
-            <CardTitle className="text-destructive">Zona de Peligro</CardTitle>
+            <CardTitle className="text-destructive">{t('settings.dangerZone')}</CardTitle>
             <CardDescription>
-              Acciones irreversibles
+              {t('settings.dangerZoneDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -272,7 +298,7 @@ export function Settings() {
               variant="destructive"
               onClick={handleDeleteAccount}
             >
-              Eliminar Cuenta
+              {t('settings.deleteAccount')}
             </Button>
           </CardContent>
         </Card>

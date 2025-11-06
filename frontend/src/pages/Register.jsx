@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ import logo from '@/assets/images/itch_II_logo.png';
 import { toast } from 'sonner';
 
 export function Register() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -40,13 +42,13 @@ export function Register() {
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Las contraseñas no coinciden');
+      toast.error(t('register.passwordMismatch'));
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres');
+      toast.error(t('register.passwordTooShort'));
       setLoading(false);
       return;
     }
@@ -66,10 +68,10 @@ export function Register() {
       };
 
       register(userData);
-      toast.success('¡Registro exitoso! Por favor completa tu perfil en configuración.');
+      toast.success(t('register.success'));
       navigate('/settings'); // Redirect to settings to complete profile
     } catch (error) {
-      toast.error('Error al registrarse. Por favor, intenta de nuevo.');
+      toast.error(t('register.error'));
     } finally {
       setLoading(false);
     }
@@ -81,48 +83,48 @@ export function Register() {
         {/* Logo and Header */}
         <div className="flex flex-col items-center space-y-2">
           <img src={logo} className="w-32" alt="logo" />
-          <h1 className="font-urbanist text-2xl font-semibold">Tec Bot</h1>
+          <h1 className="font-urbanist text-2xl font-semibold">{t('common.appName')}</h1>
           <p className="text-sm text-muted-foreground text-center">
-            Tecnológico Nacional de México Campus Chihuahua II
+            {t('common.school')}
           </p>
         </div>
 
         {/* Register Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Crear Cuenta</CardTitle>
+            <CardTitle>{t('register.title')}</CardTitle>
             <CardDescription>
-              Regístrate para empezar. Completa tu perfil después.
+              {t('register.description')}
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Nombre Completo</Label>
+                <Label htmlFor="name">{t('auth.name')}</Label>
                 <Input
                   id="name"
                   name="name"
                   type="text"
-                  placeholder="Juan Pérez González"
+                  placeholder={t('register.namePlaceholder')}
                   value={formData.name}
                   onChange={handleChange}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="juan.perez@chihuahua2.tecnm.mx"
+                  placeholder={t('register.emailPlaceholder')}
                   value={formData.email}
                   onChange={handleChange}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <Input
                   id="password"
                   name="password"
@@ -135,7 +137,7 @@ export function Register() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -149,27 +151,27 @@ export function Register() {
               </div>
               <div className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                 <p className="text-xs">
-                  Al registrarte, podrás completar tu perfil académico (semestre y carrera) en la página de configuración.
+                  {t('register.profileNote')}
                 </p>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Registrando...' : 'Registrarse'}
+                {loading ? t('register.registering') : t('register.registerButton')}
               </Button>
               <div className="text-sm text-center space-y-2">
                 <p className="text-muted-foreground">
-                  ¿Ya tienes cuenta?{' '}
+                  {t('auth.alreadyHaveAccount')}{' '}
                   <Link
                     to="/login"
                     className="text-primary hover:underline font-medium"
                   >
-                    Inicia sesión aquí
+                    {t('auth.signInHere')}
                   </Link>
                 </p>
                 <p className="text-muted-foreground">
                   <Link to="/" className="text-primary hover:underline">
-                    Continuar sin registrarse
+                    {t('auth.continueWithoutRegister')}
                   </Link>
                 </p>
               </div>

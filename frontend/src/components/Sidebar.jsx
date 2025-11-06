@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Sheet,
@@ -23,6 +24,7 @@ import {
 import { useState } from 'react';
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -64,7 +66,7 @@ export function Sidebar() {
       </SheetTrigger>
       <SheetContent side="left" className="w-80 flex flex-col">
         <SheetHeader>
-          <SheetTitle>Menu</SheetTitle>
+          <SheetTitle>{t('sidebar.menu')}</SheetTitle>
         </SheetHeader>
 
         <div className="flex-1 flex flex-col gap-4 py-4">
@@ -78,19 +80,19 @@ export function Sidebar() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{user?.name || 'Usuario'}</p>
+                <p className="text-sm font-semibold truncate">{user?.name || t('sidebar.user')}</p>
                 {user?.semester && user?.career ? (
                   <>
                     <p className="text-xs text-muted-foreground truncate">
-                      Semestre {user.semester}
+                      {t('sidebar.semester')} {user.semester}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
-                      {user.career}
+                      {t(`careers.${user.career}`)}
                     </p>
                   </>
                 ) : (
                   <p className="text-xs text-muted-foreground truncate">
-                    {user?.semester ? `Semestre ${user.semester}` : 'Completa tu perfil'}
+                    {user?.semester ? `${t('sidebar.semester')} ${user.semester}` : t('sidebar.completeProfile')}
                   </p>
                 )}
               </div>
@@ -98,7 +100,7 @@ export function Sidebar() {
           ) : (
             <div className="px-2 py-3 rounded-lg bg-muted/50">
               <p className="text-sm text-muted-foreground mb-2">
-                Inicia sesión para obtener respuestas personalizadas
+                {t('sidebar.loginPrompt')}
               </p>
               <Button
                 onClick={handleLogin}
@@ -107,7 +109,7 @@ export function Sidebar() {
                 className="w-full"
               >
                 <LogIn className="h-4 w-4 mr-2" />
-                Iniciar Sesión
+                {t('auth.login')}
               </Button>
             </div>
           )}
@@ -119,7 +121,7 @@ export function Sidebar() {
             <Link to="/" onClick={() => setOpen(false)}>
               <Button variant="ghost" className="w-full justify-start">
                 <MessageSquare className="h-4 w-4 mr-2" />
-                Chat
+                {t('sidebar.chat')}
               </Button>
             </Link>
 
@@ -127,7 +129,7 @@ export function Sidebar() {
               <Link to="/settings" onClick={() => setOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start">
                   <Settings className="h-4 w-4 mr-2" />
-                  Configuración
+                  {t('sidebar.settings')}
                 </Button>
               </Link>
             )}
@@ -137,7 +139,7 @@ export function Sidebar() {
 
           {/* Theme Toggle */}
           <div className="px-2 flex flex-col gap-2">
-            <p className="text-sm font-medium px-2">Tema</p>
+            <p className="text-sm font-medium px-2">{t('sidebar.theme')}</p>
             <div className="flex justify-center">
               <AnimatedThemeToggler />
             </div>
@@ -150,7 +152,7 @@ export function Sidebar() {
               <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="flex items-center gap-2 px-2 mb-2">
                   <History className="h-4 w-4" />
-                  <h3 className="text-sm font-semibold">Historial de Chats</h3>
+                  <h3 className="text-sm font-semibold">{t('sidebar.chatHistory')}</h3>
                 </div>
                 <div className="flex-1 overflow-y-auto space-y-1">
                   {chatHistory.map((chat) => (
@@ -179,7 +181,7 @@ export function Sidebar() {
                   className="w-full justify-start text-destructive hover:text-destructive"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Cerrar Sesión
+                  {t('auth.logout')}
                 </Button>
               </div>
             </>
