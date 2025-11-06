@@ -23,7 +23,7 @@ function ChatMessages({ messages, isLoading }) {
           <div
             key={idx}
             className={`flex items-start gap-4 py-4 px-3 rounded-xl ${
-              role === "user" ? "bg-primary-blue/10" : ""
+              role === "user" ? "bg-muted/50" : ""
             }`}
           >
             {role === "user" && (
