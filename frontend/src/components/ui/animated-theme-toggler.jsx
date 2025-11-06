@@ -1,66 +1,74 @@
-import { useTheme } from "@/components/theme-provider";
-import { motion } from "framer-motion";
-import { Moon, Sun } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Moon, Sun } from "lucide-react"
+import { flushSync } from "react-dom"
 
-export function AnimatedThemeToggler() {
-  const { theme, setTheme } = useTheme();
+import { cn } from "@/lib/utils"
 
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
+export const AnimatedThemeToggler = ({
+  className,
+  duration = 400,
+  ...props
+}) => {
+  const [isDark, setIsDark] = useState(false)
+  const buttonRef = useRef(null)
+
+  useEffect(() => {
+    const updateTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"))
+    }
+
+    updateTheme()
+
+    const observer = new MutationObserver(updateTheme)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    })
+
+    return () => observer.disconnect();
+  }, [])
+
+  const toggleTheme = useCallback(async () => {
+    if (!buttonRef.current) return
+
+    await document.startViewTransition(() => {
+      flushSync(() => {
+        const newTheme = !isDark
+        setIsDark(newTheme)
+        document.documentElement.classList.toggle("dark")
+        localStorage.setItem("theme", newTheme ? "dark" : "light")
+      })
+    }).ready
+
+    const { top, left, width, height } =
+      buttonRef.current.getBoundingClientRect()
+    const x = left + width / 2
+    const y = top + height / 2
+    const maxRadius = Math.hypot(
+      Math.max(left, window.innerWidth - left),
+      Math.max(top, window.innerHeight - top)
+    )
+
+    document.documentElement.animate({
+      clipPath: [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${maxRadius}px at ${x}px ${y}px)`,
+      ],
+    }, {
+      duration,
+      easing: "ease-in-out",
+      pseudoElement: "::view-transition-new(root)",
+    })
+  }, [isDark, duration])
 
   return (
     <button
+      ref={buttonRef}
       onClick={toggleTheme}
-      className="relative inline-flex h-10 w-20 items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-muted"
-      aria-label="Toggle theme"
-    >
-      <motion.div
-        className="absolute inset-0 rounded-full"
-        initial={false}
-        animate={{
-          backgroundColor: theme === "light" ? "hsl(var(--primary))" : "hsl(var(--secondary))",
-        }}
-        transition={{ duration: 0.3 }}
-      />
-
-      <motion.div
-        className="absolute left-1 flex h-8 w-8 items-center justify-center rounded-full bg-background shadow-md"
-        initial={false}
-        animate={{
-          x: theme === "light" ? 0 : 40,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 30,
-        }}
-      >
-        <motion.div
-          initial={false}
-          animate={{
-            scale: theme === "light" ? 1 : 0,
-            opacity: theme === "light" ? 1 : 0,
-            rotate: theme === "light" ? 0 : 180,
-          }}
-          transition={{ duration: 0.2 }}
-          className="absolute"
-        >
-          <Sun className="h-4 w-4 text-foreground" />
-        </motion.div>
-        <motion.div
-          initial={false}
-          animate={{
-            scale: theme === "dark" ? 1 : 0,
-            opacity: theme === "dark" ? 1 : 0,
-            rotate: theme === "dark" ? 0 : -180,
-          }}
-          transition={{ duration: 0.2 }}
-          className="absolute"
-        >
-          <Moon className="h-4 w-4 text-foreground" />
-        </motion.div>
-      </motion.div>
+      className={cn(className)}
+      {...props}>
+      {isDark ? <Sun /> : <Moon />}
+      <span className="sr-only">Toggle theme</span>
     </button>
   );
 }
