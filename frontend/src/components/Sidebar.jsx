@@ -60,7 +60,7 @@ export function Sidebar() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="shrink-0">
-          <Menu className="h-5 w-5" />
+          <Menu className="h-5 w-5 text-foreground" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>

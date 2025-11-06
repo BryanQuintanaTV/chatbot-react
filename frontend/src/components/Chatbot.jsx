@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useImmer } from 'use-immer';
+import { useTranslation } from 'react-i18next';
 import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
 
 function Chatbot() {
+  const { t } = useTranslation();
   const VITE_API_URL = import.meta.env.VITE_VERSION;
   // const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useImmer([]);
@@ -52,10 +54,10 @@ function Chatbot() {
   return (
     <div className='relative grow flex flex-col gap-6 pt-6'>
       {messages.length === 0 && (
-        <div className='mt-3 font-urbanist text-slate-500 text-xl font-light space-y-2'>
-          <p>👋 Bienvenido</p>
-          <p>Soy Un chatbot que te aydará a responder dudas generales sobre el TECNM</p>
-          <p><small>Versión Dataset: 4.0</small></p>
+        <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
+          <p>👋 {t('chat.welcome')}</p>
+          <p>{t('chat.welcomeDescription')}</p>
+          <p><small>{t('chat.datasetVersion')}</small></p>
         </div>
       )}
       <ChatMessages

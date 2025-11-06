@@ -18,7 +18,7 @@ export function ChatPage() {
               <img src={logo} className='w-32' alt='logo' />
             </a>
           </div>
-          <h1 className='font-urbanist text-[1.65rem] font-semibold'>{t('common.appName')}</h1>
+          <h1 className='font-urbanist text-[1.65rem] font-semibold text-foreground'>{t('common.appName')}</h1>
           <p className='font-urbanist text-destructive text-md font-light'>{t('common.testMode')}</p>
         </div>
       </header>

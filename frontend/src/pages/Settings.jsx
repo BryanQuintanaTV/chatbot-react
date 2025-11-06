@@ -125,10 +125,10 @@ export function Settings() {
               size="icon"
               onClick={() => navigate('/')}
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 text-foreground" />
             </Button>
             <img src={logo} className="w-24" alt="logo" />
-            <h1 className="font-urbanist text-xl font-semibold">
+            <h1 className="font-urbanist text-xl font-semibold text-foreground">
               {t('settings.title')}
             </h1>
           </div>

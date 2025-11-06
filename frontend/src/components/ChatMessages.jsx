@@ -1,4 +1,5 @@
 import Markdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 import useAutoScroll from '@/hooks/useAutoScroll';
 import Spinner from '@/components/Spinner';
 import userIcon from '@/assets/images/user.svg';
@@ -9,6 +10,7 @@ import ReportIssueDialog from "@/components/ReportIssueDialog";
 import { toast } from "sonner";
 
 function ChatMessages({ messages, isLoading }) {
+  const { t } = useTranslation();
   const scrollContentRef = useAutoScroll(isLoading);
 
   return (
@@ -47,12 +49,12 @@ function ChatMessages({ messages, isLoading }) {
               </div>
               {error && (
                 <div
-                  className={`flex items-center gap-1 text-sm text-error-red ${
+                  className={`flex items-center gap-1 text-sm text-destructive ${
                     content && "mt-2"
                   }`}
                 >
                   <img className="h-5 w-5" src={errorIcon} alt="error" />
-                  <span>Error al generar la respuesta</span>
+                  <span>{t('chat.error')}</span>
                 </div>
               )}
             </div>

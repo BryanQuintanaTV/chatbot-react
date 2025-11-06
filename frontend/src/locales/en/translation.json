@@ -94,6 +94,9 @@
     "accountDeleted": "Account deleted successfully"
   },
   "chat": {
+    "welcome": "Welcome",
+    "welcomeDescription": "I'm a chatbot that will help you answer general questions about TECNM",
+    "datasetVersion": "Dataset Version: 4.0",
     "inputPlaceholder": "Type your message...",
     "send": "Send",
     "error": "Error generating response",
