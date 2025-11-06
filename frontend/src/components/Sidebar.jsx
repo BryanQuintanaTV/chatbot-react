@@ -79,12 +79,18 @@ export function Sidebar() {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{user?.name || 'Usuario'}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {user?.semester ? `Semestre ${user.semester}` : 'Estudiante'}
-                </p>
-                {user?.school && (
+                {user?.semester && user?.career ? (
+                  <>
+                    <p className="text-xs text-muted-foreground truncate">
+                      Semestre {user.semester}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user.career}
+                    </p>
+                  </>
+                ) : (
                   <p className="text-xs text-muted-foreground truncate">
-                    {user.school}
+                    {user?.semester ? `Semestre ${user.semester}` : 'Completa tu perfil'}
                   </p>
                 )}
               </div>

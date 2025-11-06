@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { SCHOOL_NAME } from '@/lib/constants';
 import logo from '@/assets/images/itch_II_logo.png';
 import { toast } from 'sonner';
 
@@ -21,7 +22,6 @@ export function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    semester: '',
   });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -45,29 +45,29 @@ export function Register() {
       return;
     }
 
-    if (formData.semester < 1 || formData.semester > 12) {
-      toast.error('El semestre debe estar entre 1 y 12');
+    if (formData.password.length < 6) {
+      toast.error('La contraseña debe tener al menos 6 caracteres');
       setLoading(false);
       return;
     }
 
-    // TODO: Replace with actual backend registration
+    // TODO: Replace with Better Auth backend
     try {
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Mock user registration - In real implementation, this would come from backend
+      // Mock user registration - In real implementation, this would come from Better Auth
       const userData = {
         id: Date.now().toString(),
         name: formData.name,
         email: formData.email,
-        semester: formData.semester,
-        school: 'Tecnológico Nacional de México Campus Chihuahua II',
+        school: SCHOOL_NAME,
+        profileCompleted: false, // Nuevo campo para indicar si completó su perfil
       };
 
       register(userData);
-      toast.success('¡Registro exitoso! Bienvenido.');
-      navigate('/');
+      toast.success('¡Registro exitoso! Por favor completa tu perfil en configuración.');
+      navigate('/settings'); // Redirect to settings to complete profile
     } catch (error) {
       toast.error('Error al registrarse. Por favor, intenta de nuevo.');
     } finally {
@@ -92,7 +92,7 @@ export function Register() {
           <CardHeader>
             <CardTitle>Crear Cuenta</CardTitle>
             <CardDescription>
-              Completa el formulario para registrarte
+              Regístrate para empezar. Completa tu perfil después.
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
@@ -103,7 +103,7 @@ export function Register() {
                   id="name"
                   name="name"
                   type="text"
-                  placeholder="Juan Pérez"
+                  placeholder="Juan Pérez González"
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -115,22 +115,8 @@ export function Register() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="tu.email@ejemplo.com"
+                  placeholder="juan.perez@chihuahua2.tecnm.mx"
                   value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="semester">Semestre (1-12)</Label>
-                <Input
-                  id="semester"
-                  name="semester"
-                  type="number"
-                  min="1"
-                  max="12"
-                  placeholder="5"
-                  value={formData.semester}
                   onChange={handleChange}
                   required
                 />
@@ -161,9 +147,10 @@ export function Register() {
                   minLength={6}
                 />
               </div>
-              <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-                <p className="font-medium mb-1">Institución:</p>
-                <p>Tecnológico Nacional de México Campus Chihuahua II</p>
+              <div className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                <p className="text-xs">
+                  Al registrarte, podrás completar tu perfil académico (semestre y carrera) en la página de configuración.
+                </p>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">

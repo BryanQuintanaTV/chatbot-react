@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Card,
   CardContent,
   CardDescription,
@@ -16,7 +23,8 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { Sidebar } from '@/components/Sidebar';
-import { ArrowLeft } from 'lucide-react';
+import { TECNM_CAREERS, SCHOOL_NAME } from '@/lib/constants';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/images/itch_II_logo.png';
 
@@ -29,6 +37,7 @@ export function Settings() {
     name: user?.name || '',
     email: user?.email || '',
     semester: user?.semester || '',
+    career: user?.career || '',
   });
 
   const handleChange = (e) => {
@@ -38,17 +47,40 @@ export function Settings() {
     });
   };
 
+  const handleCareerChange = (value) => {
+    setFormData({
+      ...formData,
+      career: value,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // Validation
+    if (formData.semester && (formData.semester < 1 || formData.semester > 12)) {
+      toast.error('El semestre debe estar entre 1 y 12');
+      setLoading(false);
+      return;
+    }
 
     try {
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // TODO: Replace with actual backend API call
-      updateUser(formData);
-      toast.success('Configuración actualizada correctamente');
+      // TODO: Replace with Better Auth backend
+      const updatedData = {
+        ...formData,
+        profileCompleted: !!(formData.semester && formData.career),
+      };
+      updateUser(updatedData);
+
+      if (updatedData.profileCompleted) {
+        toast.success('Perfil actualizado y completado correctamente');
+      } else {
+        toast.success('Configuración actualizada correctamente');
+      }
     } catch (error) {
       toast.error('Error al actualizar la configuración');
     } finally {
@@ -126,6 +158,21 @@ export function Settings() {
 
             <Separator />
 
+            {/* Profile Completion Warning */}
+            {(!user?.semester || !user?.career) && (
+              <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 flex items-start gap-2">
+                <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-amber-900 dark:text-amber-100">
+                    Perfil Incompleto
+                  </p>
+                  <p className="text-amber-700 dark:text-amber-200 mt-1">
+                    Por favor completa tu información académica (semestre y carrera) para obtener respuestas más personalizadas.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Profile Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -151,22 +198,37 @@ export function Settings() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="semester">Semestre</Label>
+                <Label htmlFor="semester">Semestre (1-12)</Label>
                 <Input
                   id="semester"
                   name="semester"
                   type="number"
                   min="1"
                   max="12"
+                  placeholder="Ej: 5"
                   value={formData.semester}
                   onChange={handleChange}
-                  required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="career">Carrera</Label>
+                <Select value={formData.career} onValueChange={handleCareerChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona tu carrera" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TECNM_CAREERS.map((career) => (
+                      <SelectItem key={career.value} value={career.value}>
+                        {career.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Institución</Label>
                 <div className="rounded-md bg-muted p-3 text-sm">
-                  {user?.school || 'Tecnológico Nacional de México Campus Chihuahua II'}
+                  {SCHOOL_NAME}
                 </div>
               </div>
               <Button type="submit" disabled={loading}>
