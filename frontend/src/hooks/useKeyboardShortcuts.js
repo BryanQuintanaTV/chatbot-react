@@ -32,13 +32,25 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
       const handler = shortcuts[keyCombination];
 
       if (handler) {
+        // Always prevent default for shortcuts with modifiers (ctrl, alt, shift)
+        // to prevent browser default behavior (like Ctrl+N opening new window)
+        if (ctrl || alt || (shift && key !== 'enter')) {
+          event.preventDefault();
+        }
+
         // Allow certain shortcuts even when typing
         const allowedWhenTyping = ['escape', 'ctrl+/', 'enter'];
-        const shouldExecute = !isTyping && !isContentEditable ||
-                              allowedWhenTyping.some(k => keyCombination.includes(k));
+        const shouldExecute = (!isTyping && !isContentEditable) ||
+                              allowedWhenTyping.includes(keyCombination);
 
         if (shouldExecute) {
-          event.preventDefault();
+          // For 'enter' key, only prevent default if NOT in textarea (to allow Shift+Enter)
+          if (keyCombination === 'enter' && event.target.tagName.toLowerCase() === 'textarea' && !event.shiftKey) {
+            // Let the form/textarea handle it
+          } else if (keyCombination === 'escape') {
+            event.preventDefault();
+          }
+
           handler(event);
         }
       }

@@ -33,9 +33,7 @@ export function ChatPage() {
   };
 
   const handleFocusInput = () => {
-    // We'll need to get the input from Chatbot component
-    const input = document.querySelector('textarea[placeholder*="Escribe"]') ||
-                  document.querySelector('textarea[placeholder*="Write"]');
+    const input = document.getElementById('chat-input');
     if (input) {
       input.focus();
     }

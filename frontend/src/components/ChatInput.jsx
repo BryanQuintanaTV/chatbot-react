@@ -16,6 +16,7 @@ function ChatInput({ newMessage, isLoading, setNewMessage, submitNewMessage }) {
       <div className='p-1.5 bg-primary/10 rounded-3xl z-50 font-mono origin-bottom animate-chat duration-400'>
         <div className='pr-0.5 bg-card relative shrink-0 rounded-3xl overflow-hidden ring-border ring-1 focus-within:ring-2 focus-within:ring-ring transition-all'>
           <textarea
+            id="chat-input"
             className='block w-full max-h-[140px] py-2 px-4 pr-11 bg-card text-foreground rounded-3xl resize-none placeholder:text-muted-foreground placeholder:leading-4 placeholder:-translate-y-1 sm:placeholder:leading-normal sm:placeholder:translate-y-0 focus:outline-none'
             ref={textareaRef}
             rows='1'
