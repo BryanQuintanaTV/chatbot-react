@@ -36,8 +36,9 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
       if (handler) {
         console.log('[Keyboard Shortcut] Handler found for:', keyCombination);
 
-        // Always prevent default for shortcuts with modifiers (ctrl, alt, shift)
-        // to prevent browser default behavior (like Ctrl+N opening new window)
+        // IMMEDIATELY prevent default for shortcuts with modifiers (ctrl, alt, shift)
+        // This must happen BEFORE any other checks to prevent browser default behavior
+        // (like Ctrl+N opening new window, Ctrl+W closing tab, etc.)
         if (ctrl || alt || (shift && key !== 'enter')) {
           event.preventDefault();
           event.stopPropagation();
@@ -63,10 +64,12 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
     };
 
     console.log('[Keyboard Shortcuts] Registering shortcuts:', Object.keys(shortcuts));
-    window.addEventListener('keydown', handleKeyDown);
+    // Use capture phase (true) to handle events before they bubble up
+    // This gives us higher priority to prevent default browser behavior
+    window.addEventListener('keydown', handleKeyDown, true);
     return () => {
       console.log('[Keyboard Shortcuts] Unregistering shortcuts');
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown, true);
     };
   }, [shortcuts, enabled]);
 }

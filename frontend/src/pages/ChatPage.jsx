@@ -8,6 +8,7 @@ import { useChat } from '@/contexts/ChatContext';
 import { useTheme } from '@/components/theme-provider';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import logo from '@/assets/images/itch_II_logo.png';
 import { Toaster, toast } from "sonner";
 
@@ -15,18 +16,23 @@ export function ChatPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
-  const { createNewChat, chats, currentChatId, setCurrentChatId, clearMessages } = useChat();
+  const { createNewChat, chats, activeChatId, switchChat, clearChatMessages } = useChat();
   const { setTheme, theme } = useTheme();
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const chatInputRef = useRef(null);
 
   // Keyboard shortcuts handlers
   const handleClearChat = useCallback(() => {
-    if (window.confirm(t('shortcuts.clearChatConfirm'))) {
-      clearMessages();
+    setShowClearConfirm(true);
+  }, []);
+
+  const confirmClearChat = useCallback(() => {
+    if (activeChatId) {
+      clearChatMessages(activeChatId);
       toast.success(t('shortcuts.clearChatSuccess'));
     }
-  }, [t, clearMessages]);
+  }, [activeChatId, clearChatMessages, t]);
 
   const handleToggleTheme = useCallback(() => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -40,22 +46,22 @@ export function ChatPage() {
   }, []);
 
   const handleNavigateChats = useCallback((direction) => {
-    const chatIds = Object.keys(chats);
-    const currentIndex = chatIds.indexOf(currentChatId);
+    const chatIds = chats.map(chat => chat.id);
+    const currentIndex = chatIds.indexOf(activeChatId);
 
     if (direction === 'up' && currentIndex > 0) {
-      setCurrentChatId(chatIds[currentIndex - 1]);
+      switchChat(chatIds[currentIndex - 1]);
     } else if (direction === 'down' && currentIndex < chatIds.length - 1) {
-      setCurrentChatId(chatIds[currentIndex + 1]);
+      switchChat(chatIds[currentIndex + 1]);
     }
-  }, [chats, currentChatId, setCurrentChatId]);
+  }, [chats, activeChatId, switchChat]);
 
   const handleGoToChat = useCallback((num) => {
-    const chatIds = Object.keys(chats);
+    const chatIds = chats.map(chat => chat.id);
     if (num >= 1 && num <= chatIds.length) {
-      setCurrentChatId(chatIds[num - 1]);
+      switchChat(chatIds[num - 1]);
     }
-  }, [chats, setCurrentChatId]);
+  }, [chats, switchChat]);
 
   // Register keyboard shortcuts
   const shortcuts = useMemo(() => ({
@@ -97,6 +103,16 @@ export function ChatPage() {
       <KeyboardShortcutsDialog
         open={showShortcuts}
         onOpenChange={setShowShortcuts}
+      />
+      <ConfirmDialog
+        open={showClearConfirm}
+        onOpenChange={setShowClearConfirm}
+        onConfirm={confirmClearChat}
+        title={t('shortcuts.clearChatTitle') || t('chat.clearChat')}
+        description={t('shortcuts.clearChatConfirm')}
+        confirmText={t('common.confirm') || t('common.ok')}
+        cancelText={t('common.cancel')}
+        variant="destructive"
       />
       <div
         className='flex flex-col h-screen w-full overflow-hidden'
