@@ -197,7 +197,7 @@ export function Sidebar({ onShowShortcuts }) {
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-64" align="end" side="top">
+              <PopoverContent className="w-64 shadow-xl border-2" align="end" side="top" sideOffset={12}>
                 <div className="space-y-1">
                   {/* User Info */}
                   {user && (
@@ -244,7 +244,7 @@ export function Sidebar({ onShowShortcuts }) {
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-56" align="end" side="right" sideOffset={8}>
+                    <PopoverContent className="w-56 shadow-xl border-2" align="end" side="right" sideOffset={12}>
                       <div className="space-y-1">
                         <Button
                           variant="ghost"

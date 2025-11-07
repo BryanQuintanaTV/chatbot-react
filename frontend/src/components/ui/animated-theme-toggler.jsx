@@ -58,7 +58,7 @@ export const AnimatedThemeToggler = ({
       onClick={toggleTheme}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}>
-      {isDark ? <Sun /> : <Moon />}
+      {isDark ? <Sun className={showText ? "h-4 w-4 mr-2" : ""} /> : <Moon className={showText ? "h-4 w-4 mr-2" : ""} />}
       {showText ? (
         <span>{text}</span>
       ) : (
