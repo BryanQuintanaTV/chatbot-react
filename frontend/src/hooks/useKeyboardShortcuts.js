@@ -16,10 +16,6 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
       const alt = event.altKey;
       const key = event.key.toLowerCase();
 
-      // Don't trigger shortcuts when typing in input fields (except for specified keys)
-      const isTyping = ['input', 'textarea'].includes(event.target.tagName?.toLowerCase());
-      const isContentEditable = event.target.isContentEditable;
-
       // Build the key combination string
       let keyCombination = '';
       if (ctrl) keyCombination += 'ctrl+';
@@ -27,23 +23,28 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
       if (alt) keyCombination += 'alt+';
       keyCombination += key;
 
-      // Console log for debugging
-      console.log('[Keyboard Shortcut]', keyCombination, 'isTyping:', isTyping);
-
-      // Check if this combination has a handler
+      // Check if this combination has a handler FIRST
       const handler = shortcuts[keyCombination];
 
+      // If we have a handler, IMMEDIATELY prevent default BEFORE any other checks
+      // This is critical for overriding browser defaults like Ctrl+N
       if (handler) {
-        console.log('[Keyboard Shortcut] Handler found for:', keyCombination);
-
-        // IMMEDIATELY prevent default for shortcuts with modifiers (ctrl, alt, shift)
-        // This must happen BEFORE any other checks to prevent browser default behavior
-        // (like Ctrl+N opening new window, Ctrl+W closing tab, etc.)
         if (ctrl || alt || (shift && key !== 'enter')) {
           event.preventDefault();
           event.stopPropagation();
         }
 
+        console.log('[Keyboard Shortcut] Handler found for:', keyCombination, '- preventDefault called');
+      }
+
+      // Don't trigger shortcuts when typing in input fields (except for specified keys)
+      const isTyping = ['input', 'textarea'].includes(event.target.tagName?.toLowerCase());
+      const isContentEditable = event.target.isContentEditable;
+
+      // Console log for debugging
+      console.log('[Keyboard Shortcut]', keyCombination, 'isTyping:', isTyping, 'hasHandler:', !!handler);
+
+      if (handler) {
         // Allow certain shortcuts even when typing
         const allowedWhenTyping = ['escape', 'ctrl+/', 'enter'];
         const shouldExecute = (!isTyping && !isContentEditable) ||

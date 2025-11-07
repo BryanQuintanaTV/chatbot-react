@@ -14,10 +14,10 @@ function Chatbot() {
   const [messages, setMessages] = useImmer(activeChat?.messages || []);
   const [newMessage, setNewMessage] = useState('');
 
-  // Sync messages when active chat changes
+  // Sync messages when active chat changes or messages are cleared
   useEffect(() => {
     setMessages(activeChat?.messages || []);
-  }, [activeChat?.id, setMessages]);
+  }, [activeChat?.id, activeChat?.messages.length, setMessages]);
 
   // Update chat context when messages change
   useEffect(() => {

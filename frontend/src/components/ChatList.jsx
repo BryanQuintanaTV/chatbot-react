@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Label } from '@/components/ui/label';
 import { MessageSquare, MoreVertical, Pencil, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -28,6 +29,8 @@ export function ChatList({ onChatSelect }) {
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [chatToRename, setChatToRename] = useState(null);
   const [newTitle, setNewTitle] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState(null);
 
   const handleNewChat = () => {
     createNewChat();
@@ -62,13 +65,19 @@ export function ChatList({ onChatSelect }) {
 
   const handleDeleteClick = (chat, e) => {
     e.stopPropagation();
-    if (window.confirm(t('chat.deleteConfirm', { title: chat.title }))) {
-      const success = deleteChat(chat.id);
+    setChatToDelete(chat);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteChat = () => {
+    if (chatToDelete) {
+      const success = deleteChat(chatToDelete.id);
       if (success) {
         toast.success(t('chat.deleteSuccess'));
       } else {
         toast.error(t('chat.deleteError'));
       }
+      setChatToDelete(null);
     }
   };
 
@@ -175,6 +184,18 @@ export function ChatList({ onChatSelect }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDeleteChat}
+        title={t('chat.deleteChat') || t('chat.delete')}
+        description={chatToDelete ? t('chat.deleteConfirm', { title: chatToDelete.title }) : ''}
+        confirmText={t('common.delete') || t('chat.delete')}
+        cancelText={t('common.cancel')}
+        variant="destructive"
+      />
     </>
   );
 }
