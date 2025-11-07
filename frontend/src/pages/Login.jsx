@@ -171,17 +171,17 @@ export function Login() {
         <AlertDialog open={errorDialog.open} onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <div className="flex items-center gap-2">
+              <AlertDialogTitle className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-destructive" />
-                <AlertDialogTitle>{t('auth.loginError')}</AlertDialogTitle>
-              </div>
+                <span>{t('auth.loginError')}</span>
+              </AlertDialogTitle>
               <AlertDialogDescription>
                 {errorDialog.message}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogAction onClick={() => setErrorDialog({ open: false, message: '' })}>
-                {t('common.ok') || 'OK'}
+                {t('common.ok')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
