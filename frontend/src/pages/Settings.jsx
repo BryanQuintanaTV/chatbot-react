@@ -36,7 +36,6 @@ export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, logout } = useAuth();
   const { theme } = useTheme();
-  const { isMobile } = useSidebar();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -178,7 +177,7 @@ export function Settings() {
       <Sidebar />
       <div
         className="flex flex-col min-h-screen w-full"
-        style={{ marginLeft: isMobile ? '0' : '64px' }}
+        style={{ marginLeft: '64px' }}
       >
         <div className="flex flex-col min-h-full w-full max-w-3xl mx-auto px-4">
           {/* Header */}

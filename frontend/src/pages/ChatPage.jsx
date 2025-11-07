@@ -7,14 +7,13 @@ import { Toaster } from "sonner";
 
 export function ChatPage() {
   const { t } = useTranslation();
-  const { isMobile } = useSidebar();
 
   return (
     <>
       <Sidebar />
       <div
         className='flex flex-col h-screen w-full overflow-hidden'
-        style={{ marginLeft: isMobile ? '0' : '64px' }}
+        style={{ marginLeft: '64px' }}
       >
         <Toaster richColors position="top-right" />
         <div className='flex flex-col h-full w-full max-w-7xl mx-auto px-4'>
