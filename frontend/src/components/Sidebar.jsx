@@ -51,10 +51,17 @@ export function Sidebar() {
 
   const handleNewChat = () => {
     createNewChat();
+    // Navigate to home page when creating a new chat
+    navigate('/');
   };
 
   const handleSettings = () => {
     navigate('/settings');
+  };
+
+  const handleChatSelect = () => {
+    // Navigate to home page when a chat is selected
+    navigate('/');
   };
 
   return (
@@ -116,7 +123,7 @@ export function Sidebar() {
               </CollapsibleTrigger>
               <CollapsibleContent className="flex-1 overflow-hidden mt-2">
                 <div className="h-full overflow-y-auto">
-                  <ChatList />
+                  <ChatList onChatSelect={handleChatSelect} />
                 </div>
               </CollapsibleContent>
             </Collapsible>
