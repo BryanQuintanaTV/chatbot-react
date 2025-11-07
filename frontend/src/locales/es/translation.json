@@ -10,7 +10,8 @@
     "delete": "Eliminar",
     "edit": "Editar",
     "confirm": "Confirmar",
-    "testMode": "<Modo De Testeo>"
+    "testMode": "<Modo De Testeo>",
+    "yesterday": "Ayer"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -123,7 +124,18 @@
     "inputPlaceholder": "Escribe tu mensaje...",
     "send": "Enviar",
     "error": "Error al generar la respuesta",
-    "generating": "Generando respuesta..."
+    "generating": "Generando respuesta...",
+    "newChat": "Nueva Conversación",
+    "rename": "Renombrar",
+    "delete": "Eliminar",
+    "renameChat": "Renombrar Conversación",
+    "renameChatDescription": "Ingresa un nuevo nombre para esta conversación",
+    "chatTitle": "Nombre de la Conversación",
+    "chatTitlePlaceholder": "Ej: Ayuda con matemáticas",
+    "renameSuccess": "Conversación renombrada correctamente",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar la conversación \"{{title}}\"? Esta acción no se puede deshacer.",
+    "deleteSuccess": "Conversación eliminada correctamente",
+    "deleteError": "No puedes eliminar la última conversación"
   },
   "careers": {
     "ingenieria-industrial": "Ingeniería Industrial",

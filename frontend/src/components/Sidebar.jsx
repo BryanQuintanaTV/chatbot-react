@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
+import { ChatList } from '@/components/ChatList';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
 import {
   Menu,
@@ -40,13 +41,6 @@ export function Sidebar() {
     setOpen(false);
     navigate('/login');
   };
-
-  // Mock chat history - will be replaced with backend data
-  const chatHistory = [
-    { id: 1, title: 'Información sobre carreras', date: '2025-11-05' },
-    { id: 2, title: 'Horarios de biblioteca', date: '2025-11-04' },
-    { id: 3, title: 'Proceso de inscripción', date: '2025-11-03' },
-  ];
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -147,29 +141,18 @@ export function Sidebar() {
           </div>
 
           {/* Chat History Section */}
-          {isAuthenticated && (
-            <>
-              <Separator />
-              <div className="flex-1 overflow-hidden flex flex-col">
-                <div className="flex items-center gap-2 px-2 mb-2">
-                  <History className="h-4 w-4" />
-                  <h3 className="text-sm font-semibold">{t('sidebar.chatHistory')}</h3>
-                </div>
-                <div className="flex-1 overflow-y-auto space-y-1">
-                  {chatHistory.map((chat) => (
-                    <button
-                      key={chat.id}
-                      className="w-full text-left px-3 py-2 rounded-md hover:bg-muted/50 transition-colors"
-                      onClick={() => setOpen(false)}
-                    >
-                      <p className="text-sm truncate">{chat.title}</p>
-                      <p className="text-xs text-muted-foreground">{chat.date}</p>
-                    </button>
-                  ))}
-                </div>
+          <>
+            <Separator />
+            <div className="flex-1 overflow-hidden flex flex-col px-2">
+              <div className="flex items-center gap-2 mb-3">
+                <History className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold">{t('sidebar.chatHistory')}</h3>
               </div>
-            </>
-          )}
+              <div className="flex-1 overflow-hidden">
+                <ChatList onChatSelect={() => setOpen(false)} />
+              </div>
+            </div>
+          </>
 
           {/* Logout Button */}
           {isAuthenticated && (

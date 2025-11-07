@@ -10,7 +10,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "confirm": "Confirm",
-    "testMode": "<Test Mode>"
+    "testMode": "<Test Mode>",
+    "yesterday": "Yesterday"
   },
   "auth": {
     "login": "Log In",
@@ -123,7 +124,18 @@
     "inputPlaceholder": "Type your message...",
     "send": "Send",
     "error": "Error generating response",
-    "generating": "Generating response..."
+    "generating": "Generating response...",
+    "newChat": "New Conversation",
+    "rename": "Rename",
+    "delete": "Delete",
+    "renameChat": "Rename Conversation",
+    "renameChatDescription": "Enter a new name for this conversation",
+    "chatTitle": "Conversation Name",
+    "chatTitlePlaceholder": "Ex: Math homework help",
+    "renameSuccess": "Conversation renamed successfully",
+    "deleteConfirm": "Are you sure you want to delete the conversation \"{{title}}\"? This action cannot be undone.",
+    "deleteSuccess": "Conversation deleted successfully",
+    "deleteError": "You cannot delete the last conversation"
   },
   "careers": {
     "ingenieria-industrial": "Industrial Engineering",

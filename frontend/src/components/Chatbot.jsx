@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useImmer } from 'use-immer';
 import { useTranslation } from 'react-i18next';
+import { useChat } from '@/contexts/ChatContext';
 import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
@@ -8,10 +9,22 @@ import ChatInput from '@/components/ChatInput';
 
 function Chatbot() {
   const { t } = useTranslation();
+  const { activeChat, updateChatMessages } = useChat();
   const VITE_API_URL = import.meta.env.VITE_VERSION;
-  // const [chatId, setChatId] = useState(null);
-  const [messages, setMessages] = useImmer([]);
+  const [messages, setMessages] = useImmer(activeChat?.messages || []);
   const [newMessage, setNewMessage] = useState('');
+
+  // Sync messages when active chat changes
+  useEffect(() => {
+    setMessages(activeChat?.messages || []);
+  }, [activeChat?.id, setMessages]);
+
+  // Update chat context when messages change
+  useEffect(() => {
+    if (activeChat) {
+      updateChatMessages(activeChat.id, messages);
+    }
+  }, [messages]);
 
   const isLoading = messages.length && messages[messages.length - 1].loading;
 
