@@ -36,10 +36,8 @@ export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, logout } = useAuth();
   const { theme } = useTheme();
-  const { sidebarState } = useSidebar();
+  const { sidebarState, isMobile } = useSidebar();
   const navigate = useNavigate();
-
-  const isCollapsed = sidebarState === 'collapsed';
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -180,7 +178,7 @@ export function Settings() {
       <Sidebar />
       <div
         className="flex flex-col min-h-screen w-full transition-all duration-300"
-        style={{ marginLeft: isCollapsed ? '64px' : '0' }}
+        style={{ marginLeft: isMobile ? '0' : '64px' }}
       >
         <div className="flex flex-col min-h-full w-full max-w-3xl mx-auto px-4">
           {/* Header */}
