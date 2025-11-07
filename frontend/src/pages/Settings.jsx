@@ -36,7 +36,7 @@ export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, logout } = useAuth();
   const { theme } = useTheme();
-  const { collapsed, isMobile, toggleCollapsed } = useSidebar();
+  const { toggleSidebar } = useSidebar();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -184,7 +184,7 @@ export function Settings() {
           <header className="sticky top-0 shrink-0 z-20 bg-background border-b">
             <div className="flex items-center h-16 gap-4">
               <button
-                onClick={toggleCollapsed}
+                onClick={toggleSidebar}
                 className="p-2 hover:bg-muted rounded-md"
                 aria-label="Toggle sidebar"
               >

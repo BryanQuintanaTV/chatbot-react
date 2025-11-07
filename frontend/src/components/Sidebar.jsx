@@ -40,7 +40,7 @@ export function Sidebar() {
   const { t } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
   const { createNewChat } = useChat();
-  const { collapsed, toggleCollapsed, isMobile } = useSidebar();
+  const { sidebarState, toggleSidebar, closeSidebar, isMobile } = useSidebar();
   const navigate = useNavigate();
   const [chatsOpen, setChatsOpen] = useState(true);
 
@@ -54,25 +54,25 @@ export function Sidebar() {
     // Navigate to home page when creating a new chat
     navigate('/');
     // Close sidebar after action
-    toggleCollapsed();
+    closeSidebar();
   };
 
   const handleSettings = () => {
     navigate('/settings');
     // Close sidebar after action
-    toggleCollapsed();
+    closeSidebar();
   };
 
   const handleChatSelect = () => {
     // Navigate to home page when a chat is selected
     navigate('/');
     // Close sidebar after action
-    toggleCollapsed();
+    closeSidebar();
   };
 
-  // Prevent body scroll when sidebar is open
+  // Prevent body scroll when sidebar is fully expanded
   useEffect(() => {
-    if (!collapsed) {
+    if (sidebarState === 'expanded') {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -81,38 +81,44 @@ export function Sidebar() {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [collapsed]);
+  }, [sidebarState]);
+
+  const isExpanded = sidebarState === 'expanded';
+  const isCollapsed = sidebarState === 'collapsed';
+  const isHidden = sidebarState === 'hidden';
 
   return (
     <>
-      {/* Backdrop overlay when sidebar is open */}
-      {!collapsed && (
+      {/* Backdrop overlay when sidebar is fully expanded */}
+      {isExpanded && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
-          onClick={toggleCollapsed}
+          onClick={closeSidebar}
         />
       )}
 
       <div
         className={`
           fixed left-0 top-0 h-full bg-background border-r border-border
-          transition-all duration-300 ease-in-out w-64 z-50
-          ${collapsed ? '-translate-x-full' : 'translate-x-0'}
+          transition-all duration-300 ease-in-out z-50
+          ${isHidden ? 'w-16 -translate-x-full' : ''}
+          ${isCollapsed ? 'w-16 translate-x-0' : ''}
+          ${isExpanded ? 'w-64 translate-x-0' : ''}
         `}
       >
       <div className="flex flex-col h-full">
         {/* Header with Logo/Toggle */}
         <div className="h-16 flex items-center justify-between px-4 border-b">
-          {!collapsed && (
+          {isExpanded && (
             <img src={logo} className="h-8" alt="logo" />
           )}
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggleCollapsed}
+            onClick={toggleSidebar}
             className="shrink-0"
           >
-            <PanelLeft className={`h-5 w-5 transition-transform ${collapsed ? '' : 'rotate-180'}`} />
+            <PanelLeft className={`h-5 w-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
           </Button>
         </div>
 
@@ -121,16 +127,16 @@ export function Sidebar() {
           <Button
             onClick={handleNewChat}
             variant="outline"
-            className={`w-full ${collapsed ? 'px-0' : 'justify-start'}`}
-            title={collapsed ? t('chat.newChat') : undefined}
+            className={`w-full ${isCollapsed ? 'px-0' : 'justify-start'}`}
+            title={isCollapsed ? t('chat.newChat') : undefined}
           >
             <Plus className="h-4 w-4" />
-            {!collapsed && <span className="ml-2">{t('chat.newChat')}</span>}
+            {isExpanded && <span className="ml-2">{t('chat.newChat')}</span>}
           </Button>
         </div>
 
         {/* Chats Section - Collapsible */}
-        {!collapsed && (
+        {isExpanded && (
           <div className="flex-1 overflow-hidden flex flex-col px-3">
             <Collapsible open={chatsOpen} onOpenChange={setChatsOpen}>
               <CollapsibleTrigger asChild>
@@ -168,7 +174,7 @@ export function Sidebar() {
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
-                  className={`${collapsed ? 'w-full px-0' : 'p-2 flex-1 justify-start'} h-auto`}
+                  className={`${isCollapsed ? 'w-full px-0' : 'p-2 flex-1 justify-start'} h-auto`}
                 >
                   <Avatar className="h-8 w-8">
                     {getAvatarDisplay(user).type === 'url' && (
@@ -185,7 +191,7 @@ export function Sidebar() {
                       </AvatarFallback>
                     )}
                   </Avatar>
-                  {!collapsed && user && (
+                  {isExpanded && user && (
                     <div className="ml-2 flex-1 text-left overflow-hidden">
                       <p className="text-sm font-medium truncate">{user.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>

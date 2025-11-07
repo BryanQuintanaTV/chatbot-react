@@ -7,7 +7,7 @@ import { Toaster } from "sonner";
 
 export function ChatPage() {
   const { t } = useTranslation();
-  const { collapsed, isMobile, toggleCollapsed } = useSidebar();
+  const { toggleSidebar } = useSidebar();
 
   return (
     <>
@@ -21,7 +21,7 @@ export function ChatPage() {
             <div className='flex flex-col h-full w-full gap-1 pt-4 pb-2'>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={toggleCollapsed}
+                  onClick={toggleSidebar}
                   className="p-2 hover:bg-muted rounded-md"
                   aria-label="Toggle sidebar"
                 >
