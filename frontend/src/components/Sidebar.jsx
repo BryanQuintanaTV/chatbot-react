@@ -26,6 +26,7 @@ import {
   ChevronRight,
   Settings,
   LogOut,
+  LogIn,
   HelpCircle,
   BookOpen,
   FileText,
@@ -302,8 +303,8 @@ export function Sidebar({ onShowShortcuts }) {
 
                   <Separator />
 
-                  {/* Logout */}
-                  {isAuthenticated && (
+                  {/* Login/Logout */}
+                  {isAuthenticated ? (
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
@@ -311,6 +312,18 @@ export function Sidebar({ onShowShortcuts }) {
                     >
                       <LogOut className="h-4 w-4 mr-2" />
                       {t('auth.logout')}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        navigate('/login');
+                        closeSidebar();
+                      }}
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      {t('auth.login')}
                     </Button>
                   )}
                 </div>
