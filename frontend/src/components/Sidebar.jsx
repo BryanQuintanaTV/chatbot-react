@@ -42,7 +42,6 @@ export function Sidebar() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [chatsOpen, setChatsOpen] = useState(true);
-  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -184,9 +183,9 @@ export function Sidebar() {
 
                   <Separator />
 
-                  {/* Help Menu - Collapsible */}
-                  <Collapsible open={helpOpen} onOpenChange={setHelpOpen}>
-                    <CollapsibleTrigger asChild>
+                  {/* Help Menu - Nested Popover */}
+                  <Popover>
+                    <PopoverTrigger asChild>
                       <Button
                         variant="ghost"
                         className="w-full justify-between"
@@ -195,48 +194,46 @@ export function Sidebar() {
                           <HelpCircle className="h-4 w-4 mr-2" />
                           {t('sidebar.help')}
                         </div>
-                        {helpOpen ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
+                        <ChevronRight className="h-4 w-4" />
                       </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pl-6 space-y-1">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-sm"
-                        onClick={() => {/* TODO: Help Center */}}
-                      >
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        {t('sidebar.helpCenter')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-sm"
-                        onClick={() => {/* TODO: Release Notes */}}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        {t('sidebar.releaseNotes')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-sm"
-                        onClick={() => {/* TODO: Report Issue */}}
-                      >
-                        <AlertCircle className="h-4 w-4 mr-2" />
-                        {t('sidebar.reportIssue')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-sm"
-                        onClick={() => {/* TODO: Keyboard Shortcuts */}}
-                      >
-                        <Keyboard className="h-4 w-4 mr-2" />
-                        {t('sidebar.keyboardShortcuts')}
-                      </Button>
-                    </CollapsibleContent>
-                  </Collapsible>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56" align="end" side="right" sideOffset={8}>
+                      <div className="space-y-1">
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {/* TODO: Help Center */}}
+                        >
+                          <BookOpen className="h-4 w-4 mr-2" />
+                          {t('sidebar.helpCenter')}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {/* TODO: Release Notes */}}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          {t('sidebar.releaseNotes')}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {/* TODO: Report Issue */}}
+                        >
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          {t('sidebar.reportIssue')}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {/* TODO: Keyboard Shortcuts */}}
+                        >
+                          <Keyboard className="h-4 w-4 mr-2" />
+                          {t('sidebar.keyboardShortcuts')}
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
 
                   <Separator />
 
