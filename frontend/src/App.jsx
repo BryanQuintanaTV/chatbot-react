@@ -3,6 +3,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
 import { ThemeProvider } from '@/components/theme-provider';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ChatPage } from '@/pages/ChatPage';
 import { Login } from '@/pages/Login';
 import { Register } from '@/pages/Register';
@@ -21,7 +22,14 @@ function App() {
                 <Route path="/" element={<ChatPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
               </Routes>
