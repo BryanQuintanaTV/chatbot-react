@@ -36,7 +36,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import logo from '@/assets/images/itch_II_logo.png';
 
-export function Sidebar() {
+export function Sidebar({ onShowShortcuts }) {
   const { t } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
   const { createNewChat } = useChat();
@@ -273,7 +273,7 @@ export function Sidebar() {
                         <Button
                           variant="ghost"
                           className="w-full justify-start"
-                          onClick={() => {/* TODO: Keyboard Shortcuts */}}
+                          onClick={onShowShortcuts}
                         >
                           <Keyboard className="h-4 w-4 mr-2" />
                           {t('sidebar.keyboardShortcuts')}

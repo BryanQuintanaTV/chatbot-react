@@ -177,5 +177,29 @@
     "invalidTokenDescription": "Este enlace de restablecimiento de contraseña es inválido o ha expirado. Por favor solicita un nuevo enlace.",
     "requestNewLink": "Solicitar Nuevo Enlace",
     "goToLogin": "Ir a Iniciar Sesión"
+  },
+  "shortcuts": {
+    "title": "Atajos de Teclado",
+    "description": "Usa estos atajos para navegar más rápido por la aplicación",
+    "navigation": "Navegación",
+    "chat": "Chat",
+    "chatNavigation": "Navegación entre chats",
+    "appearance": "Apariencia",
+    "utilities": "Utilidades",
+    "toggleSidebar": "Alternar sidebar",
+    "newChat": "Crear nuevo chat",
+    "openSettings": "Abrir configuración",
+    "closeSidebar": "Cerrar sidebar/popover",
+    "focusInput": "Enfocar en el input",
+    "sendMessage": "Enviar mensaje",
+    "clearChat": "Limpiar chat actual",
+    "previousChat": "Ir al chat anterior",
+    "nextChat": "Ir al chat siguiente",
+    "goToChat": "Ir al chat N",
+    "toggleTheme": "Cambiar tema",
+    "showShortcuts": "Mostrar atajos de teclado",
+    "clearChatConfirm": "¿Estás seguro de que quieres limpiar este chat?",
+    "clearChatTitle": "Limpiar Chat",
+    "clearChatSuccess": "Chat limpiado exitosamente"
   }
 }

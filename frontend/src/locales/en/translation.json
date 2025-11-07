@@ -177,5 +177,29 @@
     "invalidTokenDescription": "This password reset link is invalid or has expired. Please request a new link.",
     "requestNewLink": "Request New Link",
     "goToLogin": "Go to Login"
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "description": "Use these shortcuts to navigate faster through the app",
+    "navigation": "Navigation",
+    "chat": "Chat",
+    "chatNavigation": "Chat Navigation",
+    "appearance": "Appearance",
+    "utilities": "Utilities",
+    "toggleSidebar": "Toggle sidebar",
+    "newChat": "Create new chat",
+    "openSettings": "Open settings",
+    "closeSidebar": "Close sidebar/popover",
+    "focusInput": "Focus on input",
+    "sendMessage": "Send message",
+    "clearChat": "Clear current chat",
+    "previousChat": "Go to previous chat",
+    "nextChat": "Go to next chat",
+    "goToChat": "Go to chat N",
+    "toggleTheme": "Toggle theme",
+    "showShortcuts": "Show keyboard shortcuts",
+    "clearChatConfirm": "Are you sure you want to clear this chat?",
+    "clearChatTitle": "Clear Chat",
+    "clearChatSuccess": "Chat cleared successfully"
   }
 }

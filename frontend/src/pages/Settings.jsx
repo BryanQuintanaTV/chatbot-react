@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/components/theme-provider';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,11 +37,12 @@ import logo from '@/assets/images/itch_II_logo.png';
 export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, logout } = useAuth();
-  const { theme } = useTheme();
-  const { isMobile, toggleSidebar } = useSidebar();
+  const { theme, setTheme } = useTheme();
+  const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -173,9 +176,31 @@ export function Settings() {
     });
   };
 
+  // Keyboard shortcuts handlers
+  const handleToggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  // Register keyboard shortcuts
+  useKeyboardShortcuts({
+    // Navigation
+    'ctrl+b': toggleSidebar,
+    'escape': closeSidebar,
+
+    // Appearance
+    'ctrl+d': handleToggleTheme,
+
+    // Utilities
+    'ctrl+shift+k': () => setShowShortcuts(true),
+  });
+
   return (
     <>
-      <Sidebar />
+      <Sidebar onShowShortcuts={() => setShowShortcuts(true)} />
+      <KeyboardShortcutsDialog
+        open={showShortcuts}
+        onOpenChange={setShowShortcuts}
+      />
       <div
         className="flex flex-col min-h-screen w-full"
         style={{ marginLeft: isMobile ? '0' : '64px' }}
