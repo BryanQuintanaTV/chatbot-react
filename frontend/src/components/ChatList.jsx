@@ -181,7 +181,11 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     const grouped = {};
 
     unpinnedChats.forEach(chat => {
-      const category = chat.category || t('chat.uncategorized') || 'Sin categoría';
+      let category = chat.category;
+      // Normalize category display
+      if (!category || category === '' || category === 'uncategorized') {
+        category = t('chat.uncategorized') || 'Sin categoría';
+      }
       if (!grouped[category]) {
         grouped[category] = [];
       }

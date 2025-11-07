@@ -79,7 +79,7 @@ const CHAT_ICONS = [
 
 // Predefined categories
 const CHAT_CATEGORIES = [
-  { value: '', label: 'Sin categoría' },
+  { value: 'uncategorized', label: 'Sin categoría' },
   { value: 'Trabajo', label: 'Trabajo' },
   { value: 'Escuela', label: 'Escuela' },
   { value: 'Personal', label: 'Personal' },
@@ -96,9 +96,9 @@ const isValidIcon = (iconName) => {
 
 // Helper to normalize category to valid option
 const normalizeCategory = (category) => {
-  if (!category) return '';
+  if (!category || category === '') return 'uncategorized';
   const validCategories = CHAT_CATEGORIES.map(c => c.value);
-  return validCategories.includes(category) ? category : '';
+  return validCategories.includes(category) ? category : 'uncategorized';
 };
 
 // Predefined color categories
