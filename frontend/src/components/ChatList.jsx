@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useChat } from '@/contexts/ChatContext';
 import { Button } from '@/components/ui/button';
@@ -91,6 +91,8 @@ export function ChatList({ onChatSelect, showArchived = false }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [collapsedCategories, setCollapsedCategories] = useState({});
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const longPressTimerRef = useRef(null);
 
   const handleChatClick = (chatId) => {
     switchChat(chatId);
@@ -103,6 +105,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     e.stopPropagation();
     setChatToEdit(chat);
     setEditDialogOpen(true);
+    setOpenDropdownId(null);
   };
 
   const handleEditSave = (updates) => {
@@ -117,18 +120,21 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     e.stopPropagation();
     togglePinChat(chat.id);
     toast.success(chat.pinned ? t('chat.unpinSuccess') || 'Chat despegado' : t('chat.pinSuccess') || 'Chat fijado');
+    setOpenDropdownId(null);
   };
 
   const handleArchiveClick = (chat, e) => {
     e.stopPropagation();
     toggleArchiveChat(chat.id);
     toast.success(chat.archived ? t('chat.unarchiveSuccess') || 'Chat desarchivado' : t('chat.archiveSuccess') || 'Chat archivado');
+    setOpenDropdownId(null);
   };
 
   const handleDeleteClick = (chat, e) => {
     e.stopPropagation();
     setChatToDelete(chat);
     setDeleteDialogOpen(true);
+    setOpenDropdownId(null);
   };
 
   const confirmDeleteChat = () => {
@@ -148,6 +154,36 @@ export function ChatList({ onChatSelect, showArchived = false }) {
       ...prev,
       [category]: !prev[category]
     }));
+  };
+
+  // Long press handlers for mobile
+  const handleTouchStart = (chatId, e) => {
+    // Clear any existing timer
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+
+    // Start long press timer (500ms)
+    longPressTimerRef.current = setTimeout(() => {
+      e.preventDefault();
+      setOpenDropdownId(chatId);
+    }, 500);
+  };
+
+  const handleTouchEnd = () => {
+    // Clear timer if touch ends before long press completes
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleTouchMove = () => {
+    // Cancel long press if user moves finger
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
   };
 
   const formatDate = (dateString) => {
@@ -205,6 +241,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
       <div
         key={chat.id}
         onClick={() => handleChatClick(chat.id)}
+        onTouchStart={(e) => handleTouchStart(chat.id, e)}
+        onTouchEnd={handleTouchEnd}
+        onTouchMove={handleTouchMove}
         className={`group relative flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
           chat.id === activeChat?.id
             ? 'bg-muted'
@@ -235,12 +274,12 @@ export function ChatList({ onChatSelect, showArchived = false }) {
       )}
 
       {/* Chat Options */}
-      <DropdownMenu>
+      <DropdownMenu open={openDropdownId === chat.id} onOpenChange={(open) => setOpenDropdownId(open ? chat.id : null)}>
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-8 w-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
           >
             <MoreVertical className="h-4 w-4" />
           </Button>
