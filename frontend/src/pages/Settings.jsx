@@ -36,7 +36,7 @@ export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, logout } = useAuth();
   const { theme } = useTheme();
-  const { sidebarState, toggleSidebar } = useSidebar();
+  const { sidebarState, isMobile } = useSidebar();
   const navigate = useNavigate();
 
   const isCollapsed = sidebarState === 'collapsed';
@@ -180,21 +180,12 @@ export function Settings() {
       <Sidebar />
       <div
         className="flex flex-col min-h-screen w-full transition-all duration-300"
-        style={{ marginLeft: isCollapsed ? '64px' : '256px' }}
+        style={{ marginLeft: isMobile ? '0' : (isCollapsed ? '64px' : '256px') }}
       >
         <div className="flex flex-col min-h-full w-full max-w-3xl mx-auto px-4">
           {/* Header */}
           <header className="sticky top-0 shrink-0 z-20 bg-background border-b">
             <div className="flex items-center h-16 gap-4">
-              <button
-                onClick={toggleSidebar}
-                className="p-2 hover:bg-muted rounded-md"
-                aria-label="Toggle sidebar"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
               <Button
                 variant="ghost"
                 size="icon"
