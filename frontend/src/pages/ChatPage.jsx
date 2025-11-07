@@ -84,13 +84,29 @@ export function ChatPage() {
     }
   }, [chats, switchChat]);
 
+  const handleEscape = useCallback(() => {
+    // Priority order for ESC key:
+    // 1. Close any open dialogs (handled by Radix UI automatically)
+    // 2. Close sidebar only if no dialogs are open
+    if (showShortcuts) {
+      setShowShortcuts(false);
+    } else if (showClearConfirm) {
+      setShowClearConfirm(false);
+    } else if (showDeleteConfirm) {
+      setShowDeleteConfirm(false);
+    } else {
+      // Only close sidebar if no dialogs are open
+      closeSidebar();
+    }
+  }, [showShortcuts, showClearConfirm, showDeleteConfirm, closeSidebar]);
+
   // Register keyboard shortcuts
   const shortcuts = useMemo(() => ({
     // Navigation
     'ctrl+b': toggleSidebar,
     'alt+n': createNewChat, // Changed from ctrl+n to avoid browser conflict
     'ctrl+,': () => navigate('/settings'),
-    'escape': closeSidebar,
+    'escape': handleEscape,
 
     // Chat
     'ctrl+/': handleFocusInput,
@@ -115,7 +131,7 @@ export function ChatPage() {
 
     // Utilities
     'ctrl+shift+k': () => setShowShortcuts(true),
-  }), [toggleSidebar, createNewChat, navigate, closeSidebar, handleFocusInput, handleClearChat, handleDeleteChat, handleNavigateChats, handleGoToChat, handleToggleTheme, setShowShortcuts]);
+  }), [toggleSidebar, createNewChat, navigate, handleEscape, handleFocusInput, handleClearChat, handleDeleteChat, handleNavigateChats, handleGoToChat, handleToggleTheme, setShowShortcuts]);
 
   useKeyboardShortcuts(shortcuts);
 

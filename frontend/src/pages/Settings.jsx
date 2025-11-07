@@ -181,18 +181,30 @@ export function Settings() {
     setTheme(theme === 'light' ? 'dark' : 'light');
   }, [theme, setTheme]);
 
+  const handleEscape = useCallback(() => {
+    // Priority order for ESC key:
+    // 1. Close any open dialogs (handled by Radix UI automatically)
+    // 2. Close sidebar only if no dialogs are open
+    if (showShortcuts) {
+      setShowShortcuts(false);
+    } else {
+      // Only close sidebar if no dialogs are open
+      closeSidebar();
+    }
+  }, [showShortcuts, closeSidebar]);
+
   // Register keyboard shortcuts
   const shortcuts = useMemo(() => ({
     // Navigation
     'ctrl+b': toggleSidebar,
-    'escape': closeSidebar,
+    'escape': handleEscape,
 
     // Appearance
     'ctrl+d': handleToggleTheme,
 
     // Utilities
     'ctrl+shift+k': () => setShowShortcuts(true),
-  }), [toggleSidebar, closeSidebar, handleToggleTheme, setShowShortcuts]);
+  }), [toggleSidebar, handleEscape, handleToggleTheme, setShowShortcuts]);
 
   useKeyboardShortcuts(shortcuts);
 

@@ -28,8 +28,10 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
 
       // If we have a handler, IMMEDIATELY prevent default BEFORE any other checks
       // This is critical for overriding browser defaults like Ctrl+N
+      // EXCEPTION: Don't preventDefault for 'escape' to allow Radix UI components (Dialog, Popover)
+      // to handle ESC naturally for closing
       if (handler) {
-        if (ctrl || alt || (shift && key !== 'enter')) {
+        if ((ctrl || alt || (shift && key !== 'enter')) && keyCombination !== 'escape') {
           event.preventDefault();
           event.stopPropagation();
         }
@@ -52,10 +54,8 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
 
         if (shouldExecute) {
           console.log('[Keyboard Shortcut] Executing handler for:', keyCombination);
-          // For 'enter' key, only prevent default if NOT in textarea (to allow Shift+Enter)
-          if (keyCombination === 'escape') {
-            event.preventDefault();
-          }
+          // Don't preventDefault for 'escape' to allow Radix UI components to handle it first
+          // Our handler will be a fallback for when no dialog/popover is open
 
           handler(event);
         } else {
