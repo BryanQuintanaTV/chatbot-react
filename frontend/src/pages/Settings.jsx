@@ -6,6 +6,7 @@ import { useTheme } from '@/components/theme-provider';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,6 +44,7 @@ export function Settings() {
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -109,12 +111,14 @@ export function Settings() {
   };
 
   const handleDeleteAccount = () => {
-    if (window.confirm(t('settings.deleteAccountConfirm'))) {
-      // TODO: Implement actual account deletion with backend
-      logout();
-      toast.success(t('settings.accountDeleted'));
-      navigate('/');
-    }
+    setShowDeleteAccountConfirm(true);
+  };
+
+  const confirmDeleteAccount = () => {
+    // TODO: Implement actual account deletion with backend
+    logout();
+    toast.success(t('settings.accountDeleted'));
+    navigate('/');
   };
 
   const handleAvatarChange = async (newAvatar) => {
@@ -187,11 +191,13 @@ export function Settings() {
     // 2. Close sidebar only if no dialogs are open
     if (showShortcuts) {
       setShowShortcuts(false);
+    } else if (showDeleteAccountConfirm) {
+      setShowDeleteAccountConfirm(false);
     } else {
       // Only close sidebar if no dialogs are open
       closeSidebar();
     }
-  }, [showShortcuts, closeSidebar]);
+  }, [showShortcuts, showDeleteAccountConfirm, closeSidebar]);
 
   // Register keyboard shortcuts
   const shortcuts = useMemo(() => ({
@@ -214,6 +220,16 @@ export function Settings() {
       <KeyboardShortcutsDialog
         open={showShortcuts}
         onOpenChange={setShowShortcuts}
+      />
+      <ConfirmDialog
+        open={showDeleteAccountConfirm}
+        onOpenChange={setShowDeleteAccountConfirm}
+        onConfirm={confirmDeleteAccount}
+        title={t('settings.deleteAccount')}
+        description={t('settings.deleteAccountConfirm')}
+        confirmText={t('common.delete') || t('settings.deleteAccount')}
+        cancelText={t('common.cancel')}
+        variant="destructive"
       />
       <div
         className="flex flex-col min-h-screen w-full"
