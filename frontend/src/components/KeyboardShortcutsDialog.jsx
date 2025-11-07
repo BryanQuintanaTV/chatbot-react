@@ -22,7 +22,7 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }) {
           description: t('shortcuts.toggleSidebar'),
         },
         {
-          keys: [modKey, 'N'],
+          keys: ['Alt', 'N'],
           description: t('shortcuts.newChat'),
         },
         {
@@ -49,6 +49,10 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }) {
         {
           keys: [modKey, 'L'],
           description: t('shortcuts.clearChat'),
+        },
+        {
+          keys: [modKey, 'Shift', '⌫'],
+          description: t('shortcuts.deleteChat') || 'Eliminar chat',
         },
       ],
     },

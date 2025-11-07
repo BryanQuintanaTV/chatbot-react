@@ -16,10 +16,11 @@ export function ChatPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
-  const { createNewChat, chats, activeChatId, switchChat, clearChatMessages } = useChat();
+  const { createNewChat, chats, activeChatId, switchChat, clearChatMessages, deleteChat, activeChat } = useChat();
   const { setTheme, theme } = useTheme();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const chatInputRef = useRef(null);
 
   // Keyboard shortcuts handlers
@@ -33,6 +34,26 @@ export function ChatPage() {
       toast.success(t('shortcuts.clearChatSuccess'));
     }
   }, [activeChatId, clearChatMessages, t]);
+
+  const handleDeleteChat = useCallback(() => {
+    // Only allow deleting if there's more than one chat
+    if (chats.length > 1) {
+      setShowDeleteConfirm(true);
+    } else {
+      toast.error(t('chat.cannotDeleteLastChat') || 'No puedes eliminar el último chat');
+    }
+  }, [chats.length, t]);
+
+  const confirmDeleteChat = useCallback(() => {
+    if (activeChatId && chats.length > 1) {
+      const success = deleteChat(activeChatId);
+      if (success) {
+        toast.success(t('chat.deleteSuccess'));
+      } else {
+        toast.error(t('chat.deleteError'));
+      }
+    }
+  }, [activeChatId, chats.length, deleteChat, t]);
 
   const handleToggleTheme = useCallback(() => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -67,13 +88,14 @@ export function ChatPage() {
   const shortcuts = useMemo(() => ({
     // Navigation
     'ctrl+b': toggleSidebar,
-    'ctrl+n': createNewChat,
+    'alt+n': createNewChat, // Changed from ctrl+n to avoid browser conflict
     'ctrl+,': () => navigate('/settings'),
     'escape': closeSidebar,
 
     // Chat
     'ctrl+/': handleFocusInput,
     'ctrl+l': handleClearChat,
+    'ctrl+shift+backspace': handleDeleteChat, // Delete current chat
 
     // Chat navigation
     'ctrl+arrowup': () => handleNavigateChats('up'),
@@ -93,7 +115,7 @@ export function ChatPage() {
 
     // Utilities
     'ctrl+shift+k': () => setShowShortcuts(true),
-  }), [toggleSidebar, createNewChat, navigate, closeSidebar, handleFocusInput, handleClearChat, handleNavigateChats, handleGoToChat, handleToggleTheme, setShowShortcuts]);
+  }), [toggleSidebar, createNewChat, navigate, closeSidebar, handleFocusInput, handleClearChat, handleDeleteChat, handleNavigateChats, handleGoToChat, handleToggleTheme, setShowShortcuts]);
 
   useKeyboardShortcuts(shortcuts);
 
@@ -111,6 +133,16 @@ export function ChatPage() {
         title={t('shortcuts.clearChatTitle') || t('chat.clearChat')}
         description={t('shortcuts.clearChatConfirm')}
         confirmText={t('common.confirm') || t('common.ok')}
+        cancelText={t('common.cancel')}
+        variant="destructive"
+      />
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={confirmDeleteChat}
+        title={t('chat.deleteChat') || t('chat.delete')}
+        description={activeChat ? t('chat.deleteConfirm', { title: activeChat.title }) : ''}
+        confirmText={t('common.delete') || t('chat.delete')}
         cancelText={t('common.cancel')}
         variant="destructive"
       />
