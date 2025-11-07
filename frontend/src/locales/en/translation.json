@@ -135,6 +135,7 @@
     "newChat": "New Conversation",
     "rename": "Rename",
     "delete": "Delete",
+    "deleteChat": "Delete Conversation",
     "renameChat": "Rename Conversation",
     "renameChatDescription": "Enter a new name for this conversation",
     "chatTitle": "Conversation Name",
@@ -142,7 +143,9 @@
     "renameSuccess": "Conversation renamed successfully",
     "deleteConfirm": "Are you sure you want to delete the conversation \"{{title}}\"? This action cannot be undone.",
     "deleteSuccess": "Conversation deleted successfully",
-    "deleteError": "You cannot delete the last conversation"
+    "deleteError": "You cannot delete the last conversation",
+    "cannotDeleteLastChat": "You cannot delete the last chat",
+    "clearChat": "Clear Chat"
   },
   "careers": {
     "ingenieria-industrial": "Industrial Engineering",
@@ -193,6 +196,7 @@
     "focusInput": "Focus on input",
     "sendMessage": "Send message",
     "clearChat": "Clear current chat",
+    "deleteChat": "Delete current chat",
     "previousChat": "Go to previous chat",
     "nextChat": "Go to next chat",
     "goToChat": "Go to chat N",

@@ -135,6 +135,7 @@
     "newChat": "Nueva Conversación",
     "rename": "Renombrar",
     "delete": "Eliminar",
+    "deleteChat": "Eliminar Conversación",
     "renameChat": "Renombrar Conversación",
     "renameChatDescription": "Ingresa un nuevo nombre para esta conversación",
     "chatTitle": "Nombre de la Conversación",
@@ -142,7 +143,9 @@
     "renameSuccess": "Conversación renombrada correctamente",
     "deleteConfirm": "¿Estás seguro de que deseas eliminar la conversación \"{{title}}\"? Esta acción no se puede deshacer.",
     "deleteSuccess": "Conversación eliminada correctamente",
-    "deleteError": "No puedes eliminar la última conversación"
+    "deleteError": "No puedes eliminar la última conversación",
+    "cannotDeleteLastChat": "No puedes eliminar el último chat",
+    "clearChat": "Limpiar Chat"
   },
   "careers": {
     "ingenieria-industrial": "Ingeniería Industrial",
@@ -193,6 +196,7 @@
     "focusInput": "Enfocar en el input",
     "sendMessage": "Enviar mensaje",
     "clearChat": "Limpiar chat actual",
+    "deleteChat": "Eliminar chat actual",
     "previousChat": "Ir al chat anterior",
     "nextChat": "Ir al chat siguiente",
     "goToChat": "Ir al chat N",
