@@ -105,7 +105,7 @@ export function ChatList({ onChatSelect }) {
             >
               <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm truncate">{chat.title}</p>
+                <p className="text-sm truncate text-foreground">{chat.title}</p>
                 <p className="text-xs text-muted-foreground">
                   {formatDate(chat.updatedAt)}
                 </p>

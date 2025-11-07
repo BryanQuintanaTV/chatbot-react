@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
@@ -177,12 +177,12 @@ export function Settings() {
   };
 
   // Keyboard shortcuts handlers
-  const handleToggleTheme = () => {
+  const handleToggleTheme = useCallback(() => {
     setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+  }, [theme, setTheme]);
 
   // Register keyboard shortcuts
-  useKeyboardShortcuts({
+  const shortcuts = useMemo(() => ({
     // Navigation
     'ctrl+b': toggleSidebar,
     'escape': closeSidebar,
@@ -192,7 +192,9 @@ export function Settings() {
 
     // Utilities
     'ctrl+shift+k': () => setShowShortcuts(true),
-  });
+  }), [toggleSidebar, closeSidebar, handleToggleTheme, setShowShortcuts]);
+
+  useKeyboardShortcuts(shortcuts);
 
   return (
     <>

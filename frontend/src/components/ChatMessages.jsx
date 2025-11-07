@@ -53,7 +53,7 @@ function ChatMessages({ messages, isLoading }) {
               <img className="h-[26px] w-[26px] shrink-0" src={bot} alt="assistant" />
             )}
             <div>
-              <div className="markdown-container">
+              <div className="markdown-container text-foreground">
                 {loading && !content ? (
                   <Spinner />
                 ) : role === "assistant" ? (

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Chatbot from '@/components/Chatbot';
@@ -21,25 +21,25 @@ export function ChatPage() {
   const chatInputRef = useRef(null);
 
   // Keyboard shortcuts handlers
-  const handleClearChat = () => {
+  const handleClearChat = useCallback(() => {
     if (window.confirm(t('shortcuts.clearChatConfirm'))) {
       clearMessages();
       toast.success(t('shortcuts.clearChatSuccess'));
     }
-  };
+  }, [t, clearMessages]);
 
-  const handleToggleTheme = () => {
+  const handleToggleTheme = useCallback(() => {
     setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+  }, [theme, setTheme]);
 
-  const handleFocusInput = () => {
+  const handleFocusInput = useCallback(() => {
     const input = document.getElementById('chat-input');
     if (input) {
       input.focus();
     }
-  };
+  }, []);
 
-  const handleNavigateChats = (direction) => {
+  const handleNavigateChats = useCallback((direction) => {
     const chatIds = Object.keys(chats);
     const currentIndex = chatIds.indexOf(currentChatId);
 
@@ -48,17 +48,17 @@ export function ChatPage() {
     } else if (direction === 'down' && currentIndex < chatIds.length - 1) {
       setCurrentChatId(chatIds[currentIndex + 1]);
     }
-  };
+  }, [chats, currentChatId, setCurrentChatId]);
 
-  const handleGoToChat = (num) => {
+  const handleGoToChat = useCallback((num) => {
     const chatIds = Object.keys(chats);
     if (num >= 1 && num <= chatIds.length) {
       setCurrentChatId(chatIds[num - 1]);
     }
-  };
+  }, [chats, setCurrentChatId]);
 
   // Register keyboard shortcuts
-  useKeyboardShortcuts({
+  const shortcuts = useMemo(() => ({
     // Navigation
     'ctrl+b': toggleSidebar,
     'ctrl+n': createNewChat,
@@ -87,7 +87,9 @@ export function ChatPage() {
 
     // Utilities
     'ctrl+shift+k': () => setShowShortcuts(true),
-  });
+  }), [toggleSidebar, createNewChat, navigate, closeSidebar, handleFocusInput, handleClearChat, handleNavigateChats, handleGoToChat, handleToggleTheme, setShowShortcuts]);
+
+  useKeyboardShortcuts(shortcuts);
 
   return (
     <>
