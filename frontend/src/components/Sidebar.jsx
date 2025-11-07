@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import {
   Popover,
   PopoverContent,
@@ -32,6 +32,8 @@ import {
   AlertCircle,
   Keyboard,
   MessageSquare,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import logo from '@/assets/images/itch_II_logo.png';
@@ -41,6 +43,7 @@ export function Sidebar() {
   const { user, logout, isAuthenticated } = useAuth();
   const { createNewChat } = useChat();
   const { collapsed, toggleCollapsed } = useSidebar();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [chatsOpen, setChatsOpen] = useState(true);
 
@@ -55,6 +58,10 @@ export function Sidebar() {
 
   const handleSettings = () => {
     navigate('/settings');
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   return (
@@ -182,9 +189,18 @@ export function Sidebar() {
                   </Button>
 
                   {/* Theme Toggle */}
-                  <div className="px-2 py-2">
-                    <AnimatedThemeToggler />
-                  </div>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={toggleTheme}
+                  >
+                    {theme === 'dark' ? (
+                      <Sun className="h-4 w-4 mr-2" />
+                    ) : (
+                      <Moon className="h-4 w-4 mr-2" />
+                    )}
+                    {t('sidebar.changeTheme')}
+                  </Button>
 
                   <Separator />
 
