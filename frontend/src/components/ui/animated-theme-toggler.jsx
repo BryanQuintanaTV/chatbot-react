@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils"
 export const AnimatedThemeToggler = ({
   className,
   duration = 400,
+  showText = false,
+  text = "Toggle theme",
+  iconClassName = "",
   ...props
 }) => {
   const [isDark, setIsDark] = useState(false)
@@ -67,8 +70,16 @@ export const AnimatedThemeToggler = ({
       onClick={toggleTheme}
       className={cn(className)}
       {...props}>
-      {isDark ? <Sun /> : <Moon />}
-      <span className="sr-only">Toggle theme</span>
+      {isDark ? (
+        <Sun className={cn("h-4 w-4", iconClassName)} />
+      ) : (
+        <Moon className={cn("h-4 w-4", iconClassName)} />
+      )}
+      {showText ? (
+        <span>{text}</span>
+      ) : (
+        <span className="sr-only">Toggle theme</span>
+      )}
     </button>
   );
 }
