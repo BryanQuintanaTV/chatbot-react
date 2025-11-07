@@ -17,7 +17,7 @@ export function ChatProvider({ children }) {
         messages: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        icon: '💬',
+        icon: 'MessageSquare',
         color: '#8B5CF6', // Purple
         category: null,
         pinned: false,
@@ -53,7 +53,7 @@ export function ChatProvider({ children }) {
       messages: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      icon: '💬',
+      icon: 'MessageSquare',
       color: '#8B5CF6', // Purple
       category: null,
       pinned: false,

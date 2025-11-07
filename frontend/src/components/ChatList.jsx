@@ -13,6 +13,30 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { EditChatDialog } from '@/components/EditChatDialog';
 import {
   MessageSquare,
+  MessagesSquare,
+  FileText,
+  ClipboardList,
+  BookOpen,
+  Target,
+  Star,
+  Lightbulb,
+  Flame,
+  Sparkles,
+  Palette,
+  Book,
+  Newspaper,
+  GraduationCap,
+  Briefcase,
+  Home,
+  Gamepad2,
+  Music,
+  Film,
+  Dumbbell,
+  Brain,
+  Heart,
+  Code,
+  Coffee,
+  Rocket,
   MoreVertical,
   Pencil,
   Trash2,
@@ -24,6 +48,40 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Icon mapping
+const ICON_MAP = {
+  MessageSquare,
+  MessagesSquare,
+  FileText,
+  ClipboardList,
+  BookOpen,
+  Target,
+  Star,
+  Lightbulb,
+  Flame,
+  Sparkles,
+  Palette,
+  Book,
+  Newspaper,
+  GraduationCap,
+  Briefcase,
+  Home,
+  Gamepad2,
+  Music,
+  Film,
+  Dumbbell,
+  Brain,
+  Heart,
+  Code,
+  Coffee,
+  Rocket,
+};
+
+// Helper function to get icon component
+const getIconComponent = (iconName) => {
+  return ICON_MAP[iconName] || MessageSquare;
+};
 
 export function ChatList({ onChatSelect, showArchived = false }) {
   const { t } = useTranslation();
@@ -136,19 +194,24 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     };
   }, [chats, showArchived, t]);
 
-  const renderChat = (chat) => (
-    <div
-      key={chat.id}
-      onClick={() => handleChatClick(chat.id)}
-      className={`group relative flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
-        chat.id === activeChat?.id
-          ? 'bg-muted'
-          : 'hover:bg-muted/50'
-      }`}
-      style={{ backgroundColor: chat.id === activeChat?.id ? undefined : chat.bgColor }}
-    >
-      {/* Chat Icon */}
-      <span className="text-2xl shrink-0">{chat.icon || '💬'}</span>
+  const renderChat = (chat) => {
+    const IconComponent = getIconComponent(chat.icon);
+
+    return (
+      <div
+        key={chat.id}
+        onClick={() => handleChatClick(chat.id)}
+        className={`group relative flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
+          chat.id === activeChat?.id
+            ? 'bg-muted'
+            : 'hover:bg-muted/50'
+        }`}
+        style={{ backgroundColor: chat.id === activeChat?.id ? undefined : chat.bgColor }}
+      >
+        {/* Chat Icon */}
+        <div className="shrink-0">
+          <IconComponent className="h-5 w-5" style={{ color: chat.color }} />
+        </div>
 
       <div className="flex-1 min-w-0">
         <p
@@ -179,15 +242,15 @@ export function ChatList({ onChatSelect, showArchived = false }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={(e) => handleEditClick(chat, e)}>
+          <DropdownMenuItem onClick={(e) => handleEditClick(chat, e)} className="cursor-pointer">
             <Pencil className="h-4 w-4 mr-2" />
             {t('chat.edit') || 'Editar'}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => handlePinClick(chat, e)}>
+          <DropdownMenuItem onClick={(e) => handlePinClick(chat, e)} className="cursor-pointer">
             <Pin className="h-4 w-4 mr-2" />
             {chat.pinned ? (t('chat.unpin') || 'Despegar') : (t('chat.pin') || 'Fijar')}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => handleArchiveClick(chat, e)}>
+          <DropdownMenuItem onClick={(e) => handleArchiveClick(chat, e)} className="cursor-pointer">
             {chat.archived ? (
               <>
                 <ArchiveRestore className="h-4 w-4 mr-2" />
@@ -203,7 +266,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={(e) => handleDeleteClick(chat, e)}
-            className="text-destructive focus:text-destructive"
+            className="text-destructive focus:text-destructive cursor-pointer"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {t('chat.delete')}
@@ -211,7 +274,8 @@ export function ChatList({ onChatSelect, showArchived = false }) {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
+    );
+  };
 
   return (
     <>

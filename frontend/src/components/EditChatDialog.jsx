@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -13,13 +13,80 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  MessageSquare,
+  MessagesSquare,
+  FileText,
+  ClipboardList,
+  BookOpen,
+  Target,
+  Star,
+  Lightbulb,
+  Flame,
+  Sparkles,
+  Palette,
+  Book,
+  Newspaper,
+  GraduationCap,
+  Briefcase,
+  Home,
+  Gamepad2,
+  Music,
+  Film,
+  Dumbbell,
+  Brain,
+  Heart,
+  Code,
+  Coffee,
+  Rocket,
+} from 'lucide-react';
 
-// Predefined chat icons
+// Predefined chat icons using Lucide icons
 const CHAT_ICONS = [
-  '💬', '💭', '📝', '📋', '📌', '📍',
-  '🎯', '⭐', '💡', '🔥', '✨', '🎨',
-  '📚', '📖', '🎓', '💼', '🏠', '🎮',
-  '🎵', '🎬', '🏃', '💪', '🧠', '❤️',
+  { icon: MessageSquare, name: 'MessageSquare' },
+  { icon: MessagesSquare, name: 'MessagesSquare' },
+  { icon: FileText, name: 'FileText' },
+  { icon: ClipboardList, name: 'ClipboardList' },
+  { icon: BookOpen, name: 'BookOpen' },
+  { icon: Target, name: 'Target' },
+  { icon: Star, name: 'Star' },
+  { icon: Lightbulb, name: 'Lightbulb' },
+  { icon: Flame, name: 'Flame' },
+  { icon: Sparkles, name: 'Sparkles' },
+  { icon: Palette, name: 'Palette' },
+  { icon: Book, name: 'Book' },
+  { icon: Newspaper, name: 'Newspaper' },
+  { icon: GraduationCap, name: 'GraduationCap' },
+  { icon: Briefcase, name: 'Briefcase' },
+  { icon: Home, name: 'Home' },
+  { icon: Gamepad2, name: 'Gamepad2' },
+  { icon: Music, name: 'Music' },
+  { icon: Film, name: 'Film' },
+  { icon: Dumbbell, name: 'Dumbbell' },
+  { icon: Brain, name: 'Brain' },
+  { icon: Heart, name: 'Heart' },
+  { icon: Code, name: 'Code' },
+  { icon: Coffee, name: 'Coffee' },
+  { icon: Rocket, name: 'Rocket' },
+];
+
+// Predefined categories
+const CHAT_CATEGORIES = [
+  { value: '', label: 'Sin categoría' },
+  { value: 'Trabajo', label: 'Trabajo' },
+  { value: 'Escuela', label: 'Escuela' },
+  { value: 'Personal', label: 'Personal' },
+  { value: 'Proyectos', label: 'Proyectos' },
+  { value: 'Ideas', label: 'Ideas' },
+  { value: 'Investigación', label: 'Investigación' },
+  { value: 'Tareas', label: 'Tareas' },
 ];
 
 // Predefined color categories
@@ -50,13 +117,28 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: chat?.title || '',
-    icon: chat?.icon || '💬',
+    icon: chat?.icon || 'MessageSquare',
     color: chat?.color || '#8B5CF6',
     category: chat?.category || '',
     pinned: chat?.pinned || false,
     archived: chat?.archived || false,
     bgColor: chat?.bgColor || null,
   });
+
+  // Update form data when chat changes
+  useEffect(() => {
+    if (chat) {
+      setFormData({
+        title: chat.title || '',
+        icon: chat.icon || 'MessageSquare',
+        color: chat.color || '#8B5CF6',
+        category: chat.category || '',
+        pinned: chat.pinned || false,
+        archived: chat.archived || false,
+        bgColor: chat.bgColor || null,
+      });
+    }
+  }, [chat]);
 
   const handleSave = () => {
     onSave(formData);
@@ -67,7 +149,7 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
     // Reset form to original values
     setFormData({
       title: chat?.title || '',
-      icon: chat?.icon || '💬',
+      icon: chat?.icon || 'MessageSquare',
       color: chat?.color || '#8B5CF6',
       category: chat?.category || '',
       pinned: chat?.pinned || false,
@@ -79,7 +161,7 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh]">
+      <DialogContent className="max-w-2xl max-h-[90vh] w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>{t('chat.editChat') || 'Editar Chat'}</DialogTitle>
           <DialogDescription>
@@ -104,20 +186,23 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
             <div className="space-y-2">
               <Label>{t('chat.icon') || 'Icono'}</Label>
               <div className="grid grid-cols-8 gap-2">
-                {CHAT_ICONS.map((icon) => (
-                  <button
-                    key={icon}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, icon })}
-                    className={`
-                      w-10 h-10 flex items-center justify-center rounded-md text-2xl
-                      transition-all hover:scale-110 hover:bg-muted
-                      ${formData.icon === icon ? 'bg-primary/20 ring-2 ring-primary' : 'bg-muted'}
-                    `}
-                  >
-                    {icon}
-                  </button>
-                ))}
+                {CHAT_ICONS.map((iconItem) => {
+                  const IconComponent = iconItem.icon;
+                  return (
+                    <button
+                      key={iconItem.name}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, icon: iconItem.name })}
+                      className={`
+                        w-10 h-10 flex items-center justify-center rounded-md
+                        transition-all hover:scale-110 hover:bg-muted
+                        ${formData.icon === iconItem.name ? 'bg-primary/20 ring-2 ring-primary' : 'bg-muted'}
+                      `}
+                    >
+                      <IconComponent className="h-5 w-5" />
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -170,15 +255,24 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
 
             {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="chat-category">{t('chat.category') || 'Categoría / Carpeta'}</Label>
-              <Input
-                id="chat-category"
+              <Label htmlFor="chat-category">{t('chat.category') || 'Categoría'}</Label>
+              <Select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                placeholder={t('chat.categoryPlaceholder') || 'Ej: Trabajo, Escuela, Personal'}
-              />
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('chat.categoryPlaceholder') || 'Selecciona una categoría'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {CHAT_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">
-                {t('chat.categoryHelp') || 'Los chats se agruparán por categoría en el sidebar'}
+                {t('chat.categoryHelp') || 'Organiza tus chats en carpetas personalizadas'}
               </p>
             </div>
 
