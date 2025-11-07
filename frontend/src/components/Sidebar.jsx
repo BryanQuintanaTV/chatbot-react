@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
+import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
 import {
   Menu,
   User,
@@ -40,15 +41,6 @@ export function Sidebar() {
     navigate('/login');
   };
 
-  const getUserInitials = () => {
-    if (!user || !user.name) return 'U';
-    const names = user.name.split(' ');
-    if (names.length >= 2) {
-      return `${names[0][0]}${names[1][0]}`.toUpperCase();
-    }
-    return user.name[0].toUpperCase();
-  };
-
   // Mock chat history - will be replaced with backend data
   const chatHistory = [
     { id: 1, title: 'Información sobre carreras', date: '2025-11-05' },
@@ -74,10 +66,19 @@ export function Sidebar() {
           {isAuthenticated ? (
             <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-muted/50">
               <Avatar className="h-12 w-12">
-                <AvatarImage src={user?.avatar} />
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  {getUserInitials()}
-                </AvatarFallback>
+                {getAvatarDisplay(user).type === 'url' && (
+                  <AvatarImage src={getAvatarDisplay(user).value} />
+                )}
+                {getAvatarDisplay(user).type === 'gradient' && (
+                  <div className={`w-full h-full bg-gradient-to-br ${getAvatarDisplay(user).value} flex items-center justify-center text-white font-semibold`}>
+                    {getUserInitials(user?.name)}
+                  </div>
+                )}
+                {getAvatarDisplay(user).type === 'initials' && (
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {getAvatarDisplay(user).value}
+                  </AvatarFallback>
+                )}
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{user?.name || t('sidebar.user')}</p>

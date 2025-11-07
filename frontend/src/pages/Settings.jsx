@@ -21,11 +21,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { Sidebar } from '@/components/Sidebar';
+import { AvatarPicker } from '@/components/AvatarPicker';
 import { getTecnmCareers, SCHOOL_NAME, LANGUAGES } from '@/lib/constants';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
+import { ArrowLeft, AlertCircle, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/images/itch_II_logo.png';
 
@@ -35,11 +37,17 @@ export function Settings() {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     semester: user?.semester || '',
     career: user?.career || '',
+  });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
 
   const handleChange = (e) => {
@@ -104,13 +112,63 @@ export function Settings() {
     }
   };
 
-  const getUserInitials = () => {
-    if (!user || !user.name) return 'U';
-    const names = user.name.split(' ');
-    if (names.length >= 2) {
-      return `${names[0][0]}${names[1][0]}`.toUpperCase();
+  const handleAvatarChange = async (newAvatar) => {
+    try {
+      // TODO: Replace with Better Auth backend when ready
+      // If it's a file upload (blob URL), it will be handled by MinIO in backend
+      // For now, just update the user context
+      updateUser({ avatar: newAvatar });
+      toast.success(t('settings.avatarUpdateSuccess'));
+    } catch (error) {
+      toast.error(t('settings.avatarUpdateError'));
     }
-    return user.name[0].toUpperCase();
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+
+    // Validation
+    if (passwordData.newPassword.length < 6) {
+      toast.error(t('register.passwordTooShort'));
+      setPasswordLoading(false);
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error(t('register.passwordMismatch'));
+      setPasswordLoading(false);
+      return;
+    }
+
+    try {
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // TODO: Replace with Better Auth API call
+      // await api.changePassword({
+      //   currentPassword: passwordData.currentPassword,
+      //   newPassword: passwordData.newPassword,
+      // });
+
+      toast.success(t('settings.passwordChangeSuccess'));
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+    } catch (error) {
+      toast.error(t('settings.passwordChangeError'));
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handlePasswordInputChange = (e) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   return (
@@ -148,14 +206,27 @@ export function Settings() {
           <CardContent className="space-y-6">
             {/* Avatar */}
             <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                  {getUserInitials()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
+              <div className="relative">
+                <Avatar className="h-20 w-20">
+                  {getAvatarDisplay(user).type === 'url' && (
+                    <AvatarImage src={getAvatarDisplay(user).value} />
+                  )}
+                  {getAvatarDisplay(user).type === 'gradient' && (
+                    <div className={`w-full h-full bg-gradient-to-br ${getAvatarDisplay(user).value} flex items-center justify-center text-white font-semibold text-2xl`}>
+                      {getUserInitials(user?.name)}
+                    </div>
+                  )}
+                  {getAvatarDisplay(user).type === 'initials' && (
+                    <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                      {getAvatarDisplay(user).value}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+              </div>
+              <div className="flex-1">
                 <p className="text-sm font-medium">{user?.name}</p>
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <AvatarPicker user={user} onAvatarChange={handleAvatarChange} />
               </div>
             </div>
 
@@ -196,9 +267,10 @@ export function Settings() {
                   name="email"
                   type="email"
                   value={formData.email}
-                  onChange={handleChange}
-                  required
+                  disabled
+                  className="bg-muted cursor-not-allowed"
                 />
+                <p className="text-xs text-muted-foreground">{t('settings.emailReadonly')}</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="semester">{t('settings.semester')}</Label>
@@ -236,6 +308,61 @@ export function Settings() {
               </div>
               <Button type="submit" disabled={loading}>
                 {loading ? t('settings.saving') : t('settings.saveChanges')}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Security Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5" />
+              {t('settings.security')}
+            </CardTitle>
+            <CardDescription>
+              {t('settings.securityDescription')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">{t('settings.currentPassword')}</Label>
+                <Input
+                  id="currentPassword"
+                  name="currentPassword"
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordInputChange}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">{t('settings.newPassword')}</Label>
+                <Input
+                  id="newPassword"
+                  name="newPassword"
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordInputChange}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">{t('settings.confirmNewPassword')}</Label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={handlePasswordInputChange}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <Button type="submit" disabled={passwordLoading}>
+                {passwordLoading ? t('settings.changing') : t('settings.changePassword')}
               </Button>
             </form>
           </CardContent>
