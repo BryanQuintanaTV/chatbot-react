@@ -18,19 +18,24 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement
 
-    root.classList.remove("light", "dark")
+    // Determine the actual theme to apply
+    let themeToApply = theme
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      themeToApply = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
         : "light"
-
-      root.classList.add(systemTheme)
-      return
     }
 
-    root.classList.add(theme)
+    // Only update DOM if the theme is different from current state
+    // This prevents FOUC by avoiding unnecessary class removals
+    const currentTheme = root.classList.contains("dark") ? "dark" : "light"
+
+    if (currentTheme !== themeToApply) {
+      root.classList.remove("light", "dark")
+      root.classList.add(themeToApply)
+    }
   }, [theme])
 
   const value = {
