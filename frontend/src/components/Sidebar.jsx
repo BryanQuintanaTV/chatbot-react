@@ -183,10 +183,10 @@ export function Sidebar() {
 
                   {/* Theme Toggle */}
                   <AnimatedThemeToggler
+                    variant="ghost"
                     showText={true}
                     text={t('sidebar.changeTheme')}
-                    className="w-full justify-start px-2 py-2 h-auto text-sm font-normal rounded-sm hover:bg-accent hover:text-accent-foreground inline-flex items-center gap-2"
-                    iconClassName="mr-0"
+                    className="w-full justify-start"
                   />
 
                   <Separator />

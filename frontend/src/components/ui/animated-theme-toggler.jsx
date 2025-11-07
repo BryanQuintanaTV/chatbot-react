@@ -3,13 +3,15 @@ import { Moon, Sun } from "lucide-react"
 import { flushSync } from "react-dom"
 
 import { cn } from "@/lib/utils"
+import { buttonVariants } from "@/components/ui/button"
 
 export const AnimatedThemeToggler = ({
   className,
+  variant = "ghost",
+  size = "default",
   duration = 400,
   showText = false,
   text = "Toggle theme",
-  iconClassName = "",
   ...props
 }) => {
   const [isDark, setIsDark] = useState(false)
@@ -68,13 +70,9 @@ export const AnimatedThemeToggler = ({
     <button
       ref={buttonRef}
       onClick={toggleTheme}
-      className={cn(className)}
+      className={cn(buttonVariants({ variant, size, className }))}
       {...props}>
-      {isDark ? (
-        <Sun className={cn("h-4 w-4", iconClassName)} />
-      ) : (
-        <Moon className={cn("h-4 w-4", iconClassName)} />
-      )}
+      {isDark ? <Sun /> : <Moon />}
       {showText ? (
         <span>{text}</span>
       ) : (
