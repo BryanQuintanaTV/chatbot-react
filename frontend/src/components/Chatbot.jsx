@@ -65,18 +65,20 @@ function Chatbot() {
   }
 
   return (
-    <div className='relative grow flex flex-col gap-6 pt-6'>
-      {messages.length === 0 && (
-        <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
-          <p>👋 {t('chat.welcome')}</p>
-          <p>{t('chat.welcomeDescription')}</p>
-          <p><small>{t('chat.datasetVersion')}</small></p>
-        </div>
-      )}
-      <ChatMessages
-        messages={messages}
-        isLoading={isLoading}
-      />
+    <div className='flex flex-col flex-1 overflow-hidden'>
+      <div className='flex-1 overflow-y-auto pt-6 pb-4'>
+        {messages.length === 0 && (
+          <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
+            <p>👋 {t('chat.welcome')}</p>
+            <p>{t('chat.welcomeDescription')}</p>
+            <p><small>{t('chat.datasetVersion')}</small></p>
+          </div>
+        )}
+        <ChatMessages
+          messages={messages}
+          isLoading={isLoading}
+        />
+      </div>
       <ChatInput
         newMessage={newMessage}
         isLoading={isLoading}

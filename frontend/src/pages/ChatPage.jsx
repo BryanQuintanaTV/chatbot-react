@@ -13,12 +13,12 @@ export function ChatPage() {
     <>
       <Sidebar />
       <div
-        className='flex flex-col min-h-screen w-full transition-all duration-300'
+        className='flex flex-col h-screen w-full transition-all duration-300 overflow-hidden'
         style={{ marginLeft: collapsed ? '64px' : '256px' }}
       >
         <Toaster richColors position="top-right" />
-        <div className='flex flex-col min-h-full w-full max-w-3xl mx-auto px-4'>
-          <header className='sticky top-0 shrink-0 z-20 bg-background border-b'>
+        <div className='flex flex-col h-full w-full max-w-5xl mx-auto px-4'>
+          <header className='shrink-0 z-20 bg-background border-b'>
             <div className='flex flex-col h-full w-full gap-1 pt-4 pb-2'>
               <div className="flex items-center gap-3">
                 <a href='https://chihuahua2.tecnm.mx/'>

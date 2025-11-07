@@ -18,7 +18,7 @@ function ChatMessages({ messages, isLoading }) {
   const scrollContentRef = useAutoScroll(isLoading);
 
   return (
-    <div ref={scrollContentRef} className="grow space-y-4">
+    <div ref={scrollContentRef} className="space-y-4">
       {messages.map(({ role, content, loading, error }, idx) => {
         const userMessage =
           role === "assistant"

@@ -12,7 +12,7 @@ function ChatInput({ newMessage, isLoading, setNewMessage, submitNewMessage }) {
   }
   
   return(
-    <div className='sticky bottom-0 shrink-0 bg-background py-4'>
+    <div className='shrink-0 bg-background pb-4'>
       <div className='p-1.5 bg-primary/10 rounded-3xl z-50 font-mono origin-bottom animate-chat duration-400'>
         <div className='pr-0.5 bg-card relative shrink-0 rounded-3xl overflow-hidden ring-border ring-1 focus-within:ring-2 focus-within:ring-ring transition-all'>
           <textarea
