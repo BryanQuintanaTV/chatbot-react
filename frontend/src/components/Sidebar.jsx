@@ -116,7 +116,7 @@ export function Sidebar({ onShowShortcuts }) {
             onClick={toggleSidebar}
             className="shrink-0"
           >
-            <PanelLeft className={`h-5 w-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+            <PanelLeft className={`h-5 w-5 text-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
           </Button>
         </div>
 
@@ -128,8 +128,8 @@ export function Sidebar({ onShowShortcuts }) {
             className={`w-full ${isCollapsed ? 'px-0' : 'justify-start'}`}
             title={isCollapsed ? t('chat.newChat') : undefined}
           >
-            <Plus className="h-4 w-4" />
-            {isExpanded && <span className="ml-2">{t('chat.newChat')}</span>}
+            <Plus className="h-4 w-4 text-foreground" />
+            {isExpanded && <span className="ml-2 text-foreground">{t('chat.newChat')}</span>}
           </Button>
         </div>
 
@@ -143,13 +143,13 @@ export function Sidebar({ onShowShortcuts }) {
                   className="w-full justify-between px-2 hover:bg-muted"
                 >
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="text-sm font-semibold">{t('sidebar.chats')}</span>
+                    <MessageSquare className="h-4 w-4 text-foreground" />
+                    <span className="text-sm font-semibold text-foreground">{t('sidebar.chats')}</span>
                   </div>
                   {chatsOpen ? (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 text-foreground" />
                   ) : (
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4 text-foreground" />
                   )}
                 </Button>
               </CollapsibleTrigger>
@@ -191,7 +191,7 @@ export function Sidebar({ onShowShortcuts }) {
                   </Avatar>
                   {isExpanded && user && (
                     <div className="ml-2 flex-1 text-left overflow-hidden">
-                      <p className="text-sm font-medium truncate">{user.name}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   )}
