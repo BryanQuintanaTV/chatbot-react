@@ -32,6 +32,7 @@ import {
   AlertCircle,
   Keyboard,
   MessageSquare,
+  Archive,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import logo from '@/assets/images/itch_II_logo.png';
@@ -43,6 +44,7 @@ export function Sidebar({ onShowShortcuts }) {
   const { sidebarState, toggleSidebar, closeSidebar, isMobile } = useSidebar();
   const navigate = useNavigate();
   const [chatsOpen, setChatsOpen] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -153,9 +155,21 @@ export function Sidebar({ onShowShortcuts }) {
                   )}
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="flex-1 overflow-hidden mt-2">
-                <div className="h-full overflow-y-auto">
-                  <ChatList onChatSelect={handleChatSelect} />
+              <CollapsibleContent className="flex-1 overflow-hidden mt-2 flex flex-col">
+                {/* Archive Toggle Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowArchived(!showArchived)}
+                  className="mb-2 justify-start text-xs h-8"
+                >
+                  <Archive className="h-3 w-3 mr-2" />
+                  {showArchived ? (t('chat.showActive') || 'Ver Activos') : (t('chat.showArchived') || 'Ver Archivados')}
+                </Button>
+
+                {/* Chat List */}
+                <div className="flex-1 overflow-y-auto">
+                  <ChatList onChatSelect={handleChatSelect} showArchived={showArchived} />
                 </div>
               </CollapsibleContent>
             </Collapsible>

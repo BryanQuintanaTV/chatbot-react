@@ -17,6 +17,12 @@ export function ChatProvider({ children }) {
         messages: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        icon: '💬',
+        color: '#8B5CF6', // Purple
+        category: null,
+        pinned: false,
+        archived: false,
+        bgColor: null,
       },
     ];
   });
@@ -47,6 +53,12 @@ export function ChatProvider({ children }) {
       messages: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      icon: '💬',
+      color: '#8B5CF6', // Purple
+      category: null,
+      pinned: false,
+      archived: false,
+      bgColor: null,
     };
     setChats([newChat, ...chats]);
     setActiveChatId(newChat.id);
@@ -97,6 +109,36 @@ export function ChatProvider({ children }) {
     );
   };
 
+  const updateChat = (chatId, updates) => {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === chatId
+          ? { ...chat, ...updates, updatedAt: new Date().toISOString() }
+          : chat
+      )
+    );
+  };
+
+  const togglePinChat = (chatId) => {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === chatId
+          ? { ...chat, pinned: !chat.pinned, updatedAt: new Date().toISOString() }
+          : chat
+      )
+    );
+  };
+
+  const toggleArchiveChat = (chatId) => {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === chatId
+          ? { ...chat, archived: !chat.archived, updatedAt: new Date().toISOString() }
+          : chat
+      )
+    );
+  };
+
   const deleteChat = (chatId) => {
     // Don't allow deleting the last chat
     if (chats.length === 1) {
@@ -139,6 +181,9 @@ export function ChatProvider({ children }) {
     switchChat,
     updateChatMessages,
     renameChat,
+    updateChat,
+    togglePinChat,
+    toggleArchiveChat,
     deleteChat,
     clearChatMessages,
   };
