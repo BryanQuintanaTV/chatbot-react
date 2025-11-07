@@ -89,6 +89,18 @@ const CHAT_CATEGORIES = [
   { value: 'Tareas', label: 'Tareas' },
 ];
 
+// Helper to check if icon name is valid
+const isValidIcon = (iconName) => {
+  return CHAT_ICONS.some(item => item.name === iconName);
+};
+
+// Helper to normalize category to valid option
+const normalizeCategory = (category) => {
+  if (!category) return '';
+  const validCategories = CHAT_CATEGORIES.map(c => c.value);
+  return validCategories.includes(category) ? category : '';
+};
+
 // Predefined color categories
 const CHAT_COLORS = [
   { name: 'Morado', value: '#8B5CF6' },
@@ -117,9 +129,9 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: chat?.title || '',
-    icon: chat?.icon || 'MessageSquare',
+    icon: isValidIcon(chat?.icon) ? chat.icon : 'MessageSquare',
     color: chat?.color || '#8B5CF6',
-    category: chat?.category || '',
+    category: normalizeCategory(chat?.category),
     pinned: chat?.pinned || false,
     archived: chat?.archived || false,
     bgColor: chat?.bgColor || null,
@@ -130,9 +142,9 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
     if (chat) {
       setFormData({
         title: chat.title || '',
-        icon: chat.icon || 'MessageSquare',
+        icon: isValidIcon(chat.icon) ? chat.icon : 'MessageSquare',
         color: chat.color || '#8B5CF6',
-        category: chat.category || '',
+        category: normalizeCategory(chat.category),
         pinned: chat.pinned || false,
         archived: chat.archived || false,
         bgColor: chat.bgColor || null,
@@ -149,9 +161,9 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
     // Reset form to original values
     setFormData({
       title: chat?.title || '',
-      icon: chat?.icon || 'MessageSquare',
+      icon: isValidIcon(chat?.icon) ? chat.icon : 'MessageSquare',
       color: chat?.color || '#8B5CF6',
-      category: chat?.category || '',
+      category: normalizeCategory(chat?.category),
       pinned: chat?.pinned || false,
       archived: chat?.archived || false,
       bgColor: chat?.bgColor || null,
