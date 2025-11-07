@@ -11,14 +11,13 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
 
     const handleKeyDown = (event) => {
       // Get the pressed key combination
-      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
       const ctrl = event.ctrlKey || event.metaKey; // Support both Ctrl and Cmd
       const shift = event.shiftKey;
       const alt = event.altKey;
       const key = event.key.toLowerCase();
 
       // Don't trigger shortcuts when typing in input fields (except for specified keys)
-      const isTyping = ['input', 'textarea'].includes(event.target.tagName.toLowerCase());
+      const isTyping = ['input', 'textarea'].includes(event.target.tagName?.toLowerCase());
       const isContentEditable = event.target.isContentEditable;
 
       // Build the key combination string
@@ -28,14 +27,20 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
       if (alt) keyCombination += 'alt+';
       keyCombination += key;
 
+      // Console log for debugging
+      console.log('[Keyboard Shortcut]', keyCombination, 'isTyping:', isTyping);
+
       // Check if this combination has a handler
       const handler = shortcuts[keyCombination];
 
       if (handler) {
+        console.log('[Keyboard Shortcut] Handler found for:', keyCombination);
+
         // Always prevent default for shortcuts with modifiers (ctrl, alt, shift)
         // to prevent browser default behavior (like Ctrl+N opening new window)
         if (ctrl || alt || (shift && key !== 'enter')) {
           event.preventDefault();
+          event.stopPropagation();
         }
 
         // Allow certain shortcuts even when typing
@@ -44,20 +49,25 @@ export function useKeyboardShortcuts(shortcuts, enabled = true) {
                               allowedWhenTyping.includes(keyCombination);
 
         if (shouldExecute) {
+          console.log('[Keyboard Shortcut] Executing handler for:', keyCombination);
           // For 'enter' key, only prevent default if NOT in textarea (to allow Shift+Enter)
-          if (keyCombination === 'enter' && event.target.tagName.toLowerCase() === 'textarea' && !event.shiftKey) {
-            // Let the form/textarea handle it
-          } else if (keyCombination === 'escape') {
+          if (keyCombination === 'escape') {
             event.preventDefault();
           }
 
           handler(event);
+        } else {
+          console.log('[Keyboard Shortcut] Skipped (typing):', keyCombination);
         }
       }
     };
 
+    console.log('[Keyboard Shortcuts] Registering shortcuts:', Object.keys(shortcuts));
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      console.log('[Keyboard Shortcuts] Unregistering shortcuts');
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [shortcuts, enabled]);
 }
 

@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { Moon, Sun } from "lucide-react"
 import { flushSync } from "react-dom"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { useTheme } from "@/components/theme-provider"
 
 export const AnimatedThemeToggler = ({
   className,
@@ -14,34 +15,19 @@ export const AnimatedThemeToggler = ({
   text = "Toggle theme",
   ...props
 }) => {
-  const [isDark, setIsDark] = useState(false)
+  const { theme, setTheme } = useTheme()
   const buttonRef = useRef(null)
 
-  useEffect(() => {
-    const updateTheme = () => {
-      setIsDark(document.documentElement.classList.contains("dark"))
-    }
-
-    updateTheme()
-
-    const observer = new MutationObserver(updateTheme)
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    })
-
-    return () => observer.disconnect();
-  }, [])
+  const isDark = theme === "dark"
 
   const toggleTheme = useCallback(async () => {
     if (!buttonRef.current) return
 
+    const newTheme = isDark ? "light" : "dark"
+
     await document.startViewTransition(() => {
       flushSync(() => {
-        const newTheme = !isDark
-        setIsDark(newTheme)
-        document.documentElement.classList.toggle("dark")
-        localStorage.setItem("theme", newTheme ? "dark" : "light")
+        setTheme(newTheme)
       })
     }).ready
 
@@ -64,7 +50,7 @@ export const AnimatedThemeToggler = ({
       easing: "ease-in-out",
       pseudoElement: "::view-transition-new(root)",
     })
-  }, [isDark, duration])
+  }, [isDark, duration, setTheme])
 
   return (
     <button
