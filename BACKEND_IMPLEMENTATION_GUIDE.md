@@ -38,8 +38,11 @@ Registrar un nuevo usuario.
 ```
 
 **Errores:**
-- 400: User already exists
+- 400: `{ "detail": "auth.emailAlreadyExists", "code": "EMAIL_EXISTS" }`
+- 400: `{ "detail": "auth.passwordTooWeak", "code": "WEAK_PASSWORD" }`
 - 422: Validation error
+
+**Nota:** El frontend espera errores con `detail` como translation key (ejemplo: "auth.emailAlreadyExists") para mostrar mensajes traducidos al usuario.
 
 ---
 
@@ -71,8 +74,11 @@ Iniciar sesión.
 ```
 
 **Errores:**
-- 401: Invalid credentials
+- 401: `{ "detail": "auth.invalidCredentials", "code": "INVALID_PASSWORD" }` - Cuando la contraseña es incorrecta
+- 404: `{ "detail": "auth.accountNotFound", "code": "ACCOUNT_NOT_FOUND" }` - Cuando no existe una cuenta con ese email
 - 422: Validation error
+
+**Nota:** El frontend distingue entre cuenta no encontrada y contraseña incorrecta para dar feedback específico al usuario.
 
 ---
 
@@ -281,10 +287,136 @@ npm install express jsonwebtoken bcrypt dotenv
 ### Cuenta de Prueba (Dummy Data Actual)
 ```
 Email: test@chihuahua2.tecnm.mx
-Password: password123
+Password: Password123!
 ```
 
-Cuando implementes el backend, crea esta cuenta para testing.
+**Nota:** La contraseña ahora requiere ser fuerte (mayúsculas, minúsculas, números y símbolos).
+
+---
+
+## 🔐 Validación de Contraseñas
+
+### Requisitos de Contraseña Fuerte
+
+El frontend valida que las contraseñas cumplan con los siguientes requisitos:
+
+1. **Longitud mínima**: 8 caracteres
+2. **Mayúsculas**: Al menos una letra mayúscula (A-Z)
+3. **Minúsculas**: Al menos una letra minúscula (a-z)
+4. **Números**: Al menos un dígito (0-9)
+5. **Símbolos**: Al menos un carácter especial (!@#$%^&*(),.?":{}|<>)
+
+### Implementación Backend
+
+**Python (FastAPI):**
+```python
+import re
+
+def validate_password_strength(password: str) -> bool:
+    """
+    Valida que la contraseña cumpla con los requisitos de seguridad.
+    Retorna True si es válida, False si no.
+    """
+    if len(password) < 8:
+        return False
+
+    has_uppercase = bool(re.search(r'[A-Z]', password))
+    has_lowercase = bool(re.search(r'[a-z]', password))
+    has_digit = bool(re.search(r'\d', password))
+    has_special = bool(re.search(r'[^A-Za-z0-9]', password))
+
+    return all([has_uppercase, has_lowercase, has_digit, has_special])
+
+# En tu endpoint de registro:
+if not validate_password_strength(password):
+    raise HTTPException(
+        status_code=400,
+        detail="auth.passwordTooWeak",
+        headers={"code": "WEAK_PASSWORD"}
+    )
+```
+
+**Node.js (Express):**
+```javascript
+function validatePasswordStrength(password) {
+  if (password.length < 8) return false;
+
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasDigit = /\d/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+  return hasUppercase && hasLowercase && hasDigit && hasSpecial;
+}
+
+// En tu ruta de registro:
+if (!validatePasswordStrength(password)) {
+  return res.status(400).json({
+    detail: "auth.passwordTooWeak",
+    code: "WEAK_PASSWORD"
+  });
+}
+```
+
+---
+
+## ⚠️ Códigos de Error Específicos
+
+El frontend está preparado para manejar errores específicos con translation keys. Asegúrate de retornar estos códigos en tus respuestas de error:
+
+### Errores de Autenticación
+
+| Código | Translation Key | HTTP Status | Descripción |
+|--------|----------------|-------------|-------------|
+| `ACCOUNT_NOT_FOUND` | `auth.accountNotFound` | 404 | No existe cuenta con ese email |
+| `INVALID_PASSWORD` | `auth.invalidCredentials` | 401 | La contraseña es incorrecta |
+| `EMAIL_EXISTS` | `auth.emailAlreadyExists` | 400 | Ya existe una cuenta con ese email |
+| `WEAK_PASSWORD` | `auth.passwordTooWeak` | 400 | La contraseña no cumple requisitos de seguridad |
+
+### Formato de Respuesta de Error
+
+```json
+{
+  "detail": "auth.accountNotFound",
+  "code": "ACCOUNT_NOT_FOUND"
+}
+```
+
+El frontend usa el campo `detail` como translation key. Si `detail` empieza con "auth.", automáticamente lo traduce al idioma del usuario.
+
+### Ejemplos de Implementación
+
+**Python (FastAPI):**
+```python
+# Usuario no encontrado
+raise HTTPException(
+    status_code=404,
+    detail="auth.accountNotFound",
+    headers={"code": "ACCOUNT_NOT_FOUND"}
+)
+
+# Contraseña incorrecta
+raise HTTPException(
+    status_code=401,
+    detail="auth.invalidCredentials",
+    headers={"code": "INVALID_PASSWORD"}
+)
+```
+
+**Node.js (Express):**
+```javascript
+// Usuario no encontrado
+return res.status(404).json({
+  detail: "auth.accountNotFound",
+  code: "ACCOUNT_NOT_FOUND"
+});
+
+// Contraseña incorrecta
+return res.status(401).json({
+  detail: "auth.invalidCredentials",
+  code: "INVALID_PASSWORD"
+});
+```
 
 ---
 

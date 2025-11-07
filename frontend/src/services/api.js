@@ -22,12 +22,22 @@ const DUMMY_USERS = [
   {
     id: '1',
     email: 'test@chihuahua2.tecnm.mx',
-    password: 'password123', // In real backend, this would be hashed
+    password: 'Password123!', // Strong password for testing
     name: 'Usuario Demo',
     semester: '5',
     career: 'ingenieria-sistemas-computacionales',
     avatar: null,
     profileComplete: true,
+  },
+  {
+    id: '2',
+    email: 'admin@chihuahua2.tecnm.mx',
+    password: 'Admin123!',
+    name: 'Administrador',
+    semester: null,
+    career: null,
+    avatar: null,
+    profileComplete: false,
   }
 ];
 
@@ -36,23 +46,52 @@ const simulateDelay = (ms = 800) => new Promise(resolve => setTimeout(resolve, m
 const dummyAuth = {
   async login(email, password) {
     await simulateDelay();
-    const user = DUMMY_USERS.find(u => u.email === email && u.password === password);
-    if (!user) {
-      throw new Error('Invalid credentials');
+
+    // Check if account exists
+    const userExists = DUMMY_USERS.find(u => u.email === email);
+    if (!userExists) {
+      const error = new Error('auth.accountNotFound');
+      error.code = 'ACCOUNT_NOT_FOUND';
+      throw error;
     }
-    const { password: _, ...userWithoutPassword } = user;
+
+    // Check password
+    if (userExists.password !== password) {
+      const error = new Error('auth.invalidCredentials');
+      error.code = 'INVALID_PASSWORD';
+      throw error;
+    }
+
+    const { password: _, ...userWithoutPassword } = userExists;
     return {
       user: userWithoutPassword,
-      token: 'dummy-jwt-token-' + user.id,
+      token: 'dummy-jwt-token-' + userExists.id,
     };
   },
 
   async register(userData) {
     await simulateDelay();
+
     // Check if user already exists
     if (DUMMY_USERS.find(u => u.email === userData.email)) {
-      throw new Error('User already exists');
+      const error = new Error('auth.emailAlreadyExists');
+      error.code = 'EMAIL_EXISTS';
+      throw error;
     }
+
+    // Validate password strength (basic check for dummy)
+    const hasUpperCase = /[A-Z]/.test(userData.password);
+    const hasLowerCase = /[a-z]/.test(userData.password);
+    const hasNumber = /[0-9]/.test(userData.password);
+    const hasSymbol = /[^A-Za-z0-9]/.test(userData.password);
+    const isLongEnough = userData.password.length >= 8;
+
+    if (!isLongEnough || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol) {
+      const error = new Error('auth.passwordTooWeak');
+      error.code = 'WEAK_PASSWORD';
+      throw error;
+    }
+
     const newUser = {
       id: String(DUMMY_USERS.length + 1),
       ...userData,

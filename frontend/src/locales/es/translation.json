@@ -27,7 +27,19 @@
     "signInHere": "Inicia sesión aquí",
     "signUpHere": "Regístrate aquí",
     "continueWithout": "Continuar sin iniciar sesión",
-    "continueWithoutRegister": "Continuar sin registrarse"
+    "continueWithoutRegister": "Continuar sin registrarse",
+    "schoolEmailRecommended": "Se recomienda usar correo institucional (@chihuahua2.tecnm.mx)",
+    "passwordStrength": "Seguridad de la contraseña",
+    "passwordWeak": "Débil",
+    "passwordMedium": "Media",
+    "passwordStrong": "Fuerte",
+    "passwordRequirements": "La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y símbolos",
+    "invalidCredentials": "Correo o contraseña incorrectos",
+    "accountNotFound": "No existe una cuenta con este correo",
+    "emailAlreadyExists": "Ya existe una cuenta con este correo",
+    "passwordTooWeak": "La contraseña es muy débil",
+    "loginError": "Error de Inicio de Sesión",
+    "registerError": "Error de Registro"
   },
   "login": {
     "title": "Iniciar Sesión",

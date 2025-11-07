@@ -13,10 +13,19 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { SCHOOL_NAME } from '@/lib/constants';
 import logo from '@/assets/images/itch_II_logo.png';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export function Login() {
   const { t } = useTranslation();
@@ -25,6 +34,7 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+  const [errorDialog, setErrorDialog] = useState({ open: false, message: '' });
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -43,7 +53,15 @@ export function Login() {
       toast.success(t('login.success'));
       navigate('/');
     } catch (error) {
-      toast.error(error.message || t('login.error'));
+      // Use AlertDialog for authentication errors
+      const errorMessage = error.message?.startsWith('auth.')
+        ? t(error.message)
+        : (error.message || t('login.error'));
+
+      setErrorDialog({
+        open: true,
+        message: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
@@ -148,6 +166,26 @@ export function Login() {
             </CardFooter>
           </form>
         </Card>
+
+        {/* Error Alert Dialog */}
+        <AlertDialog open={errorDialog.open} onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+                <AlertDialogTitle>{t('auth.loginError')}</AlertDialogTitle>
+              </div>
+              <AlertDialogDescription>
+                {errorDialog.message}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setErrorDialog({ open: false, message: '' })}>
+                {t('common.ok') || 'OK'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

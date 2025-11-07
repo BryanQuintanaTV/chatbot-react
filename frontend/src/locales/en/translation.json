@@ -27,7 +27,19 @@
     "signInHere": "Sign in here",
     "signUpHere": "Sign up here",
     "continueWithout": "Continue without signing in",
-    "continueWithoutRegister": "Continue without signing up"
+    "continueWithoutRegister": "Continue without signing up",
+    "schoolEmailRecommended": "Institutional email is recommended (@chihuahua2.tecnm.mx)",
+    "passwordStrength": "Password strength",
+    "passwordWeak": "Weak",
+    "passwordMedium": "Medium",
+    "passwordStrong": "Strong",
+    "passwordRequirements": "Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols",
+    "invalidCredentials": "Invalid email or password",
+    "accountNotFound": "No account found with this email",
+    "emailAlreadyExists": "An account with this email already exists",
+    "passwordTooWeak": "Password is too weak",
+    "loginError": "Login Error",
+    "registerError": "Registration Error"
   },
   "login": {
     "title": "Log In",

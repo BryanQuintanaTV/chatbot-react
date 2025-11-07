@@ -13,10 +13,20 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Check, X, AlertCircle } from 'lucide-react';
 import { SCHOOL_NAME } from '@/lib/constants';
 import logo from '@/assets/images/itch_II_logo.png';
 import { toast } from 'sonner';
+import { calculatePasswordStrength } from '@/lib/passwordStrength';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export function Register() {
   const { t } = useTranslation();
@@ -30,6 +40,7 @@ export function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+  const [errorDialog, setErrorDialog] = useState({ open: false, message: '' });
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -38,6 +49,10 @@ export function Register() {
   };
 
   const showEmailWarning = emailTouched && formData.email && !isValidSchoolEmail(formData.email);
+
+  const passwordStrength = calculatePasswordStrength(formData.password);
+  const passwordMatch = formData.confirmPassword && formData.password === formData.confirmPassword;
+  const passwordMismatch = formData.confirmPassword && formData.password !== formData.confirmPassword;
 
   const handleChange = (e) => {
     setFormData({
@@ -52,13 +67,19 @@ export function Register() {
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      toast.error(t('register.passwordMismatch'));
+      setErrorDialog({
+        open: true,
+        message: t('register.passwordMismatch'),
+      });
       setLoading(false);
       return;
     }
 
-    if (formData.password.length < 6) {
-      toast.error(t('register.passwordTooShort'));
+    if (formData.password.length < 8) {
+      setErrorDialog({
+        open: true,
+        message: t('register.passwordTooShort'),
+      });
       setLoading(false);
       return;
     }
@@ -72,7 +93,15 @@ export function Register() {
       toast.success(t('register.success'));
       navigate('/settings'); // Redirect to settings to complete profile
     } catch (error) {
-      toast.error(error.message || t('register.error'));
+      // Use AlertDialog for authentication errors
+      const errorMessage = error.message?.startsWith('auth.')
+        ? t(error.message)
+        : (error.message || t('register.error'));
+
+      setErrorDialog({
+        open: true,
+        message: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
@@ -158,6 +187,57 @@ export function Register() {
                     )}
                   </button>
                 </div>
+                {/* Password strength indicator */}
+                {formData.password && (
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">
+                        {t('auth.passwordStrength')}:
+                      </span>
+                      <span className={`text-xs font-medium ${
+                        passwordStrength.level === 'strong' ? 'text-green-600 dark:text-green-500' :
+                        passwordStrength.level === 'medium' ? 'text-yellow-600 dark:text-yellow-500' :
+                        'text-red-600 dark:text-red-500'
+                      }`}>
+                        {passwordStrength.level === 'strong' ? t('auth.passwordStrong') :
+                         passwordStrength.level === 'medium' ? t('auth.passwordMedium') :
+                         t('auth.passwordWeak')}
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          passwordStrength.level === 'strong' ? 'bg-green-600' :
+                          passwordStrength.level === 'medium' ? 'bg-yellow-600' :
+                          'bg-red-600'
+                        }`}
+                        style={{ width: `${passwordStrength.percentage}%` }}
+                      />
+                    </div>
+                    <div className="text-xs space-y-1 text-muted-foreground">
+                      <div className={`flex items-center gap-1 ${passwordStrength.checks.length ? 'text-green-600 dark:text-green-500' : ''}`}>
+                        {passwordStrength.checks.length ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                        <span>Mínimo 8 caracteres</span>
+                      </div>
+                      <div className={`flex items-center gap-1 ${passwordStrength.checks.uppercase ? 'text-green-600 dark:text-green-500' : ''}`}>
+                        {passwordStrength.checks.uppercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                        <span>Mayúsculas (A-Z)</span>
+                      </div>
+                      <div className={`flex items-center gap-1 ${passwordStrength.checks.lowercase ? 'text-green-600 dark:text-green-500' : ''}`}>
+                        {passwordStrength.checks.lowercase ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                        <span>Minúsculas (a-z)</span>
+                      </div>
+                      <div className={`flex items-center gap-1 ${passwordStrength.checks.number ? 'text-green-600 dark:text-green-500' : ''}`}>
+                        {passwordStrength.checks.number ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                        <span>Números (0-9)</span>
+                      </div>
+                      <div className={`flex items-center gap-1 ${passwordStrength.checks.symbol ? 'text-green-600 dark:text-green-500' : ''}`}>
+                        {passwordStrength.checks.symbol ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                        <span>Símbolos (!@#$%)</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
@@ -169,7 +249,10 @@ export function Register() {
                     placeholder="••••••••"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="pr-10"
+                    className={`pr-10 ${
+                      passwordMatch ? 'border-green-500 focus-visible:ring-green-500' :
+                      passwordMismatch ? 'border-red-500 focus-visible:ring-red-500' : ''
+                    }`}
                     required
                     minLength={6}
                   />
@@ -185,6 +268,22 @@ export function Register() {
                     )}
                   </button>
                 </div>
+                {/* Password match indicator */}
+                {formData.confirmPassword && (
+                  <div className="flex items-center gap-1 text-xs">
+                    {passwordMatch ? (
+                      <>
+                        <Check className="h-3 w-3 text-green-600 dark:text-green-500" />
+                        <span className="text-green-600 dark:text-green-500">Las contraseñas coinciden</span>
+                      </>
+                    ) : (
+                      <>
+                        <X className="h-3 w-3 text-red-600 dark:text-red-500" />
+                        <span className="text-red-600 dark:text-red-500">{t('register.passwordMismatch')}</span>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                 <p className="text-xs">
@@ -216,6 +315,26 @@ export function Register() {
             </CardFooter>
           </form>
         </Card>
+
+        {/* Error Alert Dialog */}
+        <AlertDialog open={errorDialog.open} onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+                <AlertDialogTitle>{t('auth.registerError')}</AlertDialogTitle>
+              </div>
+              <AlertDialogDescription>
+                {errorDialog.message}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setErrorDialog({ open: false, message: '' })}>
+                {t('common.ok') || 'OK'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
