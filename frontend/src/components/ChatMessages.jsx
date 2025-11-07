@@ -1,7 +1,10 @@
 import Markdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/AuthContext';
 import useAutoScroll from '@/hooks/useAutoScroll';
 import Spinner from '@/components/Spinner';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
 import userIcon from '@/assets/images/user.svg';
 import errorIcon from '@/assets/images/error.svg';
 import bot from '@/assets/images/bot.svg';
@@ -11,6 +14,7 @@ import { toast } from "sonner";
 
 function ChatMessages({ messages, isLoading }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const scrollContentRef = useAutoScroll(isLoading);
 
   return (
@@ -29,7 +33,21 @@ function ChatMessages({ messages, isLoading }) {
             }`}
           >
             {role === "user" && (
-              <img className="h-[26px] w-[26px] shrink-0" src={userIcon} alt="user" />
+              <Avatar className="h-[26px] w-[26px] shrink-0">
+                {getAvatarDisplay(user).type === 'url' && (
+                  <AvatarImage src={getAvatarDisplay(user).value} />
+                )}
+                {getAvatarDisplay(user).type === 'gradient' && (
+                  <div className={`w-full h-full bg-gradient-to-br ${getAvatarDisplay(user).value} flex items-center justify-center text-white font-semibold text-xs`}>
+                    {getUserInitials(user?.name)}
+                  </div>
+                )}
+                {getAvatarDisplay(user).type === 'initials' && (
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    {getAvatarDisplay(user).value}
+                  </AvatarFallback>
+                )}
+              </Avatar>
             )}
             {role === "assistant" && (
               <img className="h-[26px] w-[26px] shrink-0" src={bot} alt="assistant" />

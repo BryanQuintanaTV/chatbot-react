@@ -128,9 +128,8 @@ export function Sidebar() {
 
         {/* User Section at Bottom */}
         <div className="border-t p-3">
-          <div className={`flex items-center gap-2 ${collapsed ? 'flex-col' : ''}`}>
-            {/* User Profile with Popover */}
-            <Popover>
+          {/* User Profile with Popover */}
+          <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
@@ -181,6 +180,11 @@ export function Sidebar() {
                     <Settings className="h-4 w-4 mr-2" />
                     {t('sidebar.settings')}
                   </Button>
+
+                  {/* Theme Toggle */}
+                  <div className="px-2 py-2">
+                    <AnimatedThemeToggler />
+                  </div>
 
                   <Separator />
 
@@ -252,14 +256,6 @@ export function Sidebar() {
                 </div>
               </PopoverContent>
             </Popover>
-
-            {/* Theme Toggle */}
-            {!collapsed && (
-              <div className="shrink-0">
-                <AnimatedThemeToggler />
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>
