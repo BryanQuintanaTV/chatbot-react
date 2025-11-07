@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
@@ -53,33 +53,40 @@ export function Sidebar() {
     createNewChat();
     // Navigate to home page when creating a new chat
     navigate('/');
-    // Close sidebar on mobile after action
-    if (isMobile) {
-      toggleCollapsed();
-    }
+    // Close sidebar after action
+    toggleCollapsed();
   };
 
   const handleSettings = () => {
     navigate('/settings');
-    // Close sidebar on mobile after action
-    if (isMobile) {
-      toggleCollapsed();
-    }
+    // Close sidebar after action
+    toggleCollapsed();
   };
 
   const handleChatSelect = () => {
     // Navigate to home page when a chat is selected
     navigate('/');
-    // Close sidebar on mobile after action
-    if (isMobile) {
-      toggleCollapsed();
-    }
+    // Close sidebar after action
+    toggleCollapsed();
   };
+
+  // Prevent body scroll when sidebar is open
+  useEffect(() => {
+    if (!collapsed) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [collapsed]);
 
   return (
     <>
-      {/* Backdrop overlay for mobile when sidebar is open */}
-      {isMobile && !collapsed && (
+      {/* Backdrop overlay when sidebar is open */}
+      {!collapsed && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
           onClick={toggleCollapsed}
@@ -89,9 +96,8 @@ export function Sidebar() {
       <div
         className={`
           fixed left-0 top-0 h-full bg-background border-r border-border
-          transition-all duration-300 ease-in-out
-          ${isMobile ? 'z-50' : 'z-30'}
-          ${collapsed ? (isMobile ? '-translate-x-full' : 'w-16') : 'w-64'}
+          transition-all duration-300 ease-in-out w-64 z-50
+          ${collapsed ? '-translate-x-full' : 'translate-x-0'}
         `}
       >
       <div className="flex flex-col h-full">

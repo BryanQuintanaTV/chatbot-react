@@ -4,21 +4,14 @@ const SidebarContext = createContext();
 
 export function SidebarProvider({ children }) {
   const [isMobile, setIsMobile] = useState(false);
-  const [collapsed, setCollapsed] = useState(() => {
-    // Load collapsed state from localStorage
-    const saved = localStorage.getItem('sidebar-collapsed');
-    return saved ? JSON.parse(saved) : false;
-  });
+  // Sidebar starts collapsed by default
+  const [collapsed, setCollapsed] = useState(true);
 
   // Detect mobile screen size
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768; // md breakpoint
       setIsMobile(mobile);
-      // Auto-collapse on mobile
-      if (mobile) {
-        setCollapsed(true);
-      }
     };
 
     checkMobile();
@@ -26,10 +19,6 @@ export function SidebarProvider({ children }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Save to localStorage whenever collapsed state changes
-  useEffect(() => {
-    localStorage.setItem('sidebar-collapsed', JSON.stringify(collapsed));
-  }, [collapsed]);
 
   const toggleCollapsed = () => {
     setCollapsed(prev => !prev);

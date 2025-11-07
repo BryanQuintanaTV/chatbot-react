@@ -14,24 +14,21 @@ export function ChatPage() {
       <Sidebar />
       <div
         className='flex flex-col h-screen w-full transition-all duration-300 overflow-hidden'
-        style={{ marginLeft: isMobile ? '0' : (collapsed ? '64px' : '256px') }}
       >
         <Toaster richColors position="top-right" />
         <div className='flex flex-col h-full w-full max-w-5xl mx-auto px-4'>
           <header className='shrink-0 z-20 bg-background border-b'>
             <div className='flex flex-col h-full w-full gap-1 pt-4 pb-2'>
               <div className="flex items-center gap-3">
-                {isMobile && (
-                  <button
-                    onClick={toggleCollapsed}
-                    className="p-2 hover:bg-muted rounded-md"
-                    aria-label="Toggle sidebar"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  </button>
-                )}
+                <button
+                  onClick={toggleCollapsed}
+                  className="p-2 hover:bg-muted rounded-md"
+                  aria-label="Toggle sidebar"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
                 <a href='https://chihuahua2.tecnm.mx/'>
                   <img src={logo} className='w-32' alt='logo' />
                 </a>
