@@ -101,7 +101,6 @@ export function Sidebar() {
           fixed left-0 top-0 h-full bg-background border-r border-border
           transition-all duration-300 ease-in-out z-50
           ${isCollapsed ? 'w-16' : 'w-64'}
-          ${isMobile && isCollapsed ? '-translate-x-full' : 'translate-x-0'}
         `}
       >
       <div className="flex flex-col h-full">
