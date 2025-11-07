@@ -10,13 +10,14 @@ export function ChatPage() {
   const { sidebarState, isMobile } = useSidebar();
 
   const isCollapsed = sidebarState === 'collapsed';
+  const isExpanded = sidebarState === 'expanded';
 
   return (
     <>
       <Sidebar />
       <div
         className='flex flex-col h-screen w-full transition-all duration-300 overflow-hidden'
-        style={{ marginLeft: isMobile ? '0' : (isCollapsed ? '64px' : '256px') }}
+        style={{ marginLeft: isMobile ? '0' : (isCollapsed ? '64px' : '0') }}
       >
         <Toaster richColors position="top-right" />
         <div className='flex flex-col h-full w-full max-w-7xl mx-auto px-4'>
