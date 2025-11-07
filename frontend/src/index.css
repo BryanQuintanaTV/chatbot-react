@@ -8,7 +8,7 @@
 
 @layer base {
   body, html, #root {
-    @apply text-main-text h-full;
+    @apply text-main-text h-full overflow-x-hidden;
   }
 
   ::-webkit-scrollbar {

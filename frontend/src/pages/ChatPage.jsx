@@ -13,7 +13,7 @@ export function ChatPage() {
     <>
       <Sidebar />
       <div
-        className='flex flex-col h-screen w-full transition-all duration-300 overflow-hidden overflow-x-hidden'
+        className='flex flex-col h-screen w-full transition-all duration-300 overflow-hidden'
         style={{ marginLeft: isMobile ? '0' : (collapsed ? '64px' : '256px') }}
       >
         <Toaster richColors position="top-right" />

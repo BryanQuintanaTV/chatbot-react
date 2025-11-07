@@ -177,7 +177,7 @@ export function Settings() {
     <>
       <Sidebar />
       <div
-        className="flex flex-col min-h-screen w-full transition-all duration-300 overflow-x-hidden"
+        className="flex flex-col min-h-screen w-full transition-all duration-300"
         style={{ marginLeft: isMobile ? '0' : (collapsed ? '64px' : '256px') }}
       >
         <div className="flex flex-col min-h-full w-full max-w-3xl mx-auto px-4">
