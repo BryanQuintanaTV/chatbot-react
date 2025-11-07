@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/components/theme-provider';
+import { useSidebar } from '@/contexts/SidebarContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,6 +36,7 @@ export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, logout } = useAuth();
   const { theme } = useTheme();
+  const { collapsed } = useSidebar();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -174,7 +176,10 @@ export function Settings() {
   return (
     <>
       <Sidebar />
-      <div className="flex flex-col min-h-screen w-full ml-64 transition-all duration-300">
+      <div
+        className="flex flex-col min-h-screen w-full transition-all duration-300"
+        style={{ marginLeft: collapsed ? '64px' : '256px' }}
+      >
         <div className="flex flex-col min-h-full w-full max-w-3xl mx-auto px-4">
           {/* Header */}
           <header className="sticky top-0 shrink-0 z-20 bg-background border-b">

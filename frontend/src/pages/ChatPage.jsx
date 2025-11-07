@@ -1,16 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import Chatbot from '@/components/Chatbot';
 import { Sidebar } from '@/components/Sidebar';
+import { useSidebar } from '@/contexts/SidebarContext';
 import logo from '@/assets/images/itch_II_logo.png';
 import { Toaster } from "sonner";
 
 export function ChatPage() {
   const { t } = useTranslation();
+  const { collapsed } = useSidebar();
 
   return (
     <>
       <Sidebar />
-      <div className='flex flex-col min-h-screen w-full ml-64 transition-all duration-300'>
+      <div
+        className='flex flex-col min-h-screen w-full transition-all duration-300'
+        style={{ marginLeft: collapsed ? '64px' : '256px' }}
+      >
         <Toaster richColors position="top-right" />
         <div className='flex flex-col min-h-full w-full max-w-3xl mx-auto px-4'>
           <header className='sticky top-0 shrink-0 z-20 bg-background border-b'>

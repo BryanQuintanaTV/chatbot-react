@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
+import { useSidebar } from '@/contexts/SidebarContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
@@ -39,8 +40,8 @@ export function Sidebar() {
   const { t } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
   const { createNewChat } = useChat();
+  const { collapsed, toggleCollapsed } = useSidebar();
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
   const [chatsOpen, setChatsOpen] = useState(true);
 
   const handleLogout = () => {
@@ -73,7 +74,7 @@ export function Sidebar() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={toggleCollapsed}
             className="shrink-0"
           >
             <PanelLeft className={`h-5 w-5 transition-transform ${collapsed ? '' : 'rotate-180'}`} />
