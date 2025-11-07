@@ -85,7 +85,6 @@ export function Sidebar() {
 
   const isExpanded = sidebarState === 'expanded';
   const isCollapsed = sidebarState === 'collapsed';
-  const isHidden = sidebarState === 'hidden';
 
   return (
     <>
@@ -101,9 +100,7 @@ export function Sidebar() {
         className={`
           fixed left-0 top-0 h-full bg-background border-r border-border
           transition-all duration-300 ease-in-out z-50
-          ${isHidden ? 'w-16 -translate-x-full' : ''}
-          ${isCollapsed ? 'w-16 translate-x-0' : ''}
-          ${isExpanded ? 'w-64 translate-x-0' : ''}
+          ${isCollapsed ? 'w-16' : 'w-64'}
         `}
       >
       <div className="flex flex-col h-full">

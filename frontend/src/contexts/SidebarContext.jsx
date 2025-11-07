@@ -4,7 +4,7 @@ const SidebarContext = createContext();
 
 export function SidebarProvider({ children }) {
   const [isMobile, setIsMobile] = useState(false);
-  // Sidebar state: 'hidden', 'collapsed' (icons only), 'expanded' (full)
+  // Sidebar state: 'collapsed' (icons only - 64px), 'expanded' (full - 256px)
   const [sidebarState, setSidebarState] = useState('collapsed');
 
   // Detect mobile screen size
@@ -12,38 +12,21 @@ export function SidebarProvider({ children }) {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768; // md breakpoint
       setIsMobile(mobile);
-      // On mobile, start hidden
-      if (mobile && sidebarState === 'collapsed') {
-        setSidebarState('hidden');
-      }
     };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, [sidebarState]);
+  }, []);
 
   const toggleSidebar = () => {
-    if (isMobile) {
-      // Mobile: toggle between hidden and expanded
-      setSidebarState(prev => prev === 'hidden' ? 'expanded' : 'hidden');
-    } else {
-      // Desktop: cycle through hidden -> collapsed -> expanded -> hidden
-      setSidebarState(prev => {
-        if (prev === 'hidden') return 'collapsed';
-        if (prev === 'collapsed') return 'expanded';
-        return 'hidden';
-      });
-    }
+    // Toggle between collapsed and expanded
+    setSidebarState(prev => prev === 'collapsed' ? 'expanded' : 'collapsed');
   };
 
   const closeSidebar = () => {
-    if (isMobile) {
-      setSidebarState('hidden');
-    } else {
-      // On desktop, go to collapsed state
-      setSidebarState('collapsed');
-    }
+    // Always go to collapsed state
+    setSidebarState('collapsed');
   };
 
   const value = {
@@ -53,7 +36,7 @@ export function SidebarProvider({ children }) {
     closeSidebar,
     isMobile,
     // Keep for backward compatibility
-    collapsed: sidebarState === 'hidden' || sidebarState === 'collapsed',
+    collapsed: sidebarState === 'collapsed',
     toggleCollapsed: toggleSidebar,
   };
 

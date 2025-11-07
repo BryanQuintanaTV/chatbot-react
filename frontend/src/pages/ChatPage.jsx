@@ -7,13 +7,16 @@ import { Toaster } from "sonner";
 
 export function ChatPage() {
   const { t } = useTranslation();
-  const { toggleSidebar } = useSidebar();
+  const { sidebarState, toggleSidebar } = useSidebar();
+
+  const isCollapsed = sidebarState === 'collapsed';
 
   return (
     <>
       <Sidebar />
       <div
         className='flex flex-col h-screen w-full transition-all duration-300 overflow-hidden'
+        style={{ marginLeft: isCollapsed ? '64px' : '256px' }}
       >
         <Toaster richColors position="top-right" />
         <div className='flex flex-col h-full w-full max-w-5xl mx-auto px-4'>
