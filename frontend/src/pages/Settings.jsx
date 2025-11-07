@@ -172,29 +172,29 @@ export function Settings() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen w-full max-w-3xl mx-auto px-4">
-      {/* Header */}
-      <header className="sticky top-0 shrink-0 z-20 bg-background border-b">
-        <div className="flex items-center h-16 gap-4">
-          <Sidebar />
-          <div className="flex items-center gap-3 flex-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="h-5 w-5 text-foreground" />
-            </Button>
-            <img src={logo} className="w-24" alt="logo" />
-            <h1 className="font-urbanist text-xl font-semibold text-foreground">
-              {t('settings.title')}
-            </h1>
-          </div>
-        </div>
-      </header>
+    <>
+      <Sidebar />
+      <div className="flex flex-col min-h-screen w-full ml-64 transition-all duration-300">
+        <div className="flex flex-col min-h-full w-full max-w-3xl mx-auto px-4">
+          {/* Header */}
+          <header className="sticky top-0 shrink-0 z-20 bg-background border-b">
+            <div className="flex items-center h-16 gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft className="h-5 w-5 text-foreground" />
+              </Button>
+              <img src={logo} className="w-24" alt="logo" />
+              <h1 className="font-urbanist text-xl font-semibold text-foreground">
+                {t('settings.title')}
+              </h1>
+            </div>
+          </header>
 
-      {/* Main Content */}
-      <main className="flex-1 py-6 space-y-6">
+          {/* Main Content */}
+          <main className="flex-1 py-6 space-y-6">
         {/* Profile Section */}
         <Card>
           <CardHeader>
@@ -429,7 +429,9 @@ export function Settings() {
             </Button>
           </CardContent>
         </Card>
-      </main>
-    </div>
+          </main>
+        </div>
+      </div>
+    </>
   );
 }

@@ -57,12 +57,18 @@
     "completeProfile": "Completa tu perfil",
     "loginPrompt": "Inicia sesión para obtener respuestas personalizadas",
     "chat": "Chat",
+    "chats": "Chats",
     "settings": "Configuración",
     "theme": "Tema",
     "darkMode": "Modo Oscuro",
     "lightMode": "Modo Claro",
     "chatHistory": "Historial de Chats",
-    "semester": "Semestre"
+    "semester": "Semestre",
+    "help": "Ayuda",
+    "helpCenter": "Centro de Ayuda",
+    "releaseNotes": "Notas de la Versión",
+    "reportIssue": "Informar un Error",
+    "keyboardShortcuts": "Atajos de Teclado"
   },
   "settings": {
     "title": "Configuración",

@@ -57,12 +57,18 @@
     "completeProfile": "Complete your profile",
     "loginPrompt": "Log in to get personalized responses",
     "chat": "Chat",
+    "chats": "Chats",
     "settings": "Settings",
     "theme": "Theme",
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
     "chatHistory": "Chat History",
-    "semester": "Semester"
+    "semester": "Semester",
+    "help": "Help",
+    "helpCenter": "Help Center",
+    "releaseNotes": "Release Notes",
+    "reportIssue": "Report an Issue",
+    "keyboardShortcuts": "Keyboard Shortcuts"
   },
   "settings": {
     "title": "Settings",

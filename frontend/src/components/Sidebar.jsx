@@ -1,177 +1,269 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+import { useChat } from '@/contexts/ChatContext';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { ChatList } from '@/components/ChatList';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
 import {
-  Menu,
-  User,
+  PanelLeft,
+  Plus,
+  ChevronDown,
+  ChevronRight,
   Settings,
-  History,
   LogOut,
-  LogIn,
+  HelpCircle,
+  BookOpen,
+  FileText,
+  AlertCircle,
+  Keyboard,
   MessageSquare,
 } from 'lucide-react';
-import { useState } from 'react';
+import { Separator } from '@/components/ui/separator';
+import logo from '@/assets/images/itch_II_logo.png';
 
 export function Sidebar() {
   const { t } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
+  const { createNewChat } = useChat();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [chatsOpen, setChatsOpen] = useState(true);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
-    setOpen(false);
     navigate('/');
   };
 
-  const handleLogin = () => {
-    setOpen(false);
-    navigate('/login');
+  const handleNewChat = () => {
+    createNewChat();
+  };
+
+  const handleSettings = () => {
+    navigate('/settings');
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="shrink-0">
-          <Menu className="h-5 w-5 text-foreground" />
-          <span className="sr-only">Toggle menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-80 flex flex-col">
-        <SheetHeader>
-          <SheetTitle>{t('sidebar.menu')}</SheetTitle>
-        </SheetHeader>
-
-        <div className="flex-1 flex flex-col gap-4 py-4">
-          {/* User Section */}
-          {isAuthenticated ? (
-            <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-muted/50">
-              <Avatar className="h-12 w-12">
-                {getAvatarDisplay(user).type === 'url' && (
-                  <AvatarImage src={getAvatarDisplay(user).value} />
-                )}
-                {getAvatarDisplay(user).type === 'gradient' && (
-                  <div className={`w-full h-full bg-gradient-to-br ${getAvatarDisplay(user).value} flex items-center justify-center text-white font-semibold`}>
-                    {getUserInitials(user?.name)}
-                  </div>
-                )}
-                {getAvatarDisplay(user).type === 'initials' && (
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    {getAvatarDisplay(user).value}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{user?.name || t('sidebar.user')}</p>
-                {user?.semester && user?.career ? (
-                  <>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {t('sidebar.semester')} {user.semester}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {t(`careers.${user.career}`)}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-xs text-muted-foreground truncate">
-                    {user?.semester ? `${t('sidebar.semester')} ${user.semester}` : t('sidebar.completeProfile')}
-                  </p>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="px-2 py-3 rounded-lg bg-muted/50">
-              <p className="text-sm text-muted-foreground mb-2">
-                {t('sidebar.loginPrompt')}
-              </p>
-              <Button
-                onClick={handleLogin}
-                variant="default"
-                size="sm"
-                className="w-full"
-              >
-                <LogIn className="h-4 w-4 mr-2" />
-                {t('auth.login')}
-              </Button>
-            </div>
+    <div
+      className={`
+        fixed left-0 top-0 h-full bg-background border-r border-border
+        transition-all duration-300 ease-in-out z-30
+        ${collapsed ? 'w-16' : 'w-64'}
+      `}
+    >
+      <div className="flex flex-col h-full">
+        {/* Header with Logo/Toggle */}
+        <div className="h-16 flex items-center justify-between px-4 border-b">
+          {!collapsed && (
+            <img src={logo} className="h-8" alt="logo" />
           )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+            className="shrink-0"
+          >
+            <PanelLeft className={`h-5 w-5 transition-transform ${collapsed ? '' : 'rotate-180'}`} />
+          </Button>
+        </div>
 
-          <Separator />
+        {/* New Chat Button */}
+        <div className="p-3">
+          <Button
+            onClick={handleNewChat}
+            variant="outline"
+            className={`w-full ${collapsed ? 'px-0' : 'justify-start'}`}
+            title={collapsed ? t('chat.newChat') : undefined}
+          >
+            <Plus className="h-4 w-4" />
+            {!collapsed && <span className="ml-2">{t('chat.newChat')}</span>}
+          </Button>
+        </div>
 
-          {/* Navigation Links */}
-          <div className="flex flex-col gap-2">
-            <Link to="/" onClick={() => setOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                {t('sidebar.chat')}
-              </Button>
-            </Link>
-
-            {isAuthenticated && (
-              <Link to="/settings" onClick={() => setOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start">
-                  <Settings className="h-4 w-4 mr-2" />
-                  {t('sidebar.settings')}
+        {/* Chats Section - Collapsible */}
+        {!collapsed && (
+          <div className="flex-1 overflow-hidden flex flex-col px-3">
+            <Collapsible open={chatsOpen} onOpenChange={setChatsOpen}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-between px-2 hover:bg-muted"
+                >
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    <span className="text-sm font-semibold">{t('sidebar.chats')}</span>
+                  </div>
+                  {chatsOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
                 </Button>
-              </Link>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="flex-1 overflow-hidden mt-2">
+                <div className="h-full overflow-y-auto">
+                  <ChatList />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        )}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* User Section at Bottom */}
+        <div className="border-t p-3">
+          <div className={`flex items-center gap-2 ${collapsed ? 'flex-col' : ''}`}>
+            {/* User Profile with Popover */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={`${collapsed ? 'w-full px-0' : 'p-2 flex-1 justify-start'} h-auto`}
+                >
+                  <Avatar className="h-8 w-8">
+                    {getAvatarDisplay(user).type === 'url' && (
+                      <AvatarImage src={getAvatarDisplay(user).value} />
+                    )}
+                    {getAvatarDisplay(user).type === 'gradient' && (
+                      <div className={`w-full h-full bg-gradient-to-br ${getAvatarDisplay(user).value} flex items-center justify-center text-white font-semibold text-sm`}>
+                        {getUserInitials(user?.name)}
+                      </div>
+                    )}
+                    {getAvatarDisplay(user).type === 'initials' && (
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                        {getAvatarDisplay(user).value}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  {!collapsed && user && (
+                    <div className="ml-2 flex-1 text-left overflow-hidden">
+                      <p className="text-sm font-medium truncate">{user.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64" align="end" side="top">
+                <div className="space-y-1">
+                  {/* User Info */}
+                  {user && (
+                    <>
+                      <div className="px-2 py-1.5">
+                        <p className="text-sm font-medium">{user.name}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+
+                  {/* Settings */}
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={handleSettings}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    {t('sidebar.settings')}
+                  </Button>
+
+                  <Separator />
+
+                  {/* Help Menu - Collapsible */}
+                  <Collapsible open={helpOpen} onOpenChange={setHelpOpen}>
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-between"
+                      >
+                        <div className="flex items-center">
+                          <HelpCircle className="h-4 w-4 mr-2" />
+                          {t('sidebar.help')}
+                        </div>
+                        {helpOpen ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pl-6 space-y-1">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-sm"
+                        onClick={() => {/* TODO: Help Center */}}
+                      >
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        {t('sidebar.helpCenter')}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-sm"
+                        onClick={() => {/* TODO: Release Notes */}}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        {t('sidebar.releaseNotes')}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-sm"
+                        onClick={() => {/* TODO: Report Issue */}}
+                      >
+                        <AlertCircle className="h-4 w-4 mr-2" />
+                        {t('sidebar.reportIssue')}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-sm"
+                        onClick={() => {/* TODO: Keyboard Shortcuts */}}
+                      >
+                        <Keyboard className="h-4 w-4 mr-2" />
+                        {t('sidebar.keyboardShortcuts')}
+                      </Button>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Separator />
+
+                  {/* Logout */}
+                  {isAuthenticated && (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      {t('auth.logout')}
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Theme Toggle */}
+            {!collapsed && (
+              <div className="shrink-0">
+                <AnimatedThemeToggler />
+              </div>
             )}
           </div>
-
-          <Separator />
-
-          {/* Theme Toggle */}
-          <div className="px-2 flex flex-col gap-2">
-            <p className="text-sm font-medium px-2">{t('sidebar.theme')}</p>
-            <div className="flex justify-center">
-              <AnimatedThemeToggler />
-            </div>
-          </div>
-
-          {/* Chat History Section */}
-          <>
-            <Separator />
-            <div className="flex-1 overflow-hidden flex flex-col px-2">
-              <div className="flex items-center gap-2 mb-3">
-                <History className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold">{t('sidebar.chatHistory')}</h3>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <ChatList onChatSelect={() => setOpen(false)} />
-              </div>
-            </div>
-          </>
-
-          {/* Logout Button */}
-          {isAuthenticated && (
-            <>
-              <Separator />
-              <div className="px-2">
-                <Button
-                  onClick={handleLogout}
-                  variant="ghost"
-                  className="w-full justify-start text-destructive hover:text-destructive"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  {t('auth.logout')}
-                </Button>
-              </div>
-            </>
-          )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </div>
   );
 }

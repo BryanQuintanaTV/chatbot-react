@@ -91,20 +91,8 @@ export function ChatList({ onChatSelect }) {
   return (
     <>
       <div className="flex flex-col h-full">
-        {/* New Chat Button */}
-        <div className="px-2 mb-2">
-          <Button
-            onClick={handleNewChat}
-            variant="outline"
-            className="w-full justify-start"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('chat.newChat')}
-          </Button>
-        </div>
-
         {/* Chat List */}
-        <div className="flex-1 overflow-y-auto space-y-1 px-2">
+        <div className="flex-1 overflow-y-auto space-y-1">
           {chats.map((chat) => (
             <div
               key={chat.id}
