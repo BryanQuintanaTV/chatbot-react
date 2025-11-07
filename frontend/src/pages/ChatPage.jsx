@@ -174,7 +174,7 @@ export function ChatPage() {
                 {isMobile && (
                   <button
                     onClick={toggleSidebar}
-                    className="p-2 hover:bg-muted rounded-md"
+                    className="p-2 hover:bg-muted rounded-md text-foreground"
                     aria-label="Toggle sidebar"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
