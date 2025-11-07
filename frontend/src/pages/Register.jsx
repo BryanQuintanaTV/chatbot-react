@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { SCHOOL_NAME } from '@/lib/constants';
 import logo from '@/assets/images/itch_II_logo.png';
 import { toast } from 'sonner';
@@ -25,9 +26,18 @@ export function Register() {
     password: '',
     confirmPassword: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  const isValidSchoolEmail = (email) => {
+    return email.endsWith('@chihuahua2.tecnm.mx');
+  };
+
+  const showEmailWarning = emailTouched && formData.email && !isValidSchoolEmail(formData.email);
 
   const handleChange = (e) => {
     setFormData({
@@ -111,34 +121,70 @@ export function Register() {
                   placeholder={t('register.emailPlaceholder')}
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={() => setEmailTouched(true)}
+                  className={showEmailWarning ? 'border-yellow-500 focus-visible:ring-yellow-500' : ''}
                   required
                 />
+                {showEmailWarning && (
+                  <p className="text-xs text-yellow-600 dark:text-yellow-500 flex items-center gap-1">
+                    <span>⚠️</span>
+                    <span>{t('auth.schoolEmailRecommended') || 'Se recomienda usar correo institucional (@chihuahua2.tecnm.mx)'}</span>
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">{t('auth.password')}</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  minLength={6}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="pr-10"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  minLength={6}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="pr-10"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                 <p className="text-xs">
@@ -148,6 +194,7 @@ export function Register() {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {loading ? t('register.registering') : t('register.registerButton')}
               </Button>
               <div className="text-sm text-center space-y-2">

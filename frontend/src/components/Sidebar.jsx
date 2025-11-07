@@ -225,15 +225,20 @@ export function Sidebar({ onShowShortcuts }) {
                     </>
                   )}
 
-                  {/* Settings */}
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={handleSettings}
-                  >
-                    <Settings className="h-4 w-4 mr-2" />
-                    {t('sidebar.settings')}
-                  </Button>
+                  {/* Settings - Only show when authenticated */}
+                  {isAuthenticated && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start"
+                        onClick={handleSettings}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        {t('sidebar.settings')}
+                      </Button>
+                      <Separator />
+                    </>
+                  )}
 
                   {/* Theme Toggle */}
                   <AnimatedThemeToggler
@@ -243,7 +248,7 @@ export function Sidebar({ onShowShortcuts }) {
                     className="w-full justify-start"
                   />
 
-                  <Separator />
+                  {!isAuthenticated && <Separator />}
 
                   {/* Help Menu - Nested Popover */}
                   <Popover>
