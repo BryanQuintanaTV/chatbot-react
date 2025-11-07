@@ -175,7 +175,17 @@
     "showArchived": "Show Archived",
     "showActive": "Show Active",
     "noArchivedChats": "No archived chats",
-    "noChats": "No chats"
+    "noChats": "No chats",
+    "categories": {
+      "uncategorized": "Uncategorized",
+      "work": "Work",
+      "school": "School",
+      "personal": "Personal",
+      "projects": "Projects",
+      "ideas": "Ideas",
+      "research": "Research",
+      "homework": "Homework"
+    }
   },
   "careers": {
     "ingenieria-industrial": "Industrial Engineering",

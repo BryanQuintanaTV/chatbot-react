@@ -217,15 +217,36 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     const grouped = {};
 
     unpinnedChats.forEach(chat => {
-      let category = chat.category;
-      // Normalize category display
-      if (!category || category === '' || category === 'uncategorized') {
-        category = t('chat.uncategorized') || 'Sin categoría';
+      let categoryKey = chat.category || 'uncategorized';
+
+      // For backwards compatibility with old Spanish category names
+      const legacyMapping = {
+        'Trabajo': 'work',
+        'Escuela': 'school',
+        'Personal': 'personal',
+        'Proyectos': 'projects',
+        'Ideas': 'ideas',
+        'Investigación': 'research',
+        'Tareas': 'homework',
+      };
+
+      // Map old category to new key if needed
+      if (legacyMapping[categoryKey]) {
+        categoryKey = legacyMapping[categoryKey];
       }
-      if (!grouped[category]) {
-        grouped[category] = [];
+
+      // Normalize to uncategorized if empty
+      if (!categoryKey || categoryKey === '') {
+        categoryKey = 'uncategorized';
       }
-      grouped[category].push(chat);
+
+      // Translate the category for display
+      const categoryDisplay = t(`chat.categories.${categoryKey}`) || t('chat.uncategorized') || categoryKey;
+
+      if (!grouped[categoryDisplay]) {
+        grouped[categoryDisplay] = [];
+      }
+      grouped[categoryDisplay].push(chat);
     });
 
     return {

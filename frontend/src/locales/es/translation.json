@@ -175,7 +175,17 @@
     "showArchived": "Ver Archivados",
     "showActive": "Ver Activos",
     "noArchivedChats": "No hay chats archivados",
-    "noChats": "No hay chats"
+    "noChats": "No hay chats",
+    "categories": {
+      "uncategorized": "Sin categoría",
+      "work": "Trabajo",
+      "school": "Escuela",
+      "personal": "Personal",
+      "projects": "Proyectos",
+      "ideas": "Ideas",
+      "research": "Investigación",
+      "homework": "Tareas"
+    }
   },
   "careers": {
     "ingenieria-industrial": "Ingeniería Industrial",

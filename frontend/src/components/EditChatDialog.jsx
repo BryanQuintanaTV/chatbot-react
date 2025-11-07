@@ -77,16 +77,16 @@ const CHAT_ICONS = [
   { icon: Rocket, name: 'Rocket' },
 ];
 
-// Predefined categories
-const CHAT_CATEGORIES = [
-  { value: 'uncategorized', label: 'Sin categoría' },
-  { value: 'Trabajo', label: 'Trabajo' },
-  { value: 'Escuela', label: 'Escuela' },
-  { value: 'Personal', label: 'Personal' },
-  { value: 'Proyectos', label: 'Proyectos' },
-  { value: 'Ideas', label: 'Ideas' },
-  { value: 'Investigación', label: 'Investigación' },
-  { value: 'Tareas', label: 'Tareas' },
+// Predefined categories (values in English for consistency in DB)
+const CHAT_CATEGORIES_KEYS = [
+  'uncategorized',
+  'work',
+  'school',
+  'personal',
+  'projects',
+  'ideas',
+  'research',
+  'homework',
 ];
 
 // Helper to check if icon name is valid
@@ -97,8 +97,24 @@ const isValidIcon = (iconName) => {
 // Helper to normalize category to valid option
 const normalizeCategory = (category) => {
   if (!category || category === '') return 'uncategorized';
-  const validCategories = CHAT_CATEGORIES.map(c => c.value);
-  return validCategories.includes(category) ? category : 'uncategorized';
+
+  // Check if it's already a valid key
+  if (CHAT_CATEGORIES_KEYS.includes(category)) {
+    return category;
+  }
+
+  // For backwards compatibility with old Spanish category names
+  const legacyMapping = {
+    'Trabajo': 'work',
+    'Escuela': 'school',
+    'Personal': 'personal',
+    'Proyectos': 'projects',
+    'Ideas': 'ideas',
+    'Investigación': 'research',
+    'Tareas': 'homework',
+  };
+
+  return legacyMapping[category] || 'uncategorized';
 };
 
 // Predefined color categories
@@ -127,6 +143,12 @@ const BG_COLORS = [
 
 export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
   const { t } = useTranslation();
+
+  // Build translated categories array
+  const CHAT_CATEGORIES = CHAT_CATEGORIES_KEYS.map(key => ({
+    value: key,
+    label: t(`chat.categories.${key}`) || key
+  }));
   const [formData, setFormData] = useState({
     title: chat?.title || '',
     icon: isValidIcon(chat?.icon) ? chat.icon : 'MessageSquare',
