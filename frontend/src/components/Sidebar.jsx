@@ -235,16 +235,20 @@ export function Sidebar({ onShowShortcuts }) {
                     <PopoverTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="w-full justify-between"
+                        className="w-full justify-start"
                       >
-                        <div className="flex items-center">
-                          <HelpCircle className="h-4 w-4 mr-2" />
-                          {t('sidebar.help')}
-                        </div>
-                        <ChevronRight className="h-4 w-4" />
+                        <HelpCircle className="h-4 w-4 mr-2" />
+                        {t('sidebar.help')}
+                        <ChevronRight className="h-4 w-4 ml-auto" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-56 shadow-xl border-2" align="end" side="right" sideOffset={12}>
+                    <PopoverContent
+                      className="w-56 shadow-xl border-2"
+                      align={isMobile ? "start" : "end"}
+                      side={isMobile ? "top" : "right"}
+                      sideOffset={12}
+                      alignOffset={isMobile ? -40 : 0}
+                    >
                       <div className="space-y-1">
                         <Button
                           variant="ghost"
