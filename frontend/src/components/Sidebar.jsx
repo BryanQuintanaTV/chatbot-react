@@ -40,7 +40,7 @@ export function Sidebar() {
   const { t } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
   const { createNewChat } = useChat();
-  const { collapsed, toggleCollapsed } = useSidebar();
+  const { collapsed, toggleCollapsed, isMobile } = useSidebar();
   const navigate = useNavigate();
   const [chatsOpen, setChatsOpen] = useState(true);
 
@@ -53,25 +53,47 @@ export function Sidebar() {
     createNewChat();
     // Navigate to home page when creating a new chat
     navigate('/');
+    // Close sidebar on mobile after action
+    if (isMobile) {
+      toggleCollapsed();
+    }
   };
 
   const handleSettings = () => {
     navigate('/settings');
+    // Close sidebar on mobile after action
+    if (isMobile) {
+      toggleCollapsed();
+    }
   };
 
   const handleChatSelect = () => {
     // Navigate to home page when a chat is selected
     navigate('/');
+    // Close sidebar on mobile after action
+    if (isMobile) {
+      toggleCollapsed();
+    }
   };
 
   return (
-    <div
-      className={`
-        fixed left-0 top-0 h-full bg-background border-r border-border
-        transition-all duration-300 ease-in-out z-30
-        ${collapsed ? 'w-16' : 'w-64'}
-      `}
-    >
+    <>
+      {/* Backdrop overlay for mobile when sidebar is open */}
+      {isMobile && !collapsed && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={toggleCollapsed}
+        />
+      )}
+
+      <div
+        className={`
+          fixed left-0 top-0 h-full bg-background border-r border-border
+          transition-all duration-300 ease-in-out
+          ${isMobile ? 'z-50' : 'z-30'}
+          ${collapsed ? (isMobile ? '-translate-x-full' : 'w-16') : 'w-64'}
+        `}
+      >
       <div className="flex flex-col h-full">
         {/* Header with Logo/Toggle */}
         <div className="h-16 flex items-center justify-between px-4 border-b">
