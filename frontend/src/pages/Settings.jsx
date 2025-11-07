@@ -37,7 +37,7 @@ import logo from '@/assets/images/itch_II_logo.png';
 
 export function Settings() {
   const { t, i18n } = useTranslation();
-  const { user, updateUser, logout } = useAuth();
+  const { user, updateUser, changePassword, deleteAccount, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
@@ -88,23 +88,21 @@ export function Settings() {
     }
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // TODO: Replace with Better Auth backend
       const updatedData = {
-        ...formData,
-        profileCompleted: !!(formData.semester && formData.career),
+        name: formData.name,
+        semester: formData.semester,
+        career: formData.career,
       };
-      updateUser(updatedData);
 
-      if (updatedData.profileCompleted) {
+      await updateUser(updatedData);
+
+      if (formData.semester && formData.career) {
         toast.success(t('settings.profileCompleteSuccess'));
       } else {
         toast.success(t('settings.updateSuccess'));
       }
     } catch (error) {
-      toast.error(t('settings.updateError'));
+      toast.error(error.message || t('settings.updateError'));
     } finally {
       setLoading(false);
     }
@@ -114,22 +112,23 @@ export function Settings() {
     setShowDeleteAccountConfirm(true);
   };
 
-  const confirmDeleteAccount = () => {
-    // TODO: Implement actual account deletion with backend
-    logout();
-    toast.success(t('settings.accountDeleted'));
-    navigate('/');
+  const confirmDeleteAccount = async () => {
+    try {
+      await deleteAccount();
+      toast.success(t('settings.accountDeleted'));
+      navigate('/');
+    } catch (error) {
+      toast.error(error.message || 'Error al eliminar la cuenta');
+    }
   };
 
   const handleAvatarChange = async (newAvatar) => {
     try {
-      // TODO: Replace with Better Auth backend when ready
-      // If it's a file upload (blob URL), it will be handled by MinIO in backend
-      // For now, just update the user context
-      updateUser({ avatar: newAvatar });
+      // If it's a file upload (blob URL), it will be handled by backend in the future
+      await updateUser({ avatar: newAvatar });
       toast.success(t('settings.avatarUpdateSuccess'));
     } catch (error) {
-      toast.error(t('settings.avatarUpdateError'));
+      toast.error(error.message || t('settings.avatarUpdateError'));
     }
   };
 
@@ -151,15 +150,7 @@ export function Settings() {
     }
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // TODO: Replace with Better Auth API call
-      // await api.changePassword({
-      //   currentPassword: passwordData.currentPassword,
-      //   newPassword: passwordData.newPassword,
-      // });
-
+      await changePassword(passwordData.currentPassword, passwordData.newPassword);
       toast.success(t('settings.passwordChangeSuccess'));
       setPasswordData({
         currentPassword: '',
@@ -167,7 +158,7 @@ export function Settings() {
         confirmPassword: '',
       });
     } catch (error) {
-      toast.error(t('settings.passwordChangeError'));
+      toast.error(error.message || t('settings.passwordChangeError'));
     } finally {
       setPasswordLoading(false);
     }

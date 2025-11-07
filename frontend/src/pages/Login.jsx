@@ -29,26 +29,12 @@ export function Login() {
     e.preventDefault();
     setLoading(true);
 
-    // TODO: Replace with actual backend authentication
-    // For now, we'll simulate a login with frontend-only logic
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock user data - In real implementation, this would come from backend
-      const userData = {
-        id: '1',
-        email: email,
-        name: 'Usuario Demo',
-        semester: '5',
-        school: SCHOOL_NAME,
-      };
-
-      login(userData);
+      await login(email, password);
       toast.success(t('login.success'));
       navigate('/');
     } catch (error) {
-      toast.error(t('login.error'));
+      toast.error(error.message || t('login.error'));
     } finally {
       setLoading(false);
     }

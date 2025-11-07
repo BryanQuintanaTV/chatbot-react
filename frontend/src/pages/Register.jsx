@@ -53,25 +53,16 @@ export function Register() {
       return;
     }
 
-    // TODO: Replace with Better Auth backend
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock user registration - In real implementation, this would come from Better Auth
-      const userData = {
-        id: Date.now().toString(),
+      await register({
         name: formData.name,
         email: formData.email,
-        school: SCHOOL_NAME,
-        profileCompleted: false, // Nuevo campo para indicar si completó su perfil
-      };
-
-      register(userData);
+        password: formData.password,
+      });
       toast.success(t('register.success'));
       navigate('/settings'); // Redirect to settings to complete profile
     } catch (error) {
-      toast.error(t('register.error'));
+      toast.error(error.message || t('register.error'));
     } finally {
       setLoading(false);
     }
