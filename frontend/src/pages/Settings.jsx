@@ -36,7 +36,7 @@ export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, logout } = useAuth();
   const { theme } = useTheme();
-  const { isMobile } = useSidebar();
+  const { isMobile, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -184,6 +184,17 @@ export function Settings() {
           {/* Header */}
           <header className="sticky top-0 shrink-0 z-20 bg-background border-b">
             <div className="flex items-center h-16 gap-4">
+              {isMobile && (
+                <button
+                  onClick={toggleSidebar}
+                  className="p-2 hover:bg-muted rounded-md"
+                  aria-label="Toggle sidebar"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
