@@ -149,6 +149,7 @@
     "editChat": "Editar Chat",
     "editChatDescription": "Personaliza el nombre, icono, color y más",
     "chatName": "Nombre del Chat",
+    "chatNamePlaceholder": "Ej: Ayuda con matemáticas",
     "icon": "Icono",
     "titleColor": "Color del Título",
     "backgroundColor": "Color de Fondo",

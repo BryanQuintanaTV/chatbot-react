@@ -173,7 +173,7 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] w-[calc(100%-2rem)]">
+      <DialogContent className="max-w-2xl max-h-[90vh] w-[calc(100%-2rem)] sm:w-full">
         <DialogHeader>
           <DialogTitle>{t('chat.editChat') || 'Editar Chat'}</DialogTitle>
           <DialogDescription>
@@ -181,8 +181,8 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] pr-4">
-          <div className="space-y-6 py-4">
+        <ScrollArea className="max-h-[60vh] pr-2">
+          <div className="space-y-6 py-4 px-1">
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="chat-name">{t('chat.chatName') || 'Nombre'}</Label>
@@ -197,7 +197,7 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
             {/* Icon Selection */}
             <div className="space-y-2">
               <Label>{t('chat.icon') || 'Icono'}</Label>
-              <div className="grid grid-cols-8 gap-2">
+              <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
                 {CHAT_ICONS.map((iconItem) => {
                   const IconComponent = iconItem.icon;
                   return (
