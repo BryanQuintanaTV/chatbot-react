@@ -10,6 +10,8 @@ import { Register } from '@/pages/Register';
 import { Settings } from '@/pages/Settings';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
+import { HelpCenter } from '@/pages/HelpCenter';
+import { ReleaseNotes } from '@/pages/ReleaseNotes';
 
 function App() {
   return (
@@ -32,6 +34,8 @@ function App() {
                 />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/release-notes" element={<ReleaseNotes />} />
               </Routes>
             </Router>
           </SidebarProvider>

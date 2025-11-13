@@ -18,6 +18,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { ChatList } from '@/components/ChatList';
+import { GeneralReportDialog } from '@/components/GeneralReportDialog';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
 import {
   PanelLeft,
@@ -273,7 +274,10 @@ export function Sidebar({ onShowShortcuts }) {
                         <Button
                           variant="ghost"
                           className="w-full justify-start"
-                          onClick={() => {/* TODO: Help Center */}}
+                          onClick={() => {
+                            navigate('/help');
+                            closeSidebar();
+                          }}
                         >
                           <BookOpen className="h-4 w-4 mr-2" />
                           {t('sidebar.helpCenter')}
@@ -281,19 +285,23 @@ export function Sidebar({ onShowShortcuts }) {
                         <Button
                           variant="ghost"
                           className="w-full justify-start"
-                          onClick={() => {/* TODO: Release Notes */}}
+                          onClick={() => {
+                            navigate('/release-notes');
+                            closeSidebar();
+                          }}
                         >
                           <FileText className="h-4 w-4 mr-2" />
                           {t('sidebar.releaseNotes')}
                         </Button>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start"
-                          onClick={() => {/* TODO: Report Issue */}}
-                        >
-                          <AlertCircle className="h-4 w-4 mr-2" />
-                          {t('sidebar.reportIssue')}
-                        </Button>
+                        <GeneralReportDialog>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                          >
+                            <AlertCircle className="h-4 w-4 mr-2" />
+                            {t('sidebar.reportIssue')}
+                          </Button>
+                        </GeneralReportDialog>
                         <Button
                           variant="ghost"
                           className="w-full justify-start"

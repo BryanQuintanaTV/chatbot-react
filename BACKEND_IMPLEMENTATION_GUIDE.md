@@ -194,6 +194,48 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
+### 7. POST `/api/reports/general`
+Enviar un reporte general de error o sugerencia.
+
+**Request Body:**
+```json
+{
+  "category": "bug",
+  "title": "El botón de guardar no funciona",
+  "description": "Al intentar guardar la configuración, el botón no responde y no se guardan los cambios.",
+  "date": "2024-11-13T18:30:00.000Z",
+  "userAgent": "Mozilla/5.0...",
+  "url": "https://tec-bot.com/settings"
+}
+```
+
+**Campos:**
+- `category` (string, required): Tipo de reporte. Valores: "bug", "feature", "ui", "performance", "other"
+- `title` (string, required): Título breve del reporte (max 100 caracteres)
+- `description` (string, required): Descripción detallada del problema
+- `date` (ISO string, required): Fecha y hora del reporte
+- `userAgent` (string, required): User agent del navegador
+- `url` (string, required): URL donde ocurrió el problema
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "reportId": "uuid"
+}
+```
+
+**Errores:**
+- 400: Validation error (missing fields, invalid category)
+- 422: Validation error
+
+**Notas:**
+- Este endpoint NO requiere autenticación (permite reportes de usuarios no registrados)
+- Los reportes deben guardarse en base de datos para revisión posterior
+- Se recomienda incluir rate limiting (ej: 10 reportes por IP por hora)
+
+---
+
 ## 🔐 Implementación de JWT
 
 ### Estructura del Token
@@ -420,8 +462,38 @@ return res.status(401).json({
 
 ---
 
+## 🗄️ Modelo de Base de Datos - Reportes
+
+### Tabla: general_reports
+
+| Campo | Tipo | Restricciones |
+|-------|------|---------------|
+| id | UUID | PRIMARY KEY |
+| category | VARCHAR(50) | NOT NULL |
+| title | VARCHAR(100) | NOT NULL |
+| description | TEXT | NOT NULL |
+| date | TIMESTAMP | NOT NULL |
+| user_agent | TEXT | NOT NULL |
+| url | VARCHAR(500) | NOT NULL |
+| created_at | TIMESTAMP | DEFAULT NOW() |
+| status | VARCHAR(50) | DEFAULT 'pending' |
+
+### Índices
+- `idx_category`: Índice en `category`
+- `idx_status`: Índice en `status`
+- `idx_created_at`: Índice en `created_at`
+
+### Valores de status
+- `pending`: Reporte pendiente de revisión
+- `reviewing`: Reporte en revisión
+- `resolved`: Reporte resuelto
+- `closed`: Reporte cerrado sin acción
+
+---
+
 ## 🚀 Checklist de Implementación
 
+### Autenticación
 - [ ] Instalar dependencias necesarias
 - [ ] Crear modelo de base de datos para usuarios
 - [ ] Implementar hashing de contraseñas
@@ -434,9 +506,19 @@ return res.status(401).json({
 - [ ] Crear endpoint DELETE `/api/auth/account`
 - [ ] Agregar middleware de autenticación
 - [ ] Probar todos los endpoints con Postman/Thunder Client
+
+### Reportes
+- [ ] Crear modelo de base de datos para reportes generales
+- [ ] Crear endpoint POST `/api/reports/general`
+- [ ] Implementar validación de campos
+- [ ] Agregar rate limiting por IP
+- [ ] Probar endpoint con Postman/Thunder Client
+
+### Integración Frontend
 - [ ] Cambiar `USE_DUMMY_DATA = false` en frontend
 - [ ] Actualizar `API_BASE_URL` en frontend
 - [ ] Probar flujo completo de autenticación
+- [ ] Probar envío de reportes generales
 
 ---
 

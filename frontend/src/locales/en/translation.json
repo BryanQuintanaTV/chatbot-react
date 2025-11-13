@@ -258,5 +258,186 @@
     "clearChatConfirm": "Are you sure you want to clear this chat?",
     "clearChatTitle": "Clear Chat",
     "clearChatSuccess": "Chat cleared successfully"
+  },
+  "help": {
+    "title": "Help Center",
+    "description": "Find answers to frequently asked questions",
+    "stillNeedHelp": "Still need help?",
+    "stillNeedHelpDescription": "If you didn't find what you were looking for, you can contact us directly",
+    "contactSupport": "Contact Support",
+    "general": {
+      "title": "General",
+      "whatIs": "What is Tec Bot?",
+      "whatIsAnswer": "Tec Bot is an intelligent chatbot designed specifically for students of Tecnológico Nacional de México Campus Chihuahua II. It uses artificial intelligence to answer questions about the institute, academic procedures, educational programs, and more.",
+      "howWorks": "How does it work?",
+      "howWorksAnswer": "Tec Bot uses RAG (Retrieval-Augmented Generation) technology with GPT-4. This means it searches for relevant information in an updated TECNM database and generates accurate responses based on that information.",
+      "dataset": "What information is available?",
+      "datasetAnswer": "Tec Bot has access to official TECNM information including: study plans, school procedures, academic calendar, student services, institutional guidelines, and more. The database is regularly updated."
+    },
+    "features": {
+      "title": "Features",
+      "multipleChats": "Can I have multiple conversations?",
+      "multipleChatsAnswer": "Yes, you can create unlimited conversations. Each chat maintains its own history and context. Use the '+' button in the sidebar to create a new conversation.",
+      "categories": "How do I organize my chats?",
+      "categoriesAnswer": "You can organize your chats using:\n• Custom categories (Homework, Projects, School, etc.)\n• Pin system to keep important chats at the top\n• Archive to hide chats you don't use frequently\n• Custom icons and colors to identify them quickly",
+      "shortcuts": "Are there keyboard shortcuts?",
+      "shortcutsAnswer": "Yes, we have over 20 keyboard shortcuts to speed up your work. Press Ctrl+Shift+K to see the complete list of available shortcuts.",
+      "themes": "Can I change the appearance?",
+      "themesAnswer": "Yes, Tec Bot supports light mode and dark mode. You can change the theme from the sidebar (sun/moon icon) or by pressing Ctrl+Shift+T."
+    },
+    "account": {
+      "title": "Account and Profile",
+      "needAccount": "Do I need an account?",
+      "needAccountAnswer": "It's not mandatory, you can use Tec Bot without registering. However, by creating an account you can:\n• Save your conversations in the cloud\n• Access from any device\n• Receive personalized responses based on your semester and major\n• Configure personalized preferences",
+      "institutionalEmail": "Should I use my institutional email?",
+      "institutionalEmailAnswer": "It's recommended to use your institutional email (@chihuahua2.tecnm.mx) but it's not mandatory. You can register with any valid email address.",
+      "profile": "How do I complete my profile?",
+      "profileAnswer": "Go to Settings (Ctrl+K) and fill in the semester and major fields. This allows Tec Bot to provide more personalized responses according to your academic program.",
+      "forgotPassword": "What do I do if I forgot my password?",
+      "forgotPasswordAnswer": "On the login page, click 'Forgot your password?' and follow the instructions. You'll receive a recovery link in your email."
+    },
+    "chats": {
+      "title": "Chat Management",
+      "createChat": "How do I create a new chat?",
+      "createChatAnswer": "Press the '+' button in the sidebar or use the Alt+N shortcut. A new empty conversation will be automatically created.",
+      "editChat": "How do I customize a chat?",
+      "editChatAnswer": "Right-click on any chat (or long-press on mobile) and select 'Edit'. You can change:\n• Chat name\n• Icon (25+ options)\n• Title color\n• Background color\n• Category",
+      "pinArchive": "What are pin and archive for?",
+      "pinArchiveAnswer": "• Pin: Keeps a chat at the top of the list, ideal for important conversations\n• Archive: Hides chats from the main view without deleting them. You can access archived chats with the 'Show Archived' button",
+      "deleteChat": "How do I delete a chat?",
+      "deleteChatAnswer": "Right-click on the chat and select 'Delete', or use Ctrl+D when you're in that chat. Note: You cannot delete the last remaining chat."
+    },
+    "privacy": {
+      "title": "Privacy and Security",
+      "dataStorage": "Where is my data stored?",
+      "dataStorageAnswer": "If you're not registered, your conversations are stored locally in your browser. If you have an account, they sync securely with our servers using encryption.",
+      "conversations": "Are my conversations private?",
+      "conversationsAnswer": "Yes, your conversations are private. Only you have access to them. Data is used solely to improve chatbot responses and is never shared with third parties.",
+      "security": "How secure is my information?",
+      "securityAnswer": "We use enterprise-level encryption, secure JWT authentication, and follow security best practices. Your password is stored hashed and never in plain text."
+    },
+    "troubleshooting": {
+      "title": "Troubleshooting",
+      "slowResponses": "Why are responses slow?",
+      "slowResponsesAnswer": "Speed depends on several factors:\n• Internet connection\n• Question complexity\n• Server load\nResponses typically take 2-5 seconds. If it's slower, check your connection.",
+      "errorMessage": "I received an error message, what do I do?",
+      "errorMessageAnswer": "If you receive an error:\n1. Check your internet connection\n2. Reload the page (F5)\n3. Try again in a few minutes\n4. If it persists, report it using 'Report an Issue' in the help menu",
+      "reportBug": "How do I report a problem?",
+      "reportBugAnswer": "There are two ways:\n• From the help menu: 'Report an Issue' for general problems\n• From a message: 'Report Problem' button for incorrect bot responses"
+    }
+  },
+  "releases": {
+    "title": "Release Notes",
+    "description": "History of changes and improvements",
+    "latest": "Latest",
+    "major": "Major",
+    "minor": "Minor",
+    "patch": "Patch",
+    "stayUpdated": "Stay updated",
+    "stayUpdatedDescription": "Check this page regularly to learn about new features and improvements to Tec Bot",
+    "v1": {
+      "date": "November 2024",
+      "highlights": "Complete redesign with authentication system, advanced chat management, internationalization, and massive UX improvements",
+      "auth": {
+        "title": "Authentication System",
+        "item1": "Registration and login with JWT",
+        "item2": "Strong password validation with visual indicator",
+        "item3": "Password recovery (Forgot/Reset)",
+        "item4": "Route protection for private pages",
+        "item5": "Profile management (avatar, semester, major)",
+        "item6": "Secure localStorage persistence"
+      },
+      "chatManagement": {
+        "title": "Advanced Chat Management",
+        "item1": "Customizable categories to organize chats",
+        "item2": "Pin system for important chats",
+        "item3": "Archive system to hide chats",
+        "item4": "25+ customizable icons (Lucide React)",
+        "item5": "Customizable colors (title and background)",
+        "item6": "Context menu (right-click) and long-press for mobile"
+      },
+      "ui": {
+        "title": "User Interface",
+        "item1": "Light/dark theme with persistence (no FOUC)",
+        "item2": "Fully responsive design (desktop/tablet/mobile)",
+        "item3": "Radix UI + shadcn/ui components (19 components)",
+        "item4": "Collapsible sidebar with backdrop overlay",
+        "item5": "Modern dialogs (AlertDialog vs window.confirm)"
+      },
+      "shortcuts": {
+        "title": "Keyboard Shortcuts",
+        "item1": "20+ keyboard shortcuts (Ctrl+B, Alt+N, Ctrl+K, etc.)",
+        "item2": "Chat navigation (Ctrl+↑/↓, Ctrl+1-9)",
+        "item3": "Shortcuts help dialog (Ctrl+Shift+K)"
+      },
+      "i18n": {
+        "title": "Internationalization",
+        "item1": "Full support for Spanish and English",
+        "item2": "260+ translation keys with react-i18next",
+        "item3": "Dynamic language switching without reload"
+      },
+      "settings": {
+        "title": "User Settings",
+        "item1": "Complete settings page (/settings)",
+        "item2": "Avatar selector (8 predefined + custom upload)",
+        "item3": "Password change with validation",
+        "item4": "Account deletion with confirmation"
+      },
+      "mobile": {
+        "title": "Mobile Optimization",
+        "item1": "Drawer instead of Dialog for mobile",
+        "item2": "Long-press support for context menus",
+        "item3": "Auto-collapse sidebar on mobile",
+        "item4": "Touch-friendly with large touch areas"
+      }
+    },
+    "v0_3_4": {
+      "date": "October 2024",
+      "highlights": "Initial version with basic chatbot and core features",
+      "features": {
+        "title": "Features",
+        "item1": "Chatbot with SSE streaming (Server-Sent Events)",
+        "item2": "Markdown rendering with react-markdown",
+        "item3": "Multiple conversations with localStorage persistence",
+        "item4": "Smart auto-scroll during streaming"
+      },
+      "improvements": {
+        "title": "Improvements",
+        "item1": "Input with auto-resize (useAutosize)",
+        "item2": "Animated spinner for loading states",
+        "item3": "TECNM Dataset v4.0"
+      },
+      "fixes": {
+        "title": "Fixes",
+        "item1": "Improved error handling",
+        "item2": "Prevention of empty message submission",
+        "item3": "Automatic scroll to end of conversation"
+      }
+    }
+  },
+  "report": {
+    "buttonText": "Report an Issue",
+    "dialogTitle": "Report an Issue",
+    "dialogDescription": "Help us improve Tec Bot by reporting problems or suggesting improvements",
+    "category": "Category",
+    "selectCategory": "Please select a category",
+    "selectCategoryPlaceholder": "Select the type of report",
+    "categories": {
+      "bug": "Bug / Error",
+      "feature": "Feature Request",
+      "ui": "Interface Issue",
+      "performance": "Performance Issue",
+      "other": "Other"
+    },
+    "title": "Title",
+    "enterTitle": "Please enter a title",
+    "titlePlaceholder": "Brief description of the problem",
+    "description": "Description",
+    "enterDescription": "Please describe the problem",
+    "descriptionPlaceholder": "Describe the problem in detail, steps to reproduce, expected behavior, etc.",
+    "submit": "Submit Report",
+    "sending": "Sending...",
+    "success": "Report sent successfully. Thank you for your help!",
+    "error": "Error sending report. Please try again."
   }
 }
