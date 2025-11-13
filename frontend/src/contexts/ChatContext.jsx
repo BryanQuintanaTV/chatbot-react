@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { ModelChangeWarning } from '@/components/ModelChangeWarning';
 
 const ChatContext = createContext();
 
@@ -7,7 +8,12 @@ export function ChatProvider({ children }) {
     // Load chats from localStorage
     const saved = localStorage.getItem('chatbot-conversations');
     if (saved) {
-      return JSON.parse(saved);
+      const parsedChats = JSON.parse(saved);
+      // Migrate old chats to add modelUsed field
+      return parsedChats.map(chat => ({
+        ...chat,
+        modelUsed: chat.modelUsed || 'auto', // Default to 'auto' for old chats
+      }));
     }
     // Create default first chat
     return [
@@ -23,6 +29,7 @@ export function ChatProvider({ children }) {
         pinned: false,
         archived: false,
         bgColor: null,
+        modelUsed: 'auto', // Default model
       },
     ];
   });
@@ -36,6 +43,9 @@ export function ChatProvider({ children }) {
     const saved = localStorage.getItem('chatbot-selected-model');
     return saved || 'auto'; // Default to 'auto'
   });
+
+  const [pendingModelChange, setPendingModelChange] = useState(null);
+  const [showModelWarning, setShowModelWarning] = useState(false);
 
   // Save to localStorage whenever chats change
   useEffect(() => {
@@ -69,6 +79,7 @@ export function ChatProvider({ children }) {
       pinned: false,
       archived: false,
       bgColor: null,
+      modelUsed: selectedModel, // Track which model this chat uses
     };
     setChats([newChat, ...chats]);
     setActiveChatId(newChat.id);
@@ -183,12 +194,46 @@ export function ChatProvider({ children }) {
     );
   };
 
+  // Handle model change with warning
+  const handleModelChange = (newModel) => {
+    const currentChat = activeChat;
+
+    // If no active chat or chat has no messages, just change the model
+    if (!currentChat || currentChat.messages.length === 0) {
+      setSelectedModel(newModel);
+      // Update the chat's modelUsed if it exists
+      if (currentChat) {
+        updateChat(currentChat.id, { modelUsed: newModel });
+      }
+      return;
+    }
+
+    // If chat has messages and model is different, show warning
+    const currentModel = currentChat.modelUsed || selectedModel;
+    if (currentModel !== newModel) {
+      setPendingModelChange({ from: currentModel, to: newModel });
+      setShowModelWarning(true);
+    } else {
+      setSelectedModel(newModel);
+    }
+  };
+
+  // Confirm model change
+  const confirmModelChange = () => {
+    if (pendingModelChange) {
+      setSelectedModel(pendingModelChange.to);
+      // Update the chat's modelUsed
+      updateChat(activeChat.id, { modelUsed: pendingModelChange.to });
+      setPendingModelChange(null);
+    }
+  };
+
   const value = {
     chats,
     activeChat,
     activeChatId,
     selectedModel,
-    setSelectedModel,
+    setSelectedModel: handleModelChange, // Use the wrapper that shows warnings
     createNewChat,
     switchChat,
     updateChatMessages,
@@ -200,7 +245,18 @@ export function ChatProvider({ children }) {
     clearChatMessages,
   };
 
-  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
+  return (
+    <ChatContext.Provider value={value}>
+      {children}
+      <ModelChangeWarning
+        open={showModelWarning}
+        onOpenChange={setShowModelWarning}
+        fromModel={pendingModelChange?.from || 'auto'}
+        toModel={pendingModelChange?.to || 'auto'}
+        onConfirm={confirmModelChange}
+      />
+    </ChatContext.Provider>
+  );
 }
 
 export function useChat() {
