@@ -1,4 +1,4 @@
-# Guía de Implementación del Backend - Sistema de Autenticación
+# Guía de Implementación del Backend - Tec Bot Chatbot
 
 ## 📋 Resumen
 
@@ -6,6 +6,47 @@ El frontend ya está completamente preparado para conectarse al backend. Solo ne
 1. Implementar los endpoints listados abajo
 2. Cambiar `USE_DUMMY_DATA = false` en `frontend/src/services/api.js`
 3. Actualizar `API_BASE_URL` con la URL de tu backend
+
+## 🏗️ Arquitectura del Sistema
+
+### Stack Tecnológico
+
+```
+┌─────────────────────────────────────────────────────────┐
+│              FRONTEND (React + Vite)                    │
+│  - Login/Register/Settings                              │
+│  - ChatPage con historial                               │
+│  - Sistema de reportes                                  │
+└──────────────────┬──────────────────────────────────────┘
+                   │ HTTPS (apichat.bryanquintana.com)
+┌──────────────────▼──────────────────────────────────────┐
+│              DJANGO REST API                            │
+│  - Autenticación JWT                                    │
+│  - Endpoints de chat (SSE streaming)                    │
+│  - Sistema de reportes                                  │
+└──────────────────┬──────────────────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────────────────┐
+│         OLLAMA (LLM Engine) + ChromaDB (RAG)           │
+│  - Modelo: Llama 3.1 8B (cuantizado Q4)                │
+│  - Vector DB: ChromaDB para documentos TECNM           │
+│  - Embeddings: sentence-transformers                    │
+└──────────────────┬──────────────────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────────────────┐
+│              POSTGRESQL DATABASE                        │
+│  - users, conversations, messages                       │
+│  - reports, message_logs                                │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Componentes Clave
+
+- **LLM**: Llama 3.1 8B ejecutándose en Ollama (local)
+- **RAG**: ChromaDB con embeddings multilingües para documentos del TECNM
+- **Backend**: Django + DRF con streaming SSE
+- **BD**: PostgreSQL para persistencia
+- **Auth**: JWT con tokens de 7 días
 
 ## 🔑 Endpoints Requeridos
 
@@ -233,6 +274,88 @@ Enviar un reporte general de error o sugerencia.
 - Este endpoint NO requiere autenticación (permite reportes de usuarios no registrados)
 - Los reportes deben guardarse en base de datos para revisión posterior
 - Se recomienda incluir rate limiting (ej: 10 reportes por IP por hora)
+
+---
+
+### 8. POST `/api/v1/chat/` (Streaming SSE)
+Endpoint principal del chatbot con LLM + RAG.
+
+**Request Body:**
+```json
+{
+  "message": "¿Cuál es el proceso para solicitar residencia profesional?",
+  "conversation_id": "uuid-opcional"
+}
+```
+
+**Headers (Opcional - si usuario autenticado):**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Response (Streaming SSE):**
+```
+data: El
+data:  proceso
+data:  para
+data:  solicitar
+data:  residencia
+data:  profesional
+data:  es
+data: ...
+data:    [DONE]
+```
+
+**Flujo del Sistema:**
+1. Recibir mensaje del usuario
+2. Si está autenticado, obtener conversación o crear nueva
+3. Buscar documentos relevantes en ChromaDB (RAG)
+4. Construir prompt del sistema con contexto del usuario
+5. Llamar a Ollama con streaming
+6. Enviar respuesta carácter por carácter via SSE
+7. Guardar mensaje en BD al completar
+
+**Contexto del Usuario (si autenticado):**
+```json
+{
+  "name": "Juan Pérez",
+  "semester": "5",
+  "career": "ingenieria-sistemas-computacionales",
+  "escuela": "ITCH_II"
+}
+```
+
+**Ejemplo de Prompt al LLM:**
+```
+Eres un asistente virtual del ITCH II (Tecnológico Nacional de México).
+
+Información del estudiante:
+- Nombre: Juan Pérez
+- Semestre: 5
+- Carrera: Ingeniería en Sistemas Computacionales
+- Escuela: ITCH_II
+
+DOCUMENTOS DE REFERENCIA:
+[Documento 1] reglamento_escolar.pdf:
+La residencia profesional es una actividad académica que el estudiante...
+--------------------------------------------------
+[Documento 2] lineamientos_residencia.pdf:
+Requisitos: 1) Haber cubierto el 70% de créditos...
+--------------------------------------------------
+
+Usuario: ¿Cuál es el proceso para solicitar residencia profesional?
+```
+
+**Tecnologías Usadas:**
+- **Ollama**: LLM Engine local (modelo: `llama3.1:8b-instruct-q4_K_M`)
+- **ChromaDB**: Vector database para RAG
+- **sentence-transformers**: Embeddings (`paraphrase-multilingual-MiniLM-L12-v2`)
+
+**Notas:**
+- El endpoint debe soportar SSE (Server-Sent Events)
+- No usar buffering en Nginx/Gunicorn
+- Rate limiting: 30 mensajes por minuto por usuario
+- Timeout: 30 segundos máximo
 
 ---
 
@@ -520,6 +643,131 @@ return res.status(401).json({
 - [ ] Probar flujo completo de autenticación
 - [ ] Probar envío de reportes generales
 
+### Ollama + RAG
+- [ ] Instalar Ollama en servidor
+- [ ] Descargar modelo `llama3.1:8b-instruct-q4_K_M`
+- [ ] Instalar ChromaDB
+- [ ] Instalar sentence-transformers
+- [ ] Cargar documentos del TECNM en ChromaDB
+- [ ] Implementar servicio de RAG
+- [ ] Implementar servicio de LLM
+- [ ] Integrar RAG + LLM en endpoint de chat
+- [ ] Probar streaming SSE
+- [ ] Optimizar prompts del sistema
+
+---
+
+## 🤖 Configuración de Ollama
+
+### Instalación
+
+```bash
+# Instalar Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Descargar modelo Llama 3.1 8B (cuantizado Q4)
+ollama pull llama3.1:8b-instruct-q4_K_M
+
+# Verificar instalación
+ollama list
+```
+
+### Uso en Python
+
+```python
+import ollama
+
+# Cliente de Ollama
+client = ollama.Client()
+
+# Generar respuesta con streaming
+stream = client.chat(
+    model='llama3.1:8b-instruct-q4_K_M',
+    messages=[
+        {'role': 'system', 'content': 'Eres un asistente del TECNM...'},
+        {'role': 'user', 'content': '¿Qué es la residencia profesional?'}
+    ],
+    stream=True
+)
+
+for chunk in stream:
+    print(chunk['message']['content'], end='')
+```
+
+### Recursos Requeridos
+
+- **RAM**: 5-6 GB durante inferencia
+- **Disco**: 5 GB para el modelo
+- **CPU**: 4+ cores recomendado
+- **Latencia**: 1-3 segundos por respuesta (dependiendo del hardware)
+
+---
+
+## 🔍 Configuración de ChromaDB (RAG)
+
+### Instalación
+
+```bash
+pip install chromadb sentence-transformers
+```
+
+### Estructura de Documentos
+
+```
+documents/
+└── ITCH_II/
+    ├── reglamentos/
+    │   ├── reglamento_escolar.pdf
+    │   └── lineamientos_titulacion.pdf
+    ├── calendarios/
+    │   └── calendario_2024_2025.pdf
+    ├── horarios/
+    │   └── sistemas_semestre_5.json
+    └── planes_estudio/
+        └── ingenieria_sistemas.pdf
+```
+
+### Uso Básico
+
+```python
+import chromadb
+from sentence_transformers import SentenceTransformer
+
+# Inicializar ChromaDB
+client = chromadb.PersistentClient(path="./chromadb_data")
+
+# Modelo de embeddings (multilingüe)
+embedding_model = SentenceTransformer(
+    'paraphrase-multilingual-MiniLM-L12-v2'
+)
+
+# Crear colección
+collection = client.get_or_create_collection(
+    name="ITCH_II_reglamentos",
+    embedding_function=embedding_model.encode
+)
+
+# Agregar documentos
+collection.add(
+    documents=["Texto del reglamento...", "Texto de lineamientos..."],
+    metadatas=[{"source": "reglamento.pdf"}, {"source": "lineamientos.pdf"}],
+    ids=["doc1", "doc2"]
+)
+
+# Buscar documentos relevantes
+results = collection.query(
+    query_texts=["¿Cómo solicitar residencia?"],
+    n_results=3
+)
+```
+
+### Tipos de Colecciones
+
+- `ITCH_II_reglamentos`: Reglamentos escolares
+- `ITCH_II_calendarios`: Calendarios académicos
+- `ITCH_II_horarios`: Horarios de clases
+- `ITCH_II_planes_estudio`: Planes de estudio
+
 ---
 
 ## 💡 Notas Importantes
@@ -529,6 +777,76 @@ return res.status(401).json({
 3. **Rate Limiting**: Implementa rate limiting en los endpoints de auth para prevenir ataques de fuerza bruta
 4. **Email Validation**: Valida que el email termine en `@chihuahua2.tecnm.mx`
 5. **Password Strength**: Implementa validación de fuerza de contraseña (mínimo 8 caracteres)
+6. **Ollama**: Asegúrate de que Ollama esté corriendo antes de iniciar el backend (`ollama serve`)
+7. **ChromaDB**: Los documentos deben cargarse antes de usar el chatbot
+8. **SSE Streaming**: Deshabilita buffering en Nginx para SSE (`proxy_buffering off;`)
+9. **Recursos**: Monitorea RAM (6-8GB recomendados con Ollama + Django)
+10. **Multi-Escuela**: El sistema está preparado para agregar más escuelas del TECNM
+
+---
+
+## 📚 Dependencias del Backend
+
+### Python (requirements.txt)
+
+```txt
+# Core
+Django==4.2.4
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+gunicorn==21.2.0
+
+# Autenticación
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# LLM y RAG
+ollama==0.4.0
+chromadb==0.5.23
+sentence-transformers==3.3.1
+langchain==0.3.11
+langchain-community==0.3.11
+
+# Base de Datos
+psycopg2-binary==2.9.9
+redis==5.2.1
+
+# Procesamiento de Documentos
+pypdf==5.1.0
+python-docx==1.1.2
+openpyxl==3.1.5
+
+# Utilidades
+python-dotenv==1.0.1
+pydantic==2.10.4
+pydantic-settings==2.7.0
+```
+
+---
+
+## 🗺️ Plan de Migración
+
+Para el plan completo de migración del backend a Ollama + RAG, consulta el documento de planificación que incluye:
+
+- Modelos de base de datos completos (User, Conversation, Message)
+- Implementación de LLM Service con Ollama
+- Implementación de RAG Service con ChromaDB
+- Scripts de carga de documentos
+- Configuración de Nginx para SSE
+- Configuración de systemd para servicios
+- Checklist de implementación por fases
+
+**Fases Estimadas:**
+1. Preparación (1 semana)
+2. Base de Datos (3-5 días)
+3. Autenticación (1 semana)
+4. LLM Integration (1 semana)
+5. RAG System (1-2 semanas)
+6. Testing & Deployment (1 semana)
+7. Frontend Integration (2-3 días)
+
+**Total Estimado:** 5-7 semanas
 
 ---
 
@@ -537,3 +855,6 @@ return res.status(401).json({
 Si tienes dudas sobre la implementación, revisa:
 - Frontend: `frontend/src/services/api.js` - Muestra exactamente cómo el frontend hace las llamadas
 - AuthContext: `frontend/src/contexts/AuthContext.jsx` - Muestra cómo se usa la API
+- Plan de Migración: Documento compartido con arquitectura completa de Ollama + RAG
+- Ollama Docs: https://ollama.com/library/llama3.1
+- ChromaDB Docs: https://docs.trychroma.com/

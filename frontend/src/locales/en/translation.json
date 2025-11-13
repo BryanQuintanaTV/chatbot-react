@@ -270,7 +270,7 @@
       "whatIs": "What is Tec Bot?",
       "whatIsAnswer": "Tec Bot is an intelligent chatbot designed specifically for students of Tecnológico Nacional de México Campus Chihuahua II. It uses artificial intelligence to answer questions about the institute, academic procedures, educational programs, and more.",
       "howWorks": "How does it work?",
-      "howWorksAnswer": "Tec Bot uses RAG (Retrieval-Augmented Generation) technology with GPT-4. This means it searches for relevant information in an updated TECNM database and generates accurate responses based on that information.",
+      "howWorksAnswer": "Tec Bot uses RAG (Retrieval-Augmented Generation) technology with Llama 3.1 8B running on Ollama. This means it searches for relevant information in a vector database (ChromaDB) of TECNM and generates accurate responses based on official documents.",
       "dataset": "What information is available?",
       "datasetAnswer": "Tec Bot has access to official TECNM information including: study plans, school procedures, academic calendar, student services, institutional guidelines, and more. The database is regularly updated."
     },
