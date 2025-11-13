@@ -20,6 +20,7 @@ export function useModels() {
       console.error('Error fetching models:', err);
       setError(err);
       // Set default models if API fails
+      // Include all models with their default states
       setModels([
         {
           id: 'auto',
@@ -29,6 +30,24 @@ export function useModels() {
           recommended: true,
           speed: 'adaptive',
           quality: 'adaptive'
+        },
+        {
+          id: 'groq',
+          name: 'Groq (Rápido)',
+          available: false,
+          message: 'Modelo rápido en la nube (verificar disponibilidad con el backend)',
+          recommended: false,
+          speed: 'fast',
+          quality: 'high'
+        },
+        {
+          id: 'pytorch',
+          name: 'PyTorch Local (TecNM)',
+          available: true,
+          message: 'Modelo local siempre disponible con dataset TecNM',
+          recommended: false,
+          speed: 'medium',
+          quality: 'medium'
         }
       ]);
     } finally {
