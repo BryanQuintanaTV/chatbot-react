@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Zap, Brain, MessageSquare } from 'lucide-react';
 
-export function ModelChangeWarning({ open, onOpenChange, fromModel, toModel, onConfirm }) {
+export function ModelChangeWarning({ open, onOpenChange, fromModel, toModel, onConfirm, onCancel }) {
   const { t } = useTranslation();
 
   // Determine the type of change
@@ -22,11 +22,14 @@ export function ModelChangeWarning({ open, onOpenChange, fromModel, toModel, onC
     if (isUpgrade) {
       return {
         icon: <Brain className="h-12 w-12 text-green-500 mx-auto mb-4" />,
-        title: '🎉 Cambiando a Modelo Inteligente',
+        title: '🎉 Cambiar este Chat a Modelo Inteligente',
         description: (
           <div className="space-y-3 text-left">
             <p className="font-medium text-foreground">
-              Estás mejorando a un modelo más avanzado. Ventajas:
+              Este chat fue creado con <strong>Chatbot Básico</strong>, pero tienes seleccionado <strong>Agente Inteligente</strong>.
+            </p>
+            <p className="font-medium text-foreground">
+              Si cambias este chat al modelo inteligente, obtendrás:
             </p>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
@@ -47,23 +50,26 @@ export function ModelChangeWarning({ open, onOpenChange, fromModel, toModel, onC
               </li>
             </ul>
             <p className="text-sm text-muted-foreground mt-4">
-              Los mensajes anteriores se mantienen, pero las nuevas respuestas usarán el modelo inteligente.
+              Los mensajes anteriores se mantienen. Las nuevas respuestas en este chat usarán el modelo inteligente.
             </p>
           </div>
         ),
-        confirmText: 'Cambiar a Modelo Inteligente',
-        cancelText: 'Mantener Modelo Actual',
+        confirmText: 'Sí, cambiar este chat',
+        cancelText: 'No, usar modelo del chat',
       };
     }
 
     if (isDowngrade) {
       return {
         icon: <MessageSquare className="h-12 w-12 text-orange-500 mx-auto mb-4" />,
-        title: '⚠️ Cambiando a Modelo Básico',
+        title: '⚠️ Cambiar este Chat a Modelo Básico',
         description: (
           <div className="space-y-3 text-left">
             <p className="font-medium text-foreground">
-              Vas a cambiar a un modelo más simple. Limitaciones:
+              Este chat fue creado con <strong>Agente Inteligente</strong>, pero tienes seleccionado <strong>Chatbot Básico</strong>.
+            </p>
+            <p className="font-medium text-foreground">
+              Si cambias este chat al modelo básico, tendrás estas limitaciones:
             </p>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
@@ -85,13 +91,13 @@ export function ModelChangeWarning({ open, onOpenChange, fromModel, toModel, onC
             </ul>
             <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-lg p-3 mt-4">
               <p className="text-sm text-orange-800 dark:text-orange-200">
-                <strong>Recomendación:</strong> Este modelo es ideal para consultas específicas sobre el TECNM, pero no es óptimo para conversaciones largas.
+                <strong>Recomendación:</strong> El modelo básico es ideal para consultas específicas sobre el TECNM, pero no es óptimo para conversaciones largas. Los mensajes anteriores se mantienen.
               </p>
             </div>
           </div>
         ),
-        confirmText: 'Cambiar a Modelo Básico',
-        cancelText: 'Mantener Modelo Actual',
+        confirmText: 'Sí, cambiar este chat',
+        cancelText: 'No, usar modelo del chat',
       };
     }
 
@@ -120,7 +126,12 @@ export function ModelChangeWarning({ open, onOpenChange, fromModel, toModel, onC
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-          <AlertDialogCancel onClick={() => onOpenChange(false)}>
+          <AlertDialogCancel
+            onClick={() => {
+              if (onCancel) onCancel();
+              onOpenChange(false);
+            }}
+          >
             {content.cancelText}
           </AlertDialogCancel>
           <AlertDialogAction

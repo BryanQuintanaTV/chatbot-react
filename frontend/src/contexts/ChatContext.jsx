@@ -87,6 +87,25 @@ export function ChatProvider({ children }) {
   };
 
   const switchChat = (chatId) => {
+    const targetChat = chats.find(chat => chat.id === chatId);
+
+    // Check if chat has messages and uses a different model
+    if (targetChat && targetChat.messages && targetChat.messages.length > 0) {
+      const chatModel = targetChat.modelUsed || 'auto';
+
+      // If there's a model discrepancy, show warning
+      if (chatModel !== selectedModel) {
+        setPendingModelChange({
+          from: chatModel,
+          to: selectedModel,
+          chatId: chatId
+        });
+        setShowModelWarning(true);
+        return; // Don't switch yet, wait for user confirmation
+      }
+    }
+
+    // No discrepancy or no messages, switch normally
     setActiveChatId(chatId);
   };
 
@@ -194,36 +213,22 @@ export function ChatProvider({ children }) {
     );
   };
 
-  // Handle model change with warning
+  // Handle global model change from settings
   const handleModelChange = (newModel) => {
-    const currentChat = activeChat;
-
-    // If no active chat or chat has no messages, just change the model
-    if (!currentChat || currentChat.messages.length === 0) {
-      setSelectedModel(newModel);
-      // Update the chat's modelUsed if it exists
-      if (currentChat) {
-        updateChat(currentChat.id, { modelUsed: newModel });
-      }
-      return;
-    }
-
-    // If chat has messages and model is different, show warning
-    const currentModel = currentChat.modelUsed || selectedModel;
-    if (currentModel !== newModel) {
-      setPendingModelChange({ from: currentModel, to: newModel });
-      setShowModelWarning(true);
-    } else {
-      setSelectedModel(newModel);
-    }
+    setSelectedModel(newModel);
   };
 
-  // Confirm model change
+  // Confirm model change when switching to a chat with different model
   const confirmModelChange = () => {
     if (pendingModelChange) {
-      setSelectedModel(pendingModelChange.to);
-      // Update the chat's modelUsed
-      updateChat(activeChat.id, { modelUsed: pendingModelChange.to });
+      const { chatId, to } = pendingModelChange;
+
+      // Update the chat's modelUsed to the currently selected model
+      updateChat(chatId, { modelUsed: to });
+
+      // Now switch to the chat
+      setActiveChatId(chatId);
+
       setPendingModelChange(null);
     }
   };
@@ -254,6 +259,10 @@ export function ChatProvider({ children }) {
         fromModel={pendingModelChange?.from || 'auto'}
         toModel={pendingModelChange?.to || 'auto'}
         onConfirm={confirmModelChange}
+        onCancel={() => {
+          // User canceled, don't switch chat
+          setPendingModelChange(null);
+        }}
       />
     </ChatContext.Provider>
   );
