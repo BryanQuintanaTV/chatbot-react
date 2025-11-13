@@ -337,58 +337,58 @@
     "stayUpdatedDescription": "Consulta esta página regularmente para conocer las nuevas funcionalidades y mejoras del Tec Bot",
     "v1": {
       "date": "Noviembre 2024",
-      "highlights": "Rediseño completo con sistema de autenticación, gestión avanzada de chats, internacionalización y mejoras masivas de UX",
+      "highlights": "Rediseño completo con cuentas de usuario, organización avanzada de conversaciones y experiencia mejorada",
       "auth": {
-        "title": "Sistema de Autenticación",
-        "item1": "Registro e inicio de sesión con JWT",
-        "item2": "Validación de contraseñas fuertes con indicador visual",
-        "item3": "Recuperación de contraseña (Forgot/Reset)",
-        "item4": "Protección de rutas para páginas privadas",
-        "item5": "Gestión de perfiles (avatar, semestre, carrera)",
-        "item6": "Persistencia segura en localStorage"
+        "title": "Tu Cuenta Personal",
+        "item1": "Crea tu cuenta y accede de forma segura",
+        "item2": "Contraseñas seguras con verificación en tiempo real",
+        "item3": "Recupera tu contraseña fácilmente si la olvidas",
+        "item4": "Tu información académica para respuestas personalizadas",
+        "item5": "Elige tu avatar y personaliza tu perfil",
+        "item6": "Tus conversaciones se guardan automáticamente"
       },
       "chatManagement": {
-        "title": "Gestión Avanzada de Chats",
-        "item1": "Categorías personalizables para organizar chats",
-        "item2": "Sistema de fijado (pin) para chats importantes",
-        "item3": "Sistema de archivado para ocultar chats",
-        "item4": "25+ iconos personalizables (Lucide React)",
-        "item5": "Colores personalizables (título y fondo)",
-        "item6": "Menú contextual (click derecho) y long-press para móviles"
+        "title": "Organiza tus Conversaciones",
+        "item1": "Crea carpetas personalizadas para organizar tus chats",
+        "item2": "Fija conversaciones importantes al inicio",
+        "item3": "Archiva chats antiguos sin perderlos",
+        "item4": "Más de 25 iconos para identificar tus chats",
+        "item5": "Personaliza colores para encontrar rápido lo que buscas",
+        "item6": "Menú rápido con click derecho (o mantén presionado en móvil)"
       },
       "ui": {
-        "title": "Interfaz de Usuario",
-        "item1": "Tema claro/oscuro con persistencia (sin FOUC)",
-        "item2": "Diseño completamente responsive (desktop/tablet/mobile)",
-        "item3": "Componentes Radix UI + shadcn/ui (19 componentes)",
-        "item4": "Sidebar colapsable con backdrop overlay",
-        "item5": "Diálogos modernos (AlertDialog vs window.confirm)"
+        "title": "Nueva Apariencia",
+        "item1": "Modo claro u oscuro según tu preferencia",
+        "item2": "Funciona perfectamente en computadora, tablet y celular",
+        "item3": "Interfaz moderna y fácil de usar",
+        "item4": "Menú lateral que se adapta a tu pantalla",
+        "item5": "Ventanas de confirmación claras y amigables"
       },
       "shortcuts": {
-        "title": "Atajos de Teclado",
-        "item1": "20+ atajos de teclado (Ctrl+B, Alt+N, Ctrl+K, etc.)",
-        "item2": "Navegación entre chats (Ctrl+↑/↓, Ctrl+1-9)",
-        "item3": "Diálogo de ayuda de atajos (Ctrl+Shift+K)"
+        "title": "Trabaja Más Rápido",
+        "item1": "Más de 20 atajos de teclado para agilizar tu trabajo",
+        "item2": "Cambia entre conversaciones con flechas del teclado",
+        "item3": "Aprende todos los atajos con Ctrl+Shift+K"
       },
       "i18n": {
-        "title": "Internacionalización",
-        "item1": "Soporte completo para Español e Inglés",
-        "item2": "260+ keys de traducción con react-i18next",
-        "item3": "Cambio dinámico de idioma sin reload"
+        "title": "Elige tu Idioma",
+        "item1": "Disponible en Español e Inglés",
+        "item2": "Toda la aplicación está traducida",
+        "item3": "Cambia el idioma al instante"
       },
       "settings": {
-        "title": "Configuración de Usuario",
-        "item1": "Página completa de configuración (/settings)",
-        "item2": "Selector de avatares (8 predefinidos + upload custom)",
-        "item3": "Cambio de contraseña con validación",
-        "item4": "Eliminación de cuenta con confirmación"
+        "title": "Configura Todo a tu Gusto",
+        "item1": "Página completa de configuración personal",
+        "item2": "8 avatares predefinidos o sube tu propia foto",
+        "item3": "Cambia tu contraseña cuando quieras",
+        "item4": "Elimina tu cuenta si lo necesitas"
       },
       "mobile": {
-        "title": "Optimización Mobile",
-        "item1": "Drawer en lugar de Dialog para móviles",
-        "item2": "Long-press support para menús contextuales",
-        "item3": "Auto-collapse del sidebar en móviles",
-        "item4": "Touch-friendly con áreas de toque amplias"
+        "title": "Perfecto para Móvil",
+        "item1": "Diseño especial para pantallas pequeñas",
+        "item2": "Mantén presionado para ver opciones rápidas",
+        "item3": "El menú se adapta automáticamente en celular",
+        "item4": "Botones grandes y fáciles de tocar"
       }
     },
     "v0_3_4": {

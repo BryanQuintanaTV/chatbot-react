@@ -337,58 +337,58 @@
     "stayUpdatedDescription": "Check this page regularly to learn about new features and improvements to Tec Bot",
     "v1": {
       "date": "November 2024",
-      "highlights": "Complete redesign with authentication system, advanced chat management, internationalization, and massive UX improvements",
+      "highlights": "Complete redesign with user accounts, advanced conversation organization, and improved experience",
       "auth": {
-        "title": "Authentication System",
-        "item1": "Registration and login with JWT",
-        "item2": "Strong password validation with visual indicator",
-        "item3": "Password recovery (Forgot/Reset)",
-        "item4": "Route protection for private pages",
-        "item5": "Profile management (avatar, semester, major)",
-        "item6": "Secure localStorage persistence"
+        "title": "Your Personal Account",
+        "item1": "Create your account and log in securely",
+        "item2": "Secure passwords with real-time verification",
+        "item3": "Easy password recovery if you forget it",
+        "item4": "Your academic information for personalized responses",
+        "item5": "Choose your avatar and customize your profile",
+        "item6": "Your conversations are saved automatically"
       },
       "chatManagement": {
-        "title": "Advanced Chat Management",
-        "item1": "Customizable categories to organize chats",
-        "item2": "Pin system for important chats",
-        "item3": "Archive system to hide chats",
-        "item4": "25+ customizable icons (Lucide React)",
-        "item5": "Customizable colors (title and background)",
-        "item6": "Context menu (right-click) and long-press for mobile"
+        "title": "Organize Your Conversations",
+        "item1": "Create custom folders to organize your chats",
+        "item2": "Pin important conversations at the top",
+        "item3": "Archive old chats without losing them",
+        "item4": "Over 25 icons to identify your chats",
+        "item5": "Customize colors to quickly find what you need",
+        "item6": "Quick menu with right-click (or long-press on mobile)"
       },
       "ui": {
-        "title": "User Interface",
-        "item1": "Light/dark theme with persistence (no FOUC)",
-        "item2": "Fully responsive design (desktop/tablet/mobile)",
-        "item3": "Radix UI + shadcn/ui components (19 components)",
-        "item4": "Collapsible sidebar with backdrop overlay",
-        "item5": "Modern dialogs (AlertDialog vs window.confirm)"
+        "title": "New Look & Feel",
+        "item1": "Light or dark mode based on your preference",
+        "item2": "Works perfectly on computer, tablet, and phone",
+        "item3": "Modern and easy-to-use interface",
+        "item4": "Side menu that adapts to your screen",
+        "item5": "Clear and friendly confirmation windows"
       },
       "shortcuts": {
-        "title": "Keyboard Shortcuts",
-        "item1": "20+ keyboard shortcuts (Ctrl+B, Alt+N, Ctrl+K, etc.)",
-        "item2": "Chat navigation (Ctrl+↑/↓, Ctrl+1-9)",
-        "item3": "Shortcuts help dialog (Ctrl+Shift+K)"
+        "title": "Work Faster",
+        "item1": "Over 20 keyboard shortcuts to speed up your work",
+        "item2": "Switch between conversations with arrow keys",
+        "item3": "Learn all shortcuts with Ctrl+Shift+K"
       },
       "i18n": {
-        "title": "Internationalization",
-        "item1": "Full support for Spanish and English",
-        "item2": "260+ translation keys with react-i18next",
-        "item3": "Dynamic language switching without reload"
+        "title": "Choose Your Language",
+        "item1": "Available in Spanish and English",
+        "item2": "The entire app is translated",
+        "item3": "Change language instantly"
       },
       "settings": {
-        "title": "User Settings",
-        "item1": "Complete settings page (/settings)",
-        "item2": "Avatar selector (8 predefined + custom upload)",
-        "item3": "Password change with validation",
-        "item4": "Account deletion with confirmation"
+        "title": "Configure Everything to Your Liking",
+        "item1": "Full personal settings page",
+        "item2": "8 predefined avatars or upload your own photo",
+        "item3": "Change your password whenever you want",
+        "item4": "Delete your account if you need to"
       },
       "mobile": {
-        "title": "Mobile Optimization",
-        "item1": "Drawer instead of Dialog for mobile",
-        "item2": "Long-press support for context menus",
-        "item3": "Auto-collapse sidebar on mobile",
-        "item4": "Touch-friendly with large touch areas"
+        "title": "Perfect for Mobile",
+        "item1": "Special design for small screens",
+        "item2": "Long-press to see quick options",
+        "item3": "Menu automatically adapts on phone",
+        "item4": "Large buttons that are easy to tap"
       }
     },
     "v0_3_4": {
