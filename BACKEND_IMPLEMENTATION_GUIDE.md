@@ -235,7 +235,290 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
-### 7. POST `/api/reports/general`
+### 7. GET `/api/conversations`
+Obtener todas las conversaciones del usuario autenticado.
+
+**Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Response (200):**
+```json
+[
+  {
+    "id": "uuid-1",
+    "title": "Consulta sobre residencia profesional",
+    "icon": "MessageSquare",
+    "color": "#8B5CF6",
+    "bgColor": null,
+    "category": "academic",
+    "pinned": true,
+    "archived": false,
+    "messageCount": 12,
+    "createdAt": "2024-11-10T10:30:00.000Z",
+    "updatedAt": "2024-11-13T15:45:00.000Z"
+  },
+  {
+    "id": "uuid-2",
+    "title": "Información sobre becas",
+    "icon": "GraduationCap",
+    "color": "#3B82F6",
+    "bgColor": "#EFF6FF",
+    "category": "financial",
+    "pinned": false,
+    "archived": true,
+    "messageCount": 5,
+    "createdAt": "2024-11-05T14:20:00.000Z",
+    "updatedAt": "2024-11-08T09:10:00.000Z"
+  }
+]
+```
+
+**Errores:**
+- 401: Unauthorized (token inválido o expirado)
+
+**Notas:**
+- Ordenar por: primero pinned, luego por updatedAt descendente
+- No incluir los mensajes, solo metadata de conversación
+- `messageCount` es el número de mensajes en la conversación
+
+---
+
+### 8. POST `/api/conversations`
+Crear una nueva conversación.
+
+**Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Request Body:**
+```json
+{
+  "title": "Nueva Conversación",
+  "icon": "MessageSquare",
+  "color": "#8B5CF6",
+  "bgColor": null,
+  "category": "uncategorized"
+}
+```
+
+**Response (201):**
+```json
+{
+  "id": "uuid",
+  "title": "Nueva Conversación",
+  "icon": "MessageSquare",
+  "color": "#8B5CF6",
+  "bgColor": null,
+  "category": "uncategorized",
+  "pinned": false,
+  "archived": false,
+  "messageCount": 0,
+  "createdAt": "2024-11-13T18:30:00.000Z",
+  "updatedAt": "2024-11-13T18:30:00.000Z"
+}
+```
+
+**Errores:**
+- 401: Unauthorized
+- 422: Validation error
+
+---
+
+### 9. GET `/api/conversations/{conversation_id}`
+Obtener una conversación específica con sus mensajes.
+
+**Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Response (200):**
+```json
+{
+  "id": "uuid",
+  "title": "Consulta sobre residencia profesional",
+  "icon": "MessageSquare",
+  "color": "#8B5CF6",
+  "bgColor": null,
+  "category": "academic",
+  "pinned": true,
+  "archived": false,
+  "createdAt": "2024-11-10T10:30:00.000Z",
+  "updatedAt": "2024-11-13T15:45:00.000Z",
+  "messages": [
+    {
+      "id": "msg-uuid-1",
+      "role": "user",
+      "content": "¿Cuál es el proceso para solicitar residencia profesional?",
+      "createdAt": "2024-11-10T10:30:00.000Z"
+    },
+    {
+      "id": "msg-uuid-2",
+      "role": "assistant",
+      "content": "El proceso para solicitar residencia profesional...",
+      "modelUsed": "groq",
+      "createdAt": "2024-11-10T10:30:15.000Z"
+    }
+  ]
+}
+```
+
+**Errores:**
+- 401: Unauthorized
+- 403: Forbidden (conversación no pertenece al usuario)
+- 404: Conversation not found
+
+---
+
+### 10. PUT `/api/conversations/{conversation_id}`
+Actualizar una conversación (título, personalización, pin, archive).
+
+**Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Request Body:**
+```json
+{
+  "title": "Residencia Profesional - Completado",
+  "icon": "CheckCircle",
+  "color": "#10B981",
+  "bgColor": "#D1FAE5",
+  "category": "academic",
+  "pinned": false,
+  "archived": true
+}
+```
+
+**Response (200):**
+```json
+{
+  "id": "uuid",
+  "title": "Residencia Profesional - Completado",
+  "icon": "CheckCircle",
+  "color": "#10B981",
+  "bgColor": "#D1FAE5",
+  "category": "academic",
+  "pinned": false,
+  "archived": true,
+  "messageCount": 12,
+  "createdAt": "2024-11-10T10:30:00.000Z",
+  "updatedAt": "2024-11-13T18:45:00.000Z"
+}
+```
+
+**Errores:**
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Conversation not found
+- 422: Validation error
+
+**Notas:**
+- Todos los campos son opcionales
+- Solo actualizar los campos proporcionados
+- Actualizar `updatedAt` automáticamente
+
+---
+
+### 11. DELETE `/api/conversations/{conversation_id}`
+Eliminar una conversación y todos sus mensajes.
+
+**Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Response (200):**
+```json
+{
+  "success": true
+}
+```
+
+**Errores:**
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Conversation not found
+
+**Notas:**
+- Usar CASCADE DELETE para eliminar mensajes asociados
+- No permitir eliminar si es la última conversación del usuario
+
+---
+
+### 12. DELETE `/api/conversations/{conversation_id}/messages`
+Limpiar todos los mensajes de una conversación (mantener conversación vacía).
+
+**Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Response (200):**
+```json
+{
+  "success": true
+}
+```
+
+**Errores:**
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Conversation not found
+
+**Notas:**
+- Eliminar todos los mensajes pero mantener la conversación
+- Actualizar `updatedAt` de la conversación
+
+---
+
+### 13. POST `/api/conversations/{conversation_id}/messages`
+Agregar un mensaje a una conversación (usado internamente por el endpoint de chat).
+
+**Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Request Body:**
+```json
+{
+  "role": "user",
+  "content": "¿Cuándo inician las inscripciones?",
+  "modelUsed": null
+}
+```
+
+**Response (201):**
+```json
+{
+  "id": "msg-uuid",
+  "conversationId": "conv-uuid",
+  "role": "user",
+  "content": "¿Cuándo inician las inscripciones?",
+  "modelUsed": null,
+  "createdAt": "2024-11-13T18:50:00.000Z"
+}
+```
+
+**Errores:**
+- 401: Unauthorized
+- 403: Forbidden
+- 404: Conversation not found
+- 422: Validation error
+
+**Notas:**
+- `role` debe ser "user" o "assistant"
+- `modelUsed` solo para mensajes de assistant (groq, pytorch, etc.)
+- Actualizar `updatedAt` de la conversación
+
+---
+
+### 14. POST `/api/reports/general`
 Enviar un reporte general de error o sugerencia.
 
 **Request Body:**
@@ -277,20 +560,26 @@ Enviar un reporte general de error o sugerencia.
 
 ---
 
-### 8. POST `/api/v1/chat/` (Streaming SSE)
+### 15. POST `/api/v1/chat/` (Streaming SSE)
 Endpoint principal del chatbot con LLM + RAG.
 
 **Request Body:**
 ```json
 {
   "message": "¿Cuál es el proceso para solicitar residencia profesional?",
-  "conversation_id": "uuid-opcional"
+  "conversation_id": "uuid-opcional",
+  "model": "auto"
 }
 ```
 
 **Headers (Opcional - si usuario autenticado):**
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Headers de Respuesta:**
+```
+X-Model-Used: groq
 ```
 
 **Response (Streaming SSE):**
@@ -400,6 +689,46 @@ SECRET_KEY = secrets.token_urlsafe(32)
 
 ### Índices
 - `idx_email`: Índice único en `email`
+
+---
+
+### Tabla: conversations
+
+| Campo | Tipo | Restricciones |
+|-------|------|---------------|
+| id | UUID | PRIMARY KEY |
+| user_id | UUID | FOREIGN KEY → users(id), NOT NULL |
+| title | VARCHAR(255) | NOT NULL |
+| icon | VARCHAR(50) | DEFAULT 'MessageSquare' |
+| color | VARCHAR(50) | DEFAULT '#8B5CF6' |
+| bg_color | VARCHAR(50) | NULLABLE |
+| category | VARCHAR(50) | DEFAULT 'uncategorized' |
+| pinned | BOOLEAN | DEFAULT FALSE |
+| archived | BOOLEAN | DEFAULT FALSE |
+| created_at | TIMESTAMP | DEFAULT NOW() |
+| updated_at | TIMESTAMP | DEFAULT NOW() |
+
+### Índices
+- `idx_user_conversations`: Índice en `user_id`
+- `idx_user_pinned`: Índice compuesto en `(user_id, pinned)`
+- `idx_user_archived`: Índice compuesto en `(user_id, archived)`
+
+---
+
+### Tabla: messages
+
+| Campo | Tipo | Restricciones |
+|-------|------|---------------|
+| id | UUID | PRIMARY KEY |
+| conversation_id | UUID | FOREIGN KEY → conversations(id), NOT NULL, ON DELETE CASCADE |
+| role | VARCHAR(20) | NOT NULL (valores: 'user', 'assistant') |
+| content | TEXT | NOT NULL |
+| model_used | VARCHAR(50) | NULLABLE |
+| created_at | TIMESTAMP | DEFAULT NOW() |
+
+### Índices
+- `idx_conversation_messages`: Índice en `conversation_id`
+- `idx_conversation_created`: Índice compuesto en `(conversation_id, created_at)`
 
 ---
 

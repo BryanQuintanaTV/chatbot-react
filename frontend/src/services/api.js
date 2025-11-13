@@ -276,3 +276,166 @@ export const isTokenValid = (token) => {
     return false;
   }
 };
+
+// ============================================================================
+// CONVERSATION API - For managing chat history
+// ============================================================================
+
+const dummyConversations = {
+  async getAll(token) {
+    await simulateDelay(500);
+    // Return empty for dummy mode - frontend uses localStorage
+    return [];
+  },
+
+  async create(token, data) {
+    await simulateDelay();
+    return {
+      id: Date.now().toString(),
+      ...data,
+      pinned: false,
+      archived: false,
+      messageCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  },
+
+  async getById(token, conversationId) {
+    await simulateDelay();
+    throw new Error('Conversation not found');
+  },
+
+  async update(token, conversationId, updates) {
+    await simulateDelay();
+    return {
+      id: conversationId,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+  },
+
+  async delete(token, conversationId) {
+    await simulateDelay();
+    return { success: true };
+  },
+
+  async clearMessages(token, conversationId) {
+    await simulateDelay();
+    return { success: true };
+  },
+
+  async addMessage(token, conversationId, messageData) {
+    await simulateDelay();
+    return {
+      id: Date.now().toString(),
+      conversationId,
+      ...messageData,
+      createdAt: new Date().toISOString(),
+    };
+  },
+};
+
+const realConversations = {
+  async getAll(token) {
+    const response = await fetch(`${API_BASE_URL}/conversations`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch conversations');
+    }
+    return await response.json();
+  },
+
+  async create(token, data) {
+    const response = await fetch(`${API_BASE_URL}/conversations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to create conversation');
+    }
+    return await response.json();
+  },
+
+  async getById(token, conversationId) {
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Conversation not found');
+    }
+    return await response.json();
+  },
+
+  async update(token, conversationId, updates) {
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to update conversation');
+    }
+    return await response.json();
+  },
+
+  async delete(token, conversationId) {
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete conversation');
+    }
+    return await response.json();
+  },
+
+  async clearMessages(token, conversationId) {
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to clear messages');
+    }
+    return await response.json();
+  },
+
+  async addMessage(token, conversationId, messageData) {
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(messageData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to add message');
+    }
+    return await response.json();
+  },
+};
+
+export const conversationsAPI = USE_DUMMY_DATA ? dummyConversations : realConversations;
