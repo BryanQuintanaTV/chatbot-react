@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Confetti } from '@/components/ui/confetti';
 import {
   ArrowLeft,
   Sparkles,
@@ -179,7 +180,18 @@ export function ReleaseNotes() {
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         {releases.map((release, index) => (
-          <Card key={release.version} className="overflow-hidden">
+          <Card key={release.version} className="overflow-hidden relative">
+            {/* Confetti for v1.0.0 */}
+            {index === 0 && (
+              <Confetti
+                className="absolute inset-0 pointer-events-none z-50"
+                options={{
+                  particleCount: 100,
+                  spread: 70,
+                  origin: { y: 0.6 }
+                }}
+              />
+            )}
             {/* Version Header */}
             <div className={`${getVersionColor(release.type)} p-6 text-white`}>
               <div className="flex items-center justify-between">
