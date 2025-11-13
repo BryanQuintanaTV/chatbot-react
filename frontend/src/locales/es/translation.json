@@ -444,7 +444,7 @@
     "title": "Modelo de IA",
     "description": "Selecciona qué modelo quieres usar para las respuestas",
     "groq": "Agente Inteligente",
-    "pytorch": "Chatbot Básico",
+    "pytorch": "Chatbot Básico (Solo Español)",
     "unavailable": "No disponible"
   }
 }

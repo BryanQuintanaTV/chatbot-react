@@ -444,7 +444,7 @@
     "title": "AI Model",
     "description": "Select which model you want to use for responses",
     "groq": "Smart Agent",
-    "pytorch": "Basic Chatbot",
+    "pytorch": "Basic Chatbot (Spanish Only)",
     "unavailable": "Unavailable"
   }
 }

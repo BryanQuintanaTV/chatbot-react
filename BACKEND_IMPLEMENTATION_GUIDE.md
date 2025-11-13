@@ -572,6 +572,16 @@ Endpoint principal del chatbot con LLM + RAG.
 }
 ```
 
+**Parámetro `model`:**
+- `"auto"` (default): Usa Groq si está disponible, sino PyTorch
+- `"groq"`: Forzar uso de Groq (multilingüe, rápido)
+- `"pytorch"`: Forzar uso de PyTorch local (solo español, con RAG del TECNM)
+
+**IMPORTANTE:**
+- **PyTorch**: Solo responde en español. Modelo optimizado para documentación del TECNM.
+- **Groq**: Multilingüe (español, inglés). Más rápido pero sin conocimiento específico del TECNM.
+- **Auto**: Preferir Groq cuando esté disponible, fallback a PyTorch.
+
 **Headers (Opcional - si usuario autenticado):**
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
