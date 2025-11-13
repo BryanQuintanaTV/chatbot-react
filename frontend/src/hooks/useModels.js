@@ -33,16 +33,16 @@ export function useModels() {
         },
         {
           id: 'groq',
-          name: 'Groq (Rápido)',
+          name: 'Agente Inteligente',
           available: false,
-          message: 'Modelo rápido en la nube (verificar disponibilidad con el backend)',
+          message: 'Modelo rápido multilingüe (verificar disponibilidad con el backend)',
           recommended: false,
           speed: 'fast',
           quality: 'high'
         },
         {
           id: 'pytorch',
-          name: 'PyTorch Local (TecNM)',
+          name: 'Chatbot Básico (Solo Español)',
           available: true,
           message: 'Modelo local siempre disponible con dataset TecNM',
           recommended: false,
