@@ -17,9 +17,39 @@ function ChatMessages({ messages, isLoading }) {
   const { user } = useAuth();
   const scrollContentRef = useAutoScroll(isLoading);
 
+  const getModelBadge = (modelUsed) => {
+    if (!modelUsed || modelUsed === 'unknown') return null;
+
+    const badges = {
+      groq: {
+        label: t('models.groq'),
+        icon: '⚡',
+        className: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+      },
+      pytorch: {
+        label: t('models.pytorch'),
+        icon: '🏫',
+        className: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+      }
+    };
+
+    const badge = badges[modelUsed] || {
+      label: modelUsed,
+      icon: '🤖',
+      className: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+    };
+
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${badge.className}`}>
+        <span>{badge.icon}</span>
+        <span>{badge.label}</span>
+      </span>
+    );
+  };
+
   return (
     <div ref={scrollContentRef} className="space-y-4">
-      {messages.map(({ role, content, loading, error }, idx) => {
+      {messages.map(({ role, content, loading, error, modelUsed }, idx) => {
         const userMessage =
           role === "assistant"
             ? messages.slice(0, idx).reverse().find((m) => m.role === "user")?.content
@@ -59,6 +89,11 @@ function ChatMessages({ messages, isLoading }) {
                 ) : role === "assistant" ? (
                   <div>
                     <Markdown>{content}</Markdown>
+                    {modelUsed && (
+                      <div className="mt-2">
+                        {getModelBadge(modelUsed)}
+                      </div>
+                    )}
                     <ReportIssueDialog message={content} userMessage={userMessage} />
                   </div>
                 ) : (

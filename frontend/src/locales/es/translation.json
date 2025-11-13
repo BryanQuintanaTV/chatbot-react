@@ -439,5 +439,12 @@
     "sending": "Enviando...",
     "success": "Reporte enviado correctamente. ¡Gracias por tu ayuda!",
     "error": "Error al enviar el reporte. Por favor intenta de nuevo."
+  },
+  "models": {
+    "title": "Modelo de IA",
+    "description": "Selecciona qué modelo quieres usar para las respuestas",
+    "groq": "Groq (Rápido)",
+    "pytorch": "PyTorch Local (TecNM)",
+    "unavailable": "No disponible"
   }
 }

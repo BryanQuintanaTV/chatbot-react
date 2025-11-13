@@ -439,5 +439,12 @@
     "sending": "Sending...",
     "success": "Report sent successfully. Thank you for your help!",
     "error": "Error sending report. Please try again."
+  },
+  "models": {
+    "title": "AI Model",
+    "description": "Select which model you want to use for responses",
+    "groq": "Groq (Fast)",
+    "pytorch": "PyTorch Local (TecNM)",
+    "unavailable": "Unavailable"
   }
 }

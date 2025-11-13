@@ -9,7 +9,7 @@ import ChatInput from '@/components/ChatInput';
 
 function Chatbot() {
   const { t } = useTranslation();
-  const { activeChat, updateChatMessages } = useChat();
+  const { activeChat, updateChatMessages, selectedModel } = useChat();
   const VITE_API_URL = import.meta.env.VITE_VERSION;
   const [messages, setMessages] = useImmer(activeChat?.messages || []);
   const [newMessage, setNewMessage] = useState('');
@@ -34,7 +34,7 @@ function Chatbot() {
 
     setMessages(draft => [...draft,
       { role: 'user', content: trimmedMessage },
-      { role: 'assistant', content: '', sources: [], loading: true }
+      { role: 'assistant', content: '', sources: [], loading: true, modelUsed: null }
     ]);
     setNewMessage('');
 
@@ -46,7 +46,13 @@ function Chatbot() {
       //   chatIdOrNew = id;
       // }
 
-      const stream = await api.sendChatMessage(1, trimmedMessage);
+      const { stream, modelUsed } = await api.sendChatMessage(1, trimmedMessage, selectedModel);
+
+      // Store which model was used
+      setMessages(draft => {
+        draft[draft.length - 1].modelUsed = modelUsed;
+      });
+
       for await (const textChunk of parseSSEStream(stream)) {
         setMessages(draft => {
           draft[draft.length - 1].content += textChunk;

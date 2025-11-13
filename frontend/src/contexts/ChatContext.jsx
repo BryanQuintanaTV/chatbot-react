@@ -32,6 +32,11 @@ export function ChatProvider({ children }) {
     return saved || chats[0]?.id;
   });
 
+  const [selectedModel, setSelectedModel] = useState(() => {
+    const saved = localStorage.getItem('chatbot-selected-model');
+    return saved || 'auto'; // Default to 'auto'
+  });
+
   // Save to localStorage whenever chats change
   useEffect(() => {
     localStorage.setItem('chatbot-conversations', JSON.stringify(chats));
@@ -43,6 +48,11 @@ export function ChatProvider({ children }) {
       localStorage.setItem('chatbot-active-chat', activeChatId);
     }
   }, [activeChatId]);
+
+  // Save selected model
+  useEffect(() => {
+    localStorage.setItem('chatbot-selected-model', selectedModel);
+  }, [selectedModel]);
 
   const activeChat = chats.find((chat) => chat.id === activeChatId) || chats[0];
 
@@ -177,6 +187,8 @@ export function ChatProvider({ children }) {
     chats,
     activeChat,
     activeChatId,
+    selectedModel,
+    setSelectedModel,
     createNewChat,
     switchChat,
     updateChatMessages,

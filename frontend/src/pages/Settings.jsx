@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/components/theme-provider';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { useChat } from '@/contexts/ChatContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useModels } from '@/hooks/useModels';
 import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
@@ -40,6 +42,8 @@ export function Settings() {
   const { user, updateUser, changePassword, deleteAccount, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
+  const { selectedModel, setSelectedModel } = useChat();
+  const { models, loading: modelsLoading } = useModels();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -470,6 +474,52 @@ export function Settings() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <div>
+                <p className="font-medium">{t('models.title')}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('models.description')}
+                </p>
+              </div>
+              <Select
+                value={selectedModel}
+                onValueChange={setSelectedModel}
+                disabled={modelsLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {models.map((model) => (
+                    <SelectItem
+                      key={model.id}
+                      value={model.id}
+                      disabled={!model.available}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{model.name}</span>
+                        {model.recommended && (
+                          <span className="text-xs">⭐</span>
+                        )}
+                        {!model.available && (
+                          <span className="text-xs text-muted-foreground">
+                            ({t('models.unavailable')})
+                          </span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedModel && models.find(m => m.id === selectedModel) && (
+                <p className="text-xs text-muted-foreground">
+                  {models.find(m => m.id === selectedModel)?.message}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
