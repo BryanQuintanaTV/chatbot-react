@@ -212,9 +212,9 @@ export function ReleaseNotes() {
                 const Icon = section.icon;
                 return (
                   <div key={section.title}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Icon className="h-5 w-5 text-primary shrink-0" />
-                      <h3 className="text-lg font-semibold leading-none">{section.title}</h3>
+                    <div className="flex items-start gap-2 mb-3">
+                      <Icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <h3 className="text-lg font-semibold">{section.title}</h3>
                     </div>
                     <ul className="space-y-2 ml-7">
                       {section.items.map((item, i) => (
