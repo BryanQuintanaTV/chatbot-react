@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/collapsible';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { GeneralReportDialog } from '@/components/GeneralReportDialog';
 import {
   ArrowLeft,
   ChevronDown,
@@ -254,12 +255,11 @@ export function HelpCenter() {
               <p className="text-sm text-muted-foreground">
                 {t('help.stillNeedHelpDescription')}
               </p>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/')}
-              >
-                {t('help.contactSupport')}
-              </Button>
+              <GeneralReportDialog>
+                <Button variant="outline">
+                  {t('help.contactSupport')}
+                </Button>
+              </GeneralReportDialog>
             </div>
           </CardContent>
         </Card>
