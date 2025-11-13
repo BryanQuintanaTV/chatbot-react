@@ -18,96 +18,100 @@ export function ModelChangeWarning({ open, onOpenChange, fromModel, toModel, onC
   const isUpgrade = fromModel === 'pytorch' && (toModel === 'groq' || toModel === 'auto');
   const isDowngrade = (fromModel === 'groq' || fromModel === 'auto') && toModel === 'pytorch';
 
+  // Get model display names
+  const fromModelName = fromModel === 'pytorch' ? t('models.pytorch') : t('models.groq');
+  const toModelName = toModel === 'pytorch' ? t('models.pytorch') : t('models.groq');
+
   const getWarningContent = () => {
     if (isUpgrade) {
       return {
         icon: <Brain className="h-12 w-12 text-green-500 mx-auto mb-4" />,
-        title: '🎉 Cambiar este Chat a Modelo Inteligente',
+        title: `🎉 ${t('modelChange.upgradeTitle')}`,
         description: (
           <div className="space-y-3 text-left">
             <p className="font-medium text-foreground">
-              Este chat fue creado con <strong>Chatbot Básico</strong>, pero tienes seleccionado <strong>Agente Inteligente</strong>.
+              {t('modelChange.createdWith')} <strong>{fromModelName}</strong>, {t('modelChange.selectedWith')} <strong>{toModelName}</strong>.
             </p>
             <p className="font-medium text-foreground">
-              Si cambias este chat al modelo inteligente, obtendrás:
+              {t('modelChange.ifChange', { model: t('models.groq').toLowerCase() })}
             </p>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <Zap className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                <span><strong>Memoria de conversación:</strong> El chatbot recordará todo el contexto de la conversación actual</span>
+                <span><strong>{t('modelChange.benefits.memory')}</strong> {t('modelChange.benefits.memoryDesc')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <Zap className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                <span><strong>Respuestas más rápidas:</strong> Tiempos de respuesta mejorados</span>
+                <span><strong>{t('modelChange.benefits.fasterResponses')}</strong> {t('modelChange.benefits.fasterResponsesDesc')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <Zap className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                <span><strong>Mejor comprensión:</strong> Entiende contextos complejos y preguntas de seguimiento</span>
+                <span><strong>{t('modelChange.benefits.betterUnderstanding')}</strong> {t('modelChange.benefits.betterUnderstandingDesc')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <Zap className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                <span><strong>Multilingüe:</strong> Responde en español e inglés</span>
+                <span><strong>{t('modelChange.benefits.multilingual')}</strong> {t('modelChange.benefits.multilingualDesc')}</span>
               </li>
             </ul>
             <p className="text-sm text-muted-foreground mt-4">
-              Los mensajes anteriores se mantienen. Las nuevas respuestas en este chat usarán el modelo inteligente.
+              {t('modelChange.previousMessagesKept', { model: t('models.groq').toLowerCase() })}
             </p>
           </div>
         ),
-        confirmText: 'Sí, cambiar este chat',
-        cancelText: 'No, usar modelo del chat',
+        confirmText: t('modelChange.confirmButton'),
+        cancelText: t('modelChange.cancelButton'),
       };
     }
 
     if (isDowngrade) {
       return {
         icon: <MessageSquare className="h-12 w-12 text-orange-500 mx-auto mb-4" />,
-        title: '⚠️ Cambiar este Chat a Modelo Básico',
+        title: `⚠️ ${t('modelChange.downgradeTitle')}`,
         description: (
           <div className="space-y-3 text-left">
             <p className="font-medium text-foreground">
-              Este chat fue creado con <strong>Agente Inteligente</strong>, pero tienes seleccionado <strong>Chatbot Básico</strong>.
+              {t('modelChange.createdWith')} <strong>{fromModelName}</strong>, {t('modelChange.selectedWith')} <strong>{toModelName}</strong>.
             </p>
             <p className="font-medium text-foreground">
-              Si cambias este chat al modelo básico, tendrás estas limitaciones:
+              {t('modelChange.ifDowngrade')}
             </p>
             <ul className="space-y-2 text-sm">
               <li className="flex items-start gap-2">
                 <span className="text-orange-500 font-bold mt-0.5 shrink-0">⚠️</span>
-                <span><strong>Sin memoria:</strong> Cada mensaje se procesa de forma independiente, sin recordar mensajes anteriores</span>
+                <span><strong>{t('modelChange.limitations.noMemory')}</strong> {t('modelChange.limitations.noMemoryDesc')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-orange-500 font-bold mt-0.5 shrink-0">⚠️</span>
-                <span><strong>Solo español:</strong> No responde en otros idiomas</span>
+                <span><strong>{t('modelChange.limitations.spanishOnly')}</strong> {t('modelChange.limitations.spanishOnlyDesc')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-orange-500 font-bold mt-0.5 shrink-0">⚠️</span>
-                <span><strong>Respuestas más lentas:</strong> Procesamiento local puede tardar más</span>
+                <span><strong>{t('modelChange.limitations.slowerResponses')}</strong> {t('modelChange.limitations.slowerResponsesDesc')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-orange-500 font-bold mt-0.5 shrink-0">⚠️</span>
-                <span><strong>Contexto limitado:</strong> Mejor para preguntas simples y directas</span>
+                <span><strong>{t('modelChange.limitations.limitedContext')}</strong> {t('modelChange.limitations.limitedContextDesc')}</span>
               </li>
             </ul>
             <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-lg p-3 mt-4">
               <p className="text-sm text-orange-800 dark:text-orange-200">
-                <strong>Recomendación:</strong> El modelo básico es ideal para consultas específicas sobre el TECNM, pero no es óptimo para conversaciones largas. Los mensajes anteriores se mantienen.
+                <strong>{t('modelChange.recommendation')}</strong> {t('modelChange.recommendationText')}
               </p>
             </div>
           </div>
         ),
-        confirmText: 'Sí, cambiar este chat',
-        cancelText: 'No, usar modelo del chat',
+        confirmText: t('modelChange.confirmButton'),
+        cancelText: t('modelChange.cancelButton'),
       };
     }
 
     // Default case (shouldn't happen)
     return {
       icon: <MessageSquare className="h-12 w-12 text-blue-500 mx-auto mb-4" />,
-      title: 'Cambio de Modelo',
-      description: 'Estás a punto de cambiar el modelo de IA para esta conversación.',
-      confirmText: 'Confirmar',
-      cancelText: 'Cancelar',
+      title: t('modelChange.defaultTitle'),
+      description: t('modelChange.defaultDescription'),
+      confirmText: t('modelChange.defaultConfirm'),
+      cancelText: t('modelChange.defaultCancel'),
     };
   };
 

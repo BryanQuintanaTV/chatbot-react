@@ -446,5 +446,42 @@
     "groq": "Agente Inteligente",
     "pytorch": "Chatbot Básico (Solo Español)",
     "unavailable": "No disponible"
+  },
+  "modelChange": {
+    "upgradeTitle": "Cambiar este Chat a Modelo Inteligente",
+    "downgradeTitle": "Cambiar este Chat a Modelo Básico",
+    "defaultTitle": "Cambio de Modelo",
+    "createdWith": "Este chat fue creado con",
+    "selectedWith": "pero tienes seleccionado",
+    "ifChange": "Si cambias este chat al modelo {{model}}, obtendrás:",
+    "ifDowngrade": "Si cambias este chat al modelo básico, tendrás estas limitaciones:",
+    "benefits": {
+      "memory": "Memoria de conversación:",
+      "memoryDesc": "El chatbot recordará todo el contexto de la conversación actual",
+      "fasterResponses": "Respuestas más rápidas:",
+      "fasterResponsesDesc": "Tiempos de respuesta mejorados",
+      "betterUnderstanding": "Mejor comprensión:",
+      "betterUnderstandingDesc": "Entiende contextos complejos y preguntas de seguimiento",
+      "multilingual": "Multilingüe:",
+      "multilingualDesc": "Responde en español e inglés"
+    },
+    "limitations": {
+      "noMemory": "Sin memoria:",
+      "noMemoryDesc": "Cada mensaje se procesa de forma independiente, sin recordar mensajes anteriores",
+      "spanishOnly": "Solo español:",
+      "spanishOnlyDesc": "No responde en otros idiomas",
+      "slowerResponses": "Respuestas más lentas:",
+      "slowerResponsesDesc": "Procesamiento local puede tardar más",
+      "limitedContext": "Contexto limitado:",
+      "limitedContextDesc": "Mejor para preguntas simples y directas"
+    },
+    "previousMessagesKept": "Los mensajes anteriores se mantienen. Las nuevas respuestas en este chat usarán el modelo {{model}}.",
+    "recommendation": "Recomendación:",
+    "recommendationText": "El modelo básico es ideal para consultas específicas sobre el TECNM, pero no es óptimo para conversaciones largas. Los mensajes anteriores se mantienen.",
+    "confirmButton": "Sí, cambiar este chat",
+    "cancelButton": "No, usar modelo del chat",
+    "defaultDescription": "Estás a punto de cambiar el modelo de IA para esta conversación.",
+    "defaultConfirm": "Confirmar",
+    "defaultCancel": "Cancelar"
   }
 }

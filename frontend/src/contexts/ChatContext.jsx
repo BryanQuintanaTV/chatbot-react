@@ -233,6 +233,21 @@ export function ChatProvider({ children }) {
     }
   };
 
+  // Cancel model change - switch model to match chat's model, then switch to chat
+  const cancelModelChange = () => {
+    if (pendingModelChange) {
+      const { chatId, from } = pendingModelChange;
+
+      // Change the selected model to match the chat's model
+      setSelectedModel(from);
+
+      // Now switch to the chat
+      setActiveChatId(chatId);
+
+      setPendingModelChange(null);
+    }
+  };
+
   const value = {
     chats,
     activeChat,
@@ -259,10 +274,7 @@ export function ChatProvider({ children }) {
         fromModel={pendingModelChange?.from || 'auto'}
         toModel={pendingModelChange?.to || 'auto'}
         onConfirm={confirmModelChange}
-        onCancel={() => {
-          // User canceled, don't switch chat
-          setPendingModelChange(null);
-        }}
+        onCancel={cancelModelChange}
       />
     </ChatContext.Provider>
   );

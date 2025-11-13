@@ -446,5 +446,42 @@
     "groq": "Smart Agent",
     "pytorch": "Basic Chatbot (Spanish Only)",
     "unavailable": "Unavailable"
+  },
+  "modelChange": {
+    "upgradeTitle": "Switch this Chat to Smart Model",
+    "downgradeTitle": "Switch this Chat to Basic Model",
+    "defaultTitle": "Model Change",
+    "createdWith": "This chat was created with",
+    "selectedWith": "but you have selected",
+    "ifChange": "If you change this chat to the {{model}} model, you'll get:",
+    "ifDowngrade": "If you change this chat to the basic model, you'll have these limitations:",
+    "benefits": {
+      "memory": "Conversation memory:",
+      "memoryDesc": "The chatbot will remember the entire context of the current conversation",
+      "fasterResponses": "Faster responses:",
+      "fasterResponsesDesc": "Improved response times",
+      "betterUnderstanding": "Better understanding:",
+      "betterUnderstandingDesc": "Understands complex contexts and follow-up questions",
+      "multilingual": "Multilingual:",
+      "multilingualDesc": "Responds in Spanish and English"
+    },
+    "limitations": {
+      "noMemory": "No memory:",
+      "noMemoryDesc": "Each message is processed independently, without remembering previous messages",
+      "spanishOnly": "Spanish only:",
+      "spanishOnlyDesc": "Does not respond in other languages",
+      "slowerResponses": "Slower responses:",
+      "slowerResponsesDesc": "Local processing may take longer",
+      "limitedContext": "Limited context:",
+      "limitedContextDesc": "Better for simple and direct questions"
+    },
+    "previousMessagesKept": "Previous messages are kept. New responses in this chat will use the {{model}} model.",
+    "recommendation": "Recommendation:",
+    "recommendationText": "The basic model is ideal for specific queries about TECNM, but not optimal for long conversations. Previous messages are kept.",
+    "confirmButton": "Yes, change this chat",
+    "cancelButton": "No, use chat's model",
+    "defaultDescription": "You're about to change the AI model for this conversation.",
+    "defaultConfirm": "Confirm",
+    "defaultCancel": "Cancel"
   }
 }
