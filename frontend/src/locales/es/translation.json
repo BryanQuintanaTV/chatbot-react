@@ -443,8 +443,8 @@
   "models": {
     "title": "Modelo de IA",
     "description": "Selecciona qué modelo quieres usar para las respuestas",
-    "groq": "Groq (Rápido)",
-    "pytorch": "PyTorch Local (TecNM)",
+    "groq": "Agente Inteligente",
+    "pytorch": "Chatbot Básico",
     "unavailable": "No disponible"
   }
 }
