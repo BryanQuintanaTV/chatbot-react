@@ -6,6 +6,10 @@ import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
+import { ExportConversation } from '@/components/ExportConversation';
+import { ImportConversation } from '@/components/ImportConversation';
+import { AdvancedSearch } from '@/components/AdvancedSearch';
+import { ShareConversation } from '@/components/ShareConversation';
 
 function Chatbot() {
   const { t } = useTranslation();
@@ -70,9 +74,14 @@ function Chatbot() {
     }
   }
 
+  const handleImportConversation = (conversationData) => {
+    // Replace current messages with imported ones
+    setMessages(conversationData.messages);
+  };
+
   return (
     <div className='flex flex-col flex-1 overflow-hidden'>
-      <div className='flex-1 overflow-y-auto pt-6 pb-4'>
+      <div className='flex-1 overflow-y-auto pt-6 pb-4 px-4'>
         {messages.length === 0 && (
           <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
             <p>👋 {t('chat.welcome')}</p>
@@ -80,6 +89,29 @@ function Chatbot() {
             <p><small>{t('chat.datasetVersion')}</small></p>
           </div>
         )}
+
+        {/* Toolbar with conversation tools */}
+        {messages.length > 0 && (
+          <div className='flex flex-wrap gap-2 justify-end mb-4'>
+            <AdvancedSearch messages={messages} />
+            <ShareConversation
+              messages={messages}
+              metadata={{
+                title: activeChat?.title || 'Conversación Tec Bot',
+                model: selectedModel
+              }}
+            />
+            <ExportConversation
+              messages={messages}
+              metadata={{
+                title: activeChat?.title || 'Conversación Tec Bot',
+                model: selectedModel
+              }}
+            />
+            <ImportConversation onImport={handleImportConversation} />
+          </div>
+        )}
+
         <ChatMessages
           messages={messages}
           isLoading={isLoading}

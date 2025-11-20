@@ -12,10 +12,12 @@ import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
 import { HelpCenter } from '@/pages/HelpCenter';
 import { ReleaseNotes } from '@/pages/ReleaseNotes';
+import { OfflineDetector } from '@/components/OfflineDetector';
 
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="tec-bot-theme">
+      <OfflineDetector />
       <AuthProvider>
         <ChatProvider>
           <SidebarProvider>
