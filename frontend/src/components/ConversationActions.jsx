@@ -215,7 +215,7 @@ export function ConversationActions({ messages = [], metadata = {}, onImport }) 
           variant="outline"
           size="sm"
           onClick={() => setImportDialogOpen(true)}
-          className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500"
+          className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 dark:text-gray-100"
         >
           <Upload className="mr-2 h-4 w-4" />
           {t('import.button')}
@@ -227,7 +227,7 @@ export function ConversationActions({ messages = [], metadata = {}, onImport }) 
             <Button
               variant="outline"
               size="sm"
-              className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500"
+              className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 dark:text-gray-100"
             >
               <Download className="mr-2 h-4 w-4" />
               {t('export.button')}
