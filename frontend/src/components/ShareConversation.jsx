@@ -1,5 +1,6 @@
 import { Share2, Copy, FileJson, FileText, Check } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ import {
 } from '@/lib/exportConversation';
 
 export function ShareConversation({ messages, metadata = {} }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   if (!messages || messages.length === 0) {
@@ -39,14 +41,14 @@ export function ShareConversation({ messages, metadata = {} }) {
           title: title,
           text: content,
         });
-        toast.success('Compartido', {
-          description: 'La conversación se compartió correctamente'
+        toast.success(t('share.success'), {
+          description: t('share.successDescription')
         });
       } catch (error) {
         // User cancelled or error occurred
         if (error.name !== 'AbortError') {
-          toast.error('Error al compartir', {
-            description: 'No se pudo compartir la conversación'
+          toast.error(t('share.error'), {
+            description: t('share.errorDescription')
           });
         }
       }

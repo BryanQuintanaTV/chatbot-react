@@ -1,5 +1,6 @@
 import { Download, FileJson, FileText, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ import {
 } from '@/lib/exportConversation';
 
 export function ExportConversation({ messages, metadata = {} }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   if (!messages || messages.length === 0) {
@@ -31,12 +33,12 @@ export function ExportConversation({ messages, metadata = {} }) {
       const content = exportAsJSON(messages, metadata);
       const filename = generateFilename('conversacion', 'json');
       downloadFile(content, filename, 'application/json');
-      toast.success('Conversación exportada', {
-        description: 'Se descargó el archivo JSON correctamente'
+      toast.success(t('export.success'), {
+        description: t('export.successJSON')
       });
     } catch (error) {
-      toast.error('Error al exportar', {
-        description: 'No se pudo exportar la conversación'
+      toast.error(t('export.error'), {
+        description: t('export.errorDescription')
       });
     }
   };
@@ -46,12 +48,12 @@ export function ExportConversation({ messages, metadata = {} }) {
       const content = exportAsMarkdown(messages, metadata);
       const filename = generateFilename('conversacion', 'md');
       downloadFile(content, filename, 'text/markdown');
-      toast.success('Conversación exportada', {
-        description: 'Se descargó el archivo Markdown correctamente'
+      toast.success(t('export.success'), {
+        description: t('export.successMarkdown')
       });
     } catch (error) {
-      toast.error('Error al exportar', {
-        description: 'No se pudo exportar la conversación'
+      toast.error(t('export.error'), {
+        description: t('export.errorDescription')
       });
     }
   };
@@ -61,12 +63,12 @@ export function ExportConversation({ messages, metadata = {} }) {
       const content = exportAsText(messages, metadata);
       const filename = generateFilename('conversacion', 'txt');
       downloadFile(content, filename, 'text/plain');
-      toast.success('Conversación exportada', {
-        description: 'Se descargó el archivo de texto correctamente'
+      toast.success(t('export.success'), {
+        description: t('export.successText')
       });
     } catch (error) {
-      toast.error('Error al exportar', {
-        description: 'No se pudo exportar la conversación'
+      toast.error(t('export.error'), {
+        description: t('export.errorDescription')
       });
     }
   };
@@ -78,16 +80,16 @@ export function ExportConversation({ messages, metadata = {} }) {
 
       if (success) {
         setCopied(true);
-        toast.success('Copiado al portapapeles', {
-          description: 'La conversación se copió como texto'
+        toast.success(t('export.copied'), {
+          description: t('export.successCopy')
         });
         setTimeout(() => setCopied(false), 2000);
       } else {
         throw new Error('Failed to copy');
       }
     } catch (error) {
-      toast.error('Error al copiar', {
-        description: 'No se pudo copiar al portapapeles'
+      toast.error(t('export.errorCopy'), {
+        description: t('export.errorCopyDescription')
       });
     }
   };
@@ -97,26 +99,26 @@ export function ExportConversation({ messages, metadata = {} }) {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <Download className="mr-2 h-4 w-4" />
-          Exportar
+          {t('export.button')}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Exportar conversación</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('export.title')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
         <DropdownMenuItem onClick={handleExportJSON}>
           <FileJson className="mr-2 h-4 w-4" />
-          <span>Formato JSON</span>
+          <span>{t('export.formatJSON')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleExportMarkdown}>
           <FileText className="mr-2 h-4 w-4" />
-          <span>Formato Markdown</span>
+          <span>{t('export.formatMarkdown')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleExportText}>
           <FileText className="mr-2 h-4 w-4" />
-          <span>Texto plano</span>
+          <span>{t('export.formatText')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -127,7 +129,7 @@ export function ExportConversation({ messages, metadata = {} }) {
           ) : (
             <Copy className="mr-2 h-4 w-4" />
           )}
-          <span>{copied ? 'Copiado!' : 'Copiar al portapapeles'}</span>
+          <span>{copied ? t('export.copied') : t('export.copyClipboard')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

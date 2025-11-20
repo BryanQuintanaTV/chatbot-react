@@ -13,7 +13,7 @@ export function validateConversationData(data) {
     if (typeof data !== 'object' || data === null) {
       return {
         valid: false,
-        error: 'El formato del archivo no es válido',
+        error: 'import.invalidFormat',
         data: null
       };
     }
@@ -22,42 +22,70 @@ export function validateConversationData(data) {
     if (!data.messages || !Array.isArray(data.messages)) {
       return {
         valid: false,
-        error: 'El archivo no contiene mensajes válidos',
+        error: 'import.noMessages',
         data: null
       };
     }
 
-    // Validate messages structure
+    // If messages array is empty, still allow it
+    if (data.messages.length === 0) {
+      return {
+        valid: true,
+        error: null,
+        data: {
+          messages: [],
+          metadata: data.metadata || {}
+        }
+      };
+    }
+
+    // Validate messages structure - be more flexible
+    const validatedMessages = [];
     for (const msg of data.messages) {
-      if (!msg.role || !msg.content) {
+      // Only require role and content
+      if (!msg.role || msg.content === undefined || msg.content === null) {
         return {
           valid: false,
-          error: 'Los mensajes no tienen el formato correcto',
+          error: 'import.invalidMessageFormat',
           data: null
         };
       }
 
+      // Convert content to string if needed
+      const content = typeof msg.content === 'string' ? msg.content : String(msg.content);
+
+      // Validate role
       if (!['user', 'assistant', 'system'].includes(msg.role)) {
         return {
           valid: false,
-          error: 'Rol de mensaje no válido',
+          error: 'import.invalidRole',
           data: null
         };
       }
+
+      // Keep only essential fields, drop loading/error states
+      validatedMessages.push({
+        role: msg.role,
+        content: content,
+        timestamp: msg.timestamp || new Date().toISOString(),
+        sources: msg.sources || [],
+        modelUsed: msg.modelUsed || null
+      });
     }
 
     return {
       valid: true,
       error: null,
       data: {
-        messages: data.messages,
+        messages: validatedMessages,
         metadata: data.metadata || {}
       }
     };
   } catch (error) {
+    console.error('Validation error:', error);
     return {
       valid: false,
-      error: 'Error al procesar el archivo',
+      error: 'import.processingError',
       data: null
     };
   }
@@ -73,9 +101,10 @@ export function parseJSONFile(content) {
     const data = JSON.parse(content);
     return validateConversationData(data);
   } catch (error) {
+    console.error('JSON parse error:', error);
     return {
       valid: false,
-      error: 'Error al parsear el archivo JSON',
+      error: 'import.parseError',
       data: null
     };
   }
@@ -105,7 +134,7 @@ export function validateFileSize(file) {
   if (file.size > maxSize) {
     return {
       valid: false,
-      error: 'El archivo es demasiado grande (máximo 10MB)'
+      error: 'import.fileTooLarge'
     };
   }
   return { valid: true, error: null };
@@ -121,7 +150,7 @@ export function validateFileType(file, allowedTypes = ['application/json']) {
   if (!allowedTypes.includes(file.type) && !file.name.endsWith('.json')) {
     return {
       valid: false,
-      error: 'Tipo de archivo no soportado (solo JSON)'
+      error: 'import.invalidFileType'
     };
   }
   return { valid: true, error: null };
