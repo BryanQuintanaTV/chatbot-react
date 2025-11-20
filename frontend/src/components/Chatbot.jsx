@@ -6,8 +6,7 @@ import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
-import { ExportConversation } from '@/components/ExportConversation';
-import { ImportConversation } from '@/components/ImportConversation';
+import { ConversationActions } from '@/components/ConversationActions';
 import { AdvancedSearch } from '@/components/AdvancedSearch';
 import { ShareConversation } from '@/components/ShareConversation';
 
@@ -17,6 +16,7 @@ function Chatbot() {
   const VITE_API_URL = import.meta.env.VITE_VERSION;
   const [messages, setMessages] = useImmer(activeChat?.messages || []);
   const [newMessage, setNewMessage] = useState('');
+  const [highlightedMessageIndex, setHighlightedMessageIndex] = useState(null);
 
   // Sync messages when active chat changes or messages are cleared
   useEffect(() => {
@@ -79,6 +79,24 @@ function Chatbot() {
     setMessages(conversationData.messages);
   };
 
+  const handleMessageClick = (messageIndex) => {
+    // Set the highlighted message
+    setHighlightedMessageIndex(messageIndex);
+
+    // Scroll to the message
+    setTimeout(() => {
+      const messageElement = document.querySelector(`[data-message-index="${messageIndex}"]`);
+      if (messageElement) {
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+
+    // Remove highlight after 3 seconds
+    setTimeout(() => {
+      setHighlightedMessageIndex(null);
+    }, 3000);
+  };
+
   return (
     <div className='flex flex-col flex-1 overflow-hidden'>
       <div className='flex-1 overflow-y-auto pt-6 pb-4 px-4'>
@@ -89,9 +107,16 @@ function Chatbot() {
               <p>{t('chat.welcomeDescription')}</p>
               <p><small>{t('chat.datasetVersion')}</small></p>
             </div>
-            {/* Show Import button on empty chat */}
-            <div className='flex justify-end'>
-              <ImportConversation onImport={handleImportConversation} />
+            {/* Show ConversationActions (Import) on empty chat */}
+            <div className='flex justify-end gap-2'>
+              <ConversationActions
+                messages={messages}
+                metadata={{
+                  title: activeChat?.title || 'Conversación Tec Bot',
+                  model: selectedModel
+                }}
+                onImport={handleImportConversation}
+              />
             </div>
           </div>
         )}
@@ -99,7 +124,10 @@ function Chatbot() {
         {/* Toolbar with conversation tools */}
         {messages.length > 0 && (
           <div className='flex flex-wrap gap-2 justify-end mb-4'>
-            <AdvancedSearch messages={messages} />
+            <AdvancedSearch
+              messages={messages}
+              onMessageClick={handleMessageClick}
+            />
             <ShareConversation
               messages={messages}
               metadata={{
@@ -107,20 +135,21 @@ function Chatbot() {
                 model: selectedModel
               }}
             />
-            <ExportConversation
+            <ConversationActions
               messages={messages}
               metadata={{
                 title: activeChat?.title || 'Conversación Tec Bot',
                 model: selectedModel
               }}
+              onImport={handleImportConversation}
             />
-            <ImportConversation onImport={handleImportConversation} />
           </div>
         )}
 
         <ChatMessages
           messages={messages}
           isLoading={isLoading}
+          highlightedMessageIndex={highlightedMessageIndex}
         />
       </div>
       <ChatInput

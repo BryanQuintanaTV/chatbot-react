@@ -579,5 +579,25 @@
     "restored": "Connection restored",
     "restoredDescription": "You're back online.",
     "banner": "No internet connection"
+  },
+  "report": {
+    "button": "Report Problem",
+    "title": "Report Problem",
+    "description": "Describe what went wrong with this response.",
+    "datasetVersion": "Dataset v4.0",
+    "submitted": "Report sent",
+    "userMessageLabel": "Message sent by user",
+    "assistantMessageLabel": "Assistant's response",
+    "feedbackLabel": "What went wrong?",
+    "feedbackPlaceholder": "Describe the problem...",
+    "submitButton": "Send Report",
+    "successMessage": "Report sent successfully",
+    "errorMessage": "Error sending report",
+    "errorEmpty": "Please describe the problem before sending."
+  },
+  "conversationActions": {
+    "button": "File",
+    "title": "Conversation",
+    "export": "Export"
   }
 }

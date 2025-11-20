@@ -579,5 +579,25 @@
     "restored": "Conexión restaurada",
     "restoredDescription": "Volviste a estar en línea.",
     "banner": "Sin conexión a internet"
+  },
+  "report": {
+    "button": "Reportar Problema",
+    "title": "Reportar Problema",
+    "description": "Describe qué salió mal con esta respuesta.",
+    "datasetVersion": "Dataset v4.0",
+    "submitted": "Reporte enviado",
+    "userMessageLabel": "Mensaje enviado por el usuario",
+    "assistantMessageLabel": "Respuesta del asistente",
+    "feedbackLabel": "¿Qué salió mal?",
+    "feedbackPlaceholder": "Describe el problema...",
+    "submitButton": "Enviar Reporte",
+    "successMessage": "Reporte enviado correctamente",
+    "errorMessage": "Error al enviar el reporte",
+    "errorEmpty": "Por favor escribe el problema antes de enviar."
+  },
+  "conversationActions": {
+    "button": "Archivo",
+    "title": "Conversación",
+    "export": "Exportar"
   }
 }

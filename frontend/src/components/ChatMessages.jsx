@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import ReportIssueDialog from "@/components/ReportIssueDialog";
 import { toast } from "sonner";
 
-function ChatMessages({ messages, isLoading }) {
+function ChatMessages({ messages, isLoading, highlightedMessageIndex }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const scrollContentRef = useAutoScroll(isLoading);
@@ -58,8 +58,13 @@ function ChatMessages({ messages, isLoading }) {
         return (
           <div
             key={idx}
-            className={`flex items-start gap-4 py-4 px-3 rounded-xl ${
+            data-message-index={idx}
+            className={`flex items-start gap-4 py-4 px-3 rounded-xl transition-all duration-500 ${
               role === "user" ? "bg-muted/50" : ""
+            } ${
+              highlightedMessageIndex === idx
+                ? "ring-2 ring-primary ring-offset-2 bg-primary/10"
+                : ""
             }`}
           >
             {role === "user" && (

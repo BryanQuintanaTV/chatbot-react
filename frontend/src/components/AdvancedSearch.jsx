@@ -17,7 +17,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export function AdvancedSearch({ messages = [] }) {
+export function AdvancedSearch({ messages = [], onMessageClick }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,7 +34,8 @@ export function AdvancedSearch({ messages = [] }) {
       return [];
     }
 
-    let filtered = [...messages];
+    // Add original index to each message
+    let filtered = messages.map((msg, index) => ({ ...msg, originalIndex: index }));
 
     // Filter by role
     if (!filters.userMessages || !filters.assistantMessages) {
@@ -100,6 +101,13 @@ export function AdvancedSearch({ messages = [] }) {
       assistantMessages: true,
       dateRange: 'all'
     });
+  };
+
+  const handleResultClick = (messageIndex) => {
+    if (onMessageClick) {
+      onMessageClick(messageIndex);
+      setOpen(false); // Close dialog
+    }
   };
 
   const highlightText = (text, query) => {
@@ -255,7 +263,8 @@ export function AdvancedSearch({ messages = [] }) {
                   {searchResults.map((msg, index) => (
                     <div
                       key={index}
-                      className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                      onClick={() => handleResultClick(msg.originalIndex)}
+                      className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <Badge variant={msg.role === 'user' ? 'default' : 'secondary'}>

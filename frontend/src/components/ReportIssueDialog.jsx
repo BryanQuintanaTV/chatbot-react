@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useTranslation } from 'react-i18next'
 import { useMediaQuery } from "../hooks/useMediaQuery"
 import { Button } from "./ui/button"
 import {
@@ -28,6 +29,7 @@ import { toast } from "sonner";
 
 
 export default function ReportIssueDialog({ message, userMessage }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -37,7 +39,7 @@ export default function ReportIssueDialog({ message, userMessage }) {
   e.preventDefault();
 
   if (!feedback.trim()) {
-    toast.error("Por favor escribe el problema antes de enviar.");
+    toast.error(t('report.errorEmpty'));
     return;
   }
 
@@ -51,36 +53,36 @@ export default function ReportIssueDialog({ message, userMessage }) {
 
   try {
     await api.sendReport(payload);
-    toast.success("Reporte enviado correctamente");
+    toast.success(t('report.successMessage'));
     setFeedback("");
     setIsSubmitted(true);  // 🔒 deshabilita el botón
     setOpen(false);
   } catch (err) {
     console.error("Error al enviar el reporte:", err);
-    toast.error("Error al enviar el reporte");
+    toast.error(t('report.errorMessage'));
   }
 };
 
   const form = (
     <form className="grid gap-4" onSubmit={handleSubmit}>
       <div className="grid gap-2">
-        <Label htmlFor="userMessage">Mensaje enviado por el usuario</Label>
+        <Label htmlFor="userMessage">{t('report.userMessageLabel')}</Label>
         <Textarea id="userMessage" value={userMessage || ""} readOnly />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="message">Respuesta del asistente</Label>
+        <Label htmlFor="message">{t('report.assistantMessageLabel')}</Label>
         <Textarea id="message" value={message} readOnly />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="feedback">¿Qué salió mal?</Label>
+        <Label htmlFor="feedback">{t('report.feedbackLabel')}</Label>
         <Textarea
           id="feedback"
-          placeholder="Describe el problema..."
+          placeholder={t('report.feedbackPlaceholder')}
           value={feedback}
           onChange={(e) => setFeedback(e.target.value)}
         />
       </div>
-      <Button type="submit">Enviar Reporte</Button>
+      <Button type="submit">{t('report.submitButton')}</Button>
     </form>
   );
 
@@ -93,15 +95,15 @@ export default function ReportIssueDialog({ message, userMessage }) {
           variant={isSubmitted ? "outline" : "destructive"}
           className={isSubmitted ? "bg-green-600 hover:bg-green-600 text-white" : ""}
         >
-          {isSubmitted ? "Reporte enviado" : "Reportar Problema"}
+          {isSubmitted ? t('report.submitted') : t('report.button')}
         </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reportar Problema</DialogTitle>
+            <DialogTitle>{t('report.title')}</DialogTitle>
             <DialogDescription>
-              Describe qué salió mal con esta respuesta. <br />
-              <small>Dataset v4.0</small>
+              {t('report.description')} <br />
+              <small>{t('report.datasetVersion')}</small>
             </DialogDescription>
           </DialogHeader>
           {form}
@@ -118,21 +120,21 @@ export default function ReportIssueDialog({ message, userMessage }) {
         variant={isSubmitted ? "outline" : "destructive"}
         className={isSubmitted ? "bg-green-600 hover:bg-green-600 text-white" : ""}
       >
-        {isSubmitted ? "Reporte enviado" : "Reportar Problema"}
+        {isSubmitted ? t('report.submitted') : t('report.button')}
       </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Reportar Problema</DrawerTitle>
+          <DrawerTitle>{t('report.title')}</DrawerTitle>
           <DrawerDescription>
-            Describe qué salió mal con esta respuesta. <br />
-            <small>Dataset v4.0</small>
+            {t('report.description')} <br />
+            <small>{t('report.datasetVersion')}</small>
           </DrawerDescription>
         </DrawerHeader>
         <div className="px-4 pb-4">{form}</div>
         <DrawerFooter>
           <DrawerClose asChild>
-            <Button variant="outline">Cancelar</Button>
+            <Button variant="outline">{t('common.cancel')}</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
