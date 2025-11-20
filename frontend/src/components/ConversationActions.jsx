@@ -211,7 +211,12 @@ export function ConversationActions({ messages = [], metadata = {}, onImport }) 
     <>
       {!hasMessages ? (
         // Show simple Import button when no messages
-        <Button variant="outline" size="sm" onClick={() => setImportDialogOpen(true)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setImportDialogOpen(true)}
+          className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500"
+        >
           <Upload className="mr-2 h-4 w-4" />
           {t('import.button')}
         </Button>
@@ -219,7 +224,11 @@ export function ConversationActions({ messages = [], metadata = {}, onImport }) 
         // Show Export dropdown when there are messages
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500"
+            >
               <Download className="mr-2 h-4 w-4" />
               {t('export.button')}
             </Button>

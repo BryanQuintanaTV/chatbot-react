@@ -128,7 +128,11 @@ export function AdvancedSearch({ messages = [], onMessageClick }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500"
+        >
           <Search className="mr-2 h-4 w-4" />
           {t('search.button')}
         </Button>
