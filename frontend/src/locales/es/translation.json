@@ -594,10 +594,5 @@
     "successMessage": "Reporte enviado correctamente",
     "errorMessage": "Error al enviar el reporte",
     "errorEmpty": "Por favor escribe el problema antes de enviar."
-  },
-  "conversationActions": {
-    "button": "Archivo",
-    "title": "Conversación",
-    "export": "Exportar"
   }
 }

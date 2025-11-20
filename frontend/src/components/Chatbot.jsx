@@ -83,11 +83,28 @@ function Chatbot() {
     // Set the highlighted message
     setHighlightedMessageIndex(messageIndex);
 
-    // Scroll to the message
+    // Scroll to the message with better positioning
     setTimeout(() => {
       const messageElement = document.querySelector(`[data-message-index="${messageIndex}"]`);
       if (messageElement) {
-        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Get the scrollable container
+        const scrollContainer = messageElement.closest('.overflow-y-auto');
+        if (scrollContainer) {
+          const elementTop = messageElement.offsetTop;
+          const containerHeight = scrollContainer.clientHeight;
+          const elementHeight = messageElement.clientHeight;
+
+          // Center the message in the viewport
+          const scrollPosition = elementTop - (containerHeight / 2) + (elementHeight / 2);
+
+          scrollContainer.scrollTo({
+            top: scrollPosition,
+            behavior: 'smooth'
+          });
+        } else {
+          // Fallback to scrollIntoView
+          messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
     }, 100);
 
@@ -98,32 +115,11 @@ function Chatbot() {
   };
 
   return (
-    <div className='flex flex-col flex-1 overflow-hidden'>
-      <div className='flex-1 overflow-y-auto pt-6 pb-4 px-4'>
-        {messages.length === 0 && (
-          <div className='space-y-4'>
-            <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
-              <p>👋 {t('chat.welcome')}</p>
-              <p>{t('chat.welcomeDescription')}</p>
-              <p><small>{t('chat.datasetVersion')}</small></p>
-            </div>
-            {/* Show ConversationActions (Import) on empty chat */}
-            <div className='flex justify-end gap-2'>
-              <ConversationActions
-                messages={messages}
-                metadata={{
-                  title: activeChat?.title || 'Conversación Tec Bot',
-                  model: selectedModel
-                }}
-                onImport={handleImportConversation}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Toolbar with conversation tools */}
+    <div className='flex flex-col flex-1 overflow-hidden relative'>
+      {/* Floating Action Buttons - Always visible in top-right */}
+      <div className='absolute top-4 right-4 z-10 flex flex-wrap gap-2 justify-end'>
         {messages.length > 0 && (
-          <div className='flex flex-wrap gap-2 justify-end mb-4'>
+          <>
             <AdvancedSearch
               messages={messages}
               onMessageClick={handleMessageClick}
@@ -135,14 +131,26 @@ function Chatbot() {
                 model: selectedModel
               }}
             />
-            <ConversationActions
-              messages={messages}
-              metadata={{
-                title: activeChat?.title || 'Conversación Tec Bot',
-                model: selectedModel
-              }}
-              onImport={handleImportConversation}
-            />
+          </>
+        )}
+        <ConversationActions
+          messages={messages}
+          metadata={{
+            title: activeChat?.title || 'Conversación Tec Bot',
+            model: selectedModel
+          }}
+          onImport={handleImportConversation}
+        />
+      </div>
+
+      <div className='flex-1 overflow-y-auto pt-6 pb-4 px-4'>
+        {messages.length === 0 && (
+          <div className='space-y-4 mr-48'>
+            <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
+              <p>👋 {t('chat.welcome')}</p>
+              <p>{t('chat.welcomeDescription')}</p>
+              <p><small>{t('chat.datasetVersion')}</small></p>
+            </div>
           </div>
         )}
 

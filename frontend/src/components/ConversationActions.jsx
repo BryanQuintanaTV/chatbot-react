@@ -209,60 +209,53 @@ export function ConversationActions({ messages = [], metadata = {}, onImport }) 
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <File className="mr-2 h-4 w-4" />
-            {t('conversationActions.button')}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>{t('conversationActions.title')}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+      {!hasMessages ? (
+        // Show simple Import button when no messages
+        <Button variant="outline" size="sm" onClick={() => setImportDialogOpen(true)}>
+          <Upload className="mr-2 h-4 w-4" />
+          {t('import.button')}
+        </Button>
+      ) : (
+        // Show Export dropdown when there are messages
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              {t('export.button')}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>{t('export.title')}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
 
-          {/* Import Option */}
-          <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
-            <Upload className="mr-2 h-4 w-4" />
-            <span>{t('import.button')}</span>
-          </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportJSON}>
+              <FileJson className="mr-2 h-4 w-4" />
+              <span>{t('export.formatJSON')}</span>
+            </DropdownMenuItem>
 
-          {/* Export Options - Only show if there are messages */}
-          {hasMessages && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-xs text-muted-foreground">
-                {t('conversationActions.export')}
-              </DropdownMenuLabel>
+            <DropdownMenuItem onClick={handleExportMarkdown}>
+              <FileText className="mr-2 h-4 w-4" />
+              <span>{t('export.formatMarkdown')}</span>
+            </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={handleExportJSON}>
-                <FileJson className="mr-2 h-4 w-4" />
-                <span>{t('export.formatJSON')}</span>
-              </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportText}>
+              <FileText className="mr-2 h-4 w-4" />
+              <span>{t('export.formatText')}</span>
+            </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={handleExportMarkdown}>
-                <FileText className="mr-2 h-4 w-4" />
-                <span>{t('export.formatMarkdown')}</span>
-              </DropdownMenuItem>
+            <DropdownMenuSeparator />
 
-              <DropdownMenuItem onClick={handleExportText}>
-                <FileText className="mr-2 h-4 w-4" />
-                <span>{t('export.formatText')}</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem onClick={handleCopyToClipboard}>
-                {copied ? (
-                  <Check className="mr-2 h-4 w-4 text-green-500" />
-                ) : (
-                  <Copy className="mr-2 h-4 w-4" />
-                )}
-                <span>{copied ? t('export.copied') : t('export.copyClipboard')}</span>
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuItem onClick={handleCopyToClipboard}>
+              {copied ? (
+                <Check className="mr-2 h-4 w-4 text-green-500" />
+              ) : (
+                <Copy className="mr-2 h-4 w-4" />
+              )}
+              <span>{copied ? t('export.copied') : t('export.copyClipboard')}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {/* Import Dialog */}
       <Dialog open={importDialogOpen} onOpenChange={handleImportDialogChange}>
