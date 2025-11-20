@@ -1,19 +1,4 @@
 {
-  "common": {
-    "appName": "Tec Bot",
-    "school": "Tecnológico Nacional de México Campus Chihuahua II",
-    "loading": "Loading...",
-    "uploading": "Uploading...",
-    "save": "Save",
-    "cancel": "Cancel",
-    "close": "Close",
-    "delete": "Delete",
-    "edit": "Edit",
-    "confirm": "Confirm",
-    "ok": "OK",
-    "testMode": "<Test Mode>",
-    "yesterday": "Yesterday"
-  },
   "auth": {
     "login": "Log In",
     "register": "Sign Up",
@@ -485,6 +470,19 @@
     "defaultCancel": "Cancel"
   },
   "common": {
+    "appName": "Tec Bot",
+    "school": "Tecnológico Nacional de México Campus Chihuahua II",
+    "loading": "Loading...",
+    "uploading": "Uploading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "ok": "OK",
+    "testMode": "<Test Mode>",
+    "yesterday": "Yesterday",
     "locale": "en-US"
   },
   "search": {
