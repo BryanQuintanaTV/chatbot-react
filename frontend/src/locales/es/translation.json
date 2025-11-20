@@ -535,6 +535,7 @@
     "dragDrop": "Arrastra un archivo JSON aquí",
     "or": "o haz clic para seleccionar",
     "importing": "Importando...",
+    "cancel": "Cancelar",
     "success": "Conversación importada",
     "successDescription": "Se importaron {{count}} mensajes correctamente",
     "error": "Error al importar",
@@ -556,7 +557,9 @@
     "button": "Compartir",
     "title": "Compartir conversación",
     "shareText": "Compartir como texto",
+    "shareAsText": "Compartir como texto",
     "copyText": "Copiar como texto",
+    "copyAsText": "Copiar como texto",
     "exportJSON": "Exportar JSON",
     "exportMarkdown": "Exportar Markdown",
     "success": "Compartido",
@@ -569,7 +572,8 @@
     "errorDescription": "No se pudo compartir la conversación",
     "errorCopy": "Error al copiar",
     "errorCopyDescription": "No se pudo copiar al portapapeles",
-    "notSupported": "Tu navegador no soporta compartir archivos"
+    "notSupported": "Tu navegador no soporta compartir archivos",
+    "noShareSupport": "* Tu navegador no soporta compartir archivos"
   },
   "offline": {
     "lost": "Conexión perdida",

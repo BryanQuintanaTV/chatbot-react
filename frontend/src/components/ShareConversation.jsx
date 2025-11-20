@@ -56,12 +56,12 @@ export function ShareConversation({ messages, metadata = {} }) {
       // Fallback: copy to clipboard
       const success = await copyToClipboard(content);
       if (success) {
-        toast.success('Copiado al portapapeles', {
-          description: 'La conversación se copió como texto'
+        toast.success(t('share.copied'), {
+          description: t('share.copiedDescription')
         });
       } else {
-        toast.error('Error al copiar', {
-          description: 'No se pudo copiar al portapapeles'
+        toast.error(t('share.errorCopy'), {
+          description: t('share.errorCopyDescription')
         });
       }
     }
@@ -96,8 +96,8 @@ export function ShareConversation({ messages, metadata = {} }) {
 
         if (navigator.canShare(shareData)) {
           await navigator.share(shareData);
-          toast.success('Compartido', {
-            description: 'El archivo se compartió correctamente'
+          toast.success(t('share.success'), {
+            description: t('share.successDescription')
           });
           return;
         }
@@ -110,8 +110,8 @@ export function ShareConversation({ messages, metadata = {} }) {
 
     // Fallback: download file
     downloadFile(content, filename, mimeType);
-    toast.success('Descargado', {
-      description: 'El archivo se descargó correctamente'
+    toast.success(t('share.downloaded'), {
+      description: t('share.downloadedDescription')
     });
   };
 
@@ -122,16 +122,16 @@ export function ShareConversation({ messages, metadata = {} }) {
 
       if (success) {
         setCopied(true);
-        toast.success('Copiado al portapapeles', {
-          description: 'La conversación se copió como texto'
+        toast.success(t('share.copied'), {
+          description: t('share.copiedDescription')
         });
         setTimeout(() => setCopied(false), 2000);
       } else {
         throw new Error('Failed to copy');
       }
     } catch (error) {
-      toast.error('Error al copiar', {
-        description: 'No se pudo copiar al portapapeles'
+      toast.error(t('share.errorCopy'), {
+        description: t('share.errorCopyDescription')
       });
     }
   };
@@ -141,18 +141,18 @@ export function ShareConversation({ messages, metadata = {} }) {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <Share2 className="mr-2 h-4 w-4" />
-          Compartir
+          {t('share.button')}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Compartir conversación</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('share.title')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
         {canShare && (
           <>
             <DropdownMenuItem onClick={handleShareAsText}>
               <Share2 className="mr-2 h-4 w-4" />
-              <span>Compartir como texto</span>
+              <span>{t('share.shareAsText')}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
@@ -164,24 +164,24 @@ export function ShareConversation({ messages, metadata = {} }) {
           ) : (
             <Copy className="mr-2 h-4 w-4" />
           )}
-          <span>{copied ? 'Copiado!' : 'Copiar como texto'}</span>
+          <span>{copied ? t('share.copied') : t('share.copyAsText')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
         <DropdownMenuItem onClick={() => handleShareAsFile('json')}>
           <FileJson className="mr-2 h-4 w-4" />
-          <span>Exportar JSON</span>
+          <span>{t('share.exportJSON')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={() => handleShareAsFile('markdown')}>
           <FileText className="mr-2 h-4 w-4" />
-          <span>Exportar Markdown</span>
+          <span>{t('share.exportMarkdown')}</span>
         </DropdownMenuItem>
 
         {!canShare && (
           <div className="px-2 py-2 text-xs text-muted-foreground">
-            * Tu navegador no soporta compartir archivos
+            {t('share.noShareSupport')}
           </div>
         )}
       </DropdownMenuContent>

@@ -535,6 +535,7 @@
     "dragDrop": "Drag a JSON file here",
     "or": "or click to select",
     "importing": "Importing...",
+    "cancel": "Cancel",
     "success": "Conversation imported",
     "successDescription": "Successfully imported {{count}} messages",
     "error": "Import error",
@@ -556,7 +557,9 @@
     "button": "Share",
     "title": "Share conversation",
     "shareText": "Share as text",
+    "shareAsText": "Share as text",
     "copyText": "Copy as text",
+    "copyAsText": "Copy as text",
     "exportJSON": "Export JSON",
     "exportMarkdown": "Export Markdown",
     "success": "Shared",
@@ -569,7 +572,8 @@
     "errorDescription": "Could not share conversation",
     "errorCopy": "Copy error",
     "errorCopyDescription": "Could not copy to clipboard",
-    "notSupported": "Your browser doesn't support file sharing"
+    "notSupported": "Your browser doesn't support file sharing",
+    "noShareSupport": "* Your browser doesn't support file sharing"
   },
   "offline": {
     "lost": "Connection lost",

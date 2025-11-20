@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Upload, FileJson, AlertCircle, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -15,6 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { processImportedConversation } from '@/lib/importConversation';
 
 export function ImportConversation({ onImport }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState(null);
@@ -56,13 +58,13 @@ export function ImportConversation({ onImport }) {
   const handleFile = (selectedFile) => {
     // Validate file type
     if (!selectedFile.name.endsWith('.json')) {
-      setError('Solo se permiten archivos JSON');
+      setError(t('import.invalidFileType'));
       return;
     }
 
     // Validate file size (10MB)
     if (selectedFile.size > 10 * 1024 * 1024) {
-      setError('El archivo es demasiado grande (máximo 10MB)');
+      setError(t('import.fileTooLarge'));
       return;
     }
 
@@ -86,8 +88,8 @@ export function ImportConversation({ onImport }) {
       }
 
       setSuccess(true);
-      toast.success('Conversación importada', {
-        description: `Se importaron ${conversationData.messages.length} mensajes correctamente`
+      toast.success(t('import.success'), {
+        description: t('import.successDescription', { count: conversationData.messages.length })
       });
 
       // Reset after success
@@ -96,9 +98,10 @@ export function ImportConversation({ onImport }) {
         resetState();
       }, 1500);
     } catch (err) {
-      setError(err.message || 'Error al importar la conversación');
-      toast.error('Error al importar', {
-        description: err.message || 'No se pudo importar la conversación'
+      const errorKey = err.message || 'import.processingError';
+      setError(t(errorKey));
+      toast.error(t('import.error'), {
+        description: t(errorKey)
       });
     } finally {
       setLoading(false);
@@ -127,14 +130,14 @@ export function ImportConversation({ onImport }) {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Upload className="mr-2 h-4 w-4" />
-          Importar
+          {t('import.button')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Importar conversación</DialogTitle>
+          <DialogTitle>{t('import.title')}</DialogTitle>
           <DialogDescription>
-            Arrastra un archivo JSON o selecciona uno para importar una conversación anterior.
+            {t('import.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -176,10 +179,10 @@ export function ImportConversation({ onImport }) {
                   <Upload className="h-12 w-12 text-muted-foreground" />
                   <div>
                     <p className="text-sm font-medium">
-                      Arrastra un archivo JSON aquí
+                      {t('import.dragDrop')}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      o haz clic para seleccionar
+                      {t('import.or')}
                     </p>
                   </div>
                 </>
@@ -200,16 +203,16 @@ export function ImportConversation({ onImport }) {
             <Alert className="border-green-500 bg-green-50 dark:bg-green-950/30">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-600">
-                Conversación importada correctamente
+                {t('import.importedSuccess')}
               </AlertDescription>
             </Alert>
           )}
 
           {/* Info */}
           <div className="text-xs text-muted-foreground space-y-1">
-            <p>• Solo archivos JSON (máximo 10MB)</p>
-            <p>• El formato debe coincidir con las exportaciones de esta app</p>
-            <p>• Los IDs se regenerarán automáticamente</p>
+            <p>• {t('import.infoOnlyJSON')}</p>
+            <p>• {t('import.infoFormat')}</p>
+            <p>• {t('import.infoIDs')}</p>
           </div>
         </div>
 
@@ -220,14 +223,14 @@ export function ImportConversation({ onImport }) {
             onClick={() => setOpen(false)}
             disabled={loading}
           >
-            Cancelar
+            {t('import.cancel')}
           </Button>
           <Button
             type="button"
             onClick={handleImport}
             disabled={!file || loading || success}
           >
-            {loading ? 'Importando...' : 'Importar'}
+            {loading ? t('import.importing') : t('import.button')}
           </Button>
         </DialogFooter>
       </DialogContent>
