@@ -182,6 +182,9 @@ export function Sidebar({ onShowShortcuts }) {
           </div>
         )}
 
+        {/* Spacer - Only when sidebar is collapsed */}
+        {!isExpanded && <div className="flex-1" />}
+
         {/* User Section at Bottom */}
         <div className="border-t p-3">
           {/* User Profile with Popover */}
