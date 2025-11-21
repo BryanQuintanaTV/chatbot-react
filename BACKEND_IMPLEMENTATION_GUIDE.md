@@ -3,9 +3,14 @@
 ## 📋 Resumen
 
 El frontend ya está completamente preparado para conectarse al backend. Solo necesitas:
-1. Implementar los endpoints listados abajo
-2. Cambiar `USE_DUMMY_DATA = false` en `frontend/src/services/api.js`
-3. Actualizar `API_BASE_URL` con la URL de tu backend
+1. Implementar los 17 endpoints listados abajo
+2. Cambiar `USE_DUMMY_DATA = false` en `frontend/src/services/api.js` (si aplica)
+3. Actualizar `API_BASE_URL` con la URL de tu backend (actualmente usa `https://apichat.bryanquintana.com`)
+
+**Nota:** El frontend actualmente usa directamente el API en producción (`https://apichat.bryanquintana.com`). Los endpoints críticos ya implementados son:
+- ✅ POST `/api/v1/chat/` - Chat con streaming SSE
+- ✅ POST `/api/v1/report/` - Reportar problemas con mensajes
+- ✅ GET `/api/v1/models/available/` - Obtener modelos disponibles
 
 ## 🏗️ Arquitectura del Sistema
 
@@ -49,6 +54,39 @@ El frontend ya está completamente preparado para conectarse al backend. Solo ne
 - **Auth**: JWT con tokens de 7 días
 
 ## 🔑 Endpoints Requeridos
+
+**Total: 17 endpoints**
+
+### Autenticación (6 endpoints)
+1. POST `/api/auth/register` - Registrar nuevo usuario
+2. POST `/api/auth/login` - Iniciar sesión
+3. GET `/api/auth/me` - Obtener usuario actual
+4. PUT `/api/auth/profile` - Actualizar perfil
+5. PUT `/api/auth/password` - Cambiar contraseña
+6. DELETE `/api/auth/account` - Eliminar cuenta
+
+### Conversaciones (6 endpoints)
+7. GET `/api/conversations` - Listar conversaciones
+8. POST `/api/conversations` - Crear conversación
+9. GET `/api/conversations/{id}` - Obtener conversación con mensajes
+10. PUT `/api/conversations/{id}` - Actualizar conversación
+11. DELETE `/api/conversations/{id}` - Eliminar conversación
+12. DELETE `/api/conversations/{id}/messages` - Limpiar mensajes
+
+### Mensajes (1 endpoint)
+13. POST `/api/conversations/{id}/messages` - Agregar mensaje
+
+### Reportes (2 endpoints)
+14. POST `/api/reports/general` - Reporte general de bugs/features
+15. POST `/api/v1/report/` - Reporte de mensaje específico del chatbot
+
+### Modelos (1 endpoint)
+16. GET `/api/v1/models/available/` - Obtener modelos disponibles
+
+### Chat (1 endpoint)
+17. POST `/api/v1/chat/` - Chat con LLM (streaming SSE)
+
+---
 
 ### 1. POST `/api/auth/register`
 Registrar un nuevo usuario.
@@ -560,7 +598,94 @@ Enviar un reporte general de error o sugerencia.
 
 ---
 
-### 15. POST `/api/v1/chat/` (Streaming SSE)
+### 15. POST `/api/v1/report/`
+Reportar un problema con un mensaje específico del chatbot.
+
+**Request Body:**
+```json
+{
+  "message_send": "¿Cuál es el proceso para solicitar residencia profesional?",
+  "message_receive": "El proceso para solicitar residencia profesional...",
+  "date": "2024-11-13T18:30:00.000Z",
+  "dataset_version": "4.0",
+  "message_report": "La respuesta no incluye información sobre los documentos requeridos"
+}
+```
+
+**Campos:**
+- `message_send` (string, required): Mensaje enviado por el usuario
+- `message_receive` (string, required): Mensaje recibido del asistente (que se está reportando)
+- `date` (ISO string, required): Fecha y hora del reporte
+- `dataset_version` (string, required): Versión del dataset (siempre "4.0")
+- `message_report` (string, required): Descripción del problema con la respuesta
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "reportId": "uuid"
+}
+```
+
+**Errores:**
+- 400: Validation error (missing fields)
+- 422: Validation error
+
+**Notas:**
+- Este endpoint NO requiere autenticación (permite reportes de usuarios no registrados)
+- Los reportes se usan para mejorar el dataset y el modelo
+- Se recomienda incluir rate limiting (ej: 5 reportes de mensajes por IP por hora)
+- Útil para identificar respuestas incorrectas o de baja calidad del LLM
+
+---
+
+### 16. GET `/api/v1/models/available/`
+Obtener lista de modelos disponibles para el chat.
+
+**Response (200):**
+```json
+{
+  "models": ["groq", "pytorch"],
+  "default": "auto"
+}
+```
+
+**Campos de Respuesta:**
+- `models` (array): Lista de modelos disponibles. Posibles valores: "groq", "pytorch"
+- `default` (string): Modelo por defecto ("auto")
+
+**Errores:**
+- 500: Server error si no hay modelos disponibles
+
+**Notas:**
+- Este endpoint NO requiere autenticación
+- El frontend usa esta información para mostrar opciones de modelo en la UI
+- "auto" significa que el backend elegirá automáticamente el mejor modelo disponible
+- El orden de preferencia es: Groq > PyTorch
+- Si Groq no está disponible, solo retornar ["pytorch"]
+
+**Ejemplo de Implementación:**
+```python
+def get_available_models():
+    available = []
+
+    # Check if Groq is available
+    if check_groq_api_key():
+        available.append("groq")
+
+    # Check if PyTorch/Ollama is available
+    if check_ollama_running():
+        available.append("pytorch")
+
+    return {
+        "models": available,
+        "default": "auto"
+    }
+```
+
+---
+
+### 17. POST `/api/v1/chat/` (Streaming SSE)
 Endpoint principal del chatbot con LLM + RAG.
 
 **Request Body:**
@@ -953,6 +1078,41 @@ return res.status(401).json({
 
 ---
 
+### Tabla: message_reports
+
+| Campo | Tipo | Restricciones |
+|-------|------|---------------|
+| id | UUID | PRIMARY KEY |
+| message_send | TEXT | NOT NULL |
+| message_receive | TEXT | NOT NULL |
+| date | TIMESTAMP | NOT NULL |
+| dataset_version | VARCHAR(10) | NOT NULL |
+| message_report | TEXT | NOT NULL |
+| created_at | TIMESTAMP | DEFAULT NOW() |
+| status | VARCHAR(50) | DEFAULT 'pending' |
+
+### Índices
+- `idx_dataset_version`: Índice en `dataset_version`
+- `idx_status`: Índice en `status`
+- `idx_created_at`: Índice en `created_at`
+
+### Valores de status
+- `pending`: Reporte pendiente de revisión
+- `reviewing`: Reporte en revisión
+- `resolved`: Respuesta mejorada/corregida
+- `closed`: Reporte cerrado sin acción
+
+### Notas
+- Esta tabla almacena reportes específicos de mensajes del chatbot
+- Se usa para identificar respuestas incorrectas o de baja calidad del LLM
+- Los reportes ayudan a mejorar el dataset y el modelo
+- `message_send`: El mensaje que envió el usuario
+- `message_receive`: La respuesta del asistente que se está reportando
+- `message_report`: Descripción del problema con la respuesta
+- `dataset_version`: Versión del dataset (actualmente "4.0")
+
+---
+
 ## 🚀 Checklist de Implementación
 
 ### Autenticación
@@ -970,10 +1130,18 @@ return res.status(401).json({
 - [ ] Probar todos los endpoints con Postman/Thunder Client
 
 ### Reportes
-- [ ] Crear modelo de base de datos para reportes generales
+- [ ] Crear modelo de base de datos para reportes generales (`general_reports`)
+- [ ] Crear modelo de base de datos para reportes de mensajes (`message_reports`)
 - [ ] Crear endpoint POST `/api/reports/general`
+- [ ] Crear endpoint POST `/api/v1/report/`
 - [ ] Implementar validación de campos
-- [ ] Agregar rate limiting por IP
+- [ ] Agregar rate limiting por IP (10 para general, 5 para mensajes)
+- [ ] Probar endpoints con Postman/Thunder Client
+
+### Modelos
+- [ ] Crear endpoint GET `/api/v1/models/available/`
+- [ ] Implementar verificación de disponibilidad de Groq
+- [ ] Implementar verificación de disponibilidad de Ollama/PyTorch
 - [ ] Probar endpoint con Postman/Thunder Client
 
 ### Integración Frontend
