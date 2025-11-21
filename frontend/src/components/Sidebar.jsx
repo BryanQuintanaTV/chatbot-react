@@ -55,6 +55,10 @@ export function Sidebar({ onShowShortcuts }) {
 
   const handleNewChat = () => {
     createNewChat();
+    // Ensure we're showing active chats (not archived) so new chat is visible
+    setShowArchived(false);
+    // Ensure chats section is expanded
+    setChatsOpen(true);
     // Navigate to home page when creating a new chat
     navigate('/');
     // Close sidebar after action
@@ -139,12 +143,12 @@ export function Sidebar({ onShowShortcuts }) {
 
         {/* Chats Section - Collapsible */}
         {isExpanded && (
-          <div className="flex-1 overflow-hidden flex flex-col px-3">
-            <Collapsible open={chatsOpen} onOpenChange={setChatsOpen}>
+          <div className="flex-1 overflow-hidden flex flex-col px-3 min-h-0">
+            <Collapsible open={chatsOpen} onOpenChange={setChatsOpen} className="flex flex-col flex-1 overflow-hidden min-h-0">
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full justify-between px-2 hover:bg-muted"
+                  className="w-full justify-between px-2 hover:bg-muted flex-shrink-0"
                 >
                   <div className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4 text-foreground" />
@@ -177,9 +181,6 @@ export function Sidebar({ onShowShortcuts }) {
             </Collapsible>
           </div>
         )}
-
-        {/* Spacer */}
-        <div className="flex-1" />
 
         {/* User Section at Bottom */}
         <div className="border-t p-3">
