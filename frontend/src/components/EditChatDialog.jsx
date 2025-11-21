@@ -159,9 +159,9 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
     bgColor: chat?.bgColor || null,
   });
 
-  // Update form data when chat changes
+  // Update form data only when dialog opens
   useEffect(() => {
-    if (chat) {
+    if (chat && open) {
       setFormData({
         title: chat.title || '',
         icon: isValidIcon(chat.icon) ? chat.icon : 'MessageSquare',
@@ -172,7 +172,7 @@ export function EditChatDialog({ open, onOpenChange, chat, onSave }) {
         bgColor: chat.bgColor || null,
       });
     }
-  }, [chat]);
+  }, [chat?.id, open]); // Only reset when chat ID changes or dialog opens
 
   const handleSave = () => {
     onSave(formData);
