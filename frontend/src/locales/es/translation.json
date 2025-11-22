@@ -132,7 +132,7 @@
   "chat": {
     "welcome": "Bienvenido",
     "welcomeDescription": "Soy un chatbot que te ayudará a responder dudas generales sobre el TECNM",
-    "datasetVersion": "Versión Dataset: 4.0",
+    "datasetVersion": "Versión Modelo: 1.0",
     "inputPlaceholder": "Escribe tu mensaje...",
     "send": "Enviar",
     "error": "Error al generar la respuesta",
