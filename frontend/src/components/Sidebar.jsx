@@ -210,8 +210,22 @@ export function Sidebar({ onShowShortcuts }) {
 
         {/* User Section at Bottom */}
         <div className="border-t p-3">
-          {/* User Profile with Popover */}
-          <Popover>
+          {/* Show Login button when not authenticated */}
+          {!isAuthenticated ? (
+            <Button
+              variant="default"
+              className={`${isCollapsed ? 'w-full px-2' : 'w-full justify-start'}`}
+              onClick={() => {
+                navigate('/login');
+                closeSidebar();
+              }}
+            >
+              <LogIn className="h-4 w-4" />
+              {isExpanded && <span className="ml-2">{t('auth.login')}</span>}
+            </Button>
+          ) : (
+            /* User Profile with Popover - Only when authenticated */
+            <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
@@ -253,20 +267,16 @@ export function Sidebar({ onShowShortcuts }) {
                     </>
                   )}
 
-                  {/* Settings - Only show when authenticated */}
-                  {isAuthenticated && (
-                    <>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start"
-                        onClick={handleSettings}
-                      >
-                        <Settings className="h-4 w-4 mr-2" />
-                        {t('sidebar.settings')}
-                      </Button>
-                      <Separator />
-                    </>
-                  )}
+                  {/* Settings */}
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={handleSettings}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    {t('sidebar.settings')}
+                  </Button>
+                  <Separator />
 
                   {/* Theme Toggle */}
                   <AnimatedThemeToggler
@@ -276,7 +286,7 @@ export function Sidebar({ onShowShortcuts }) {
                     className="w-full justify-start"
                   />
 
-                  {!isAuthenticated && <Separator />}
+                  <Separator />
 
                   {/* Help Menu - Nested Popover */}
                   <Popover>
@@ -343,32 +353,19 @@ export function Sidebar({ onShowShortcuts }) {
 
                   <Separator />
 
-                  {/* Login/Logout */}
-                  {isAuthenticated ? (
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      {t('auth.logout')}
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        navigate('/login');
-                        closeSidebar();
-                      }}
-                    >
-                      <LogIn className="h-4 w-4 mr-2" />
-                      {t('auth.login')}
-                    </Button>
-                  )}
+                  {/* Logout */}
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    {t('auth.logout')}
+                  </Button>
                 </div>
               </PopoverContent>
             </Popover>
+          )}
         </div>
       </div>
     </div>
