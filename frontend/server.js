@@ -36,18 +36,44 @@ app.use(express.static(path.join(__dirname, 'dist'), {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
-    } else if (filepath.match(/\.(js|css|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
-      // Cache static assets
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     } else if (filepath.endsWith('.html')) {
-      // No cache for HTML
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      // No cache for HTML - critical for maintenance mode changes
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else if (filepath.match(/\.(js|jsx)$/)) {
+      // JS files: cache but revalidate (allows updates to propagate)
+      // If filename has hash (vite builds), use long cache
+      // Otherwise, use short cache with revalidation
+      if (filepath.match(/\.[a-f0-9]{8,}\.(js|jsx)$/)) {
+        // Hashed files - long cache
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else {
+        // Non-hashed files - short cache with revalidation
+        res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+      }
+    } else if (filepath.match(/\.css$/)) {
+      // CSS: similar strategy as JS
+      if (filepath.match(/\.[a-f0-9]{8,}\.css$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else {
+        res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+      }
+    } else if (filepath.match(/\.(jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|webp)$/)) {
+      // Static assets - long cache
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     }
   }
 }));
 
 // Handle client-side routing - serve index.html for all routes
 app.get('*', (req, res) => {
+  // Set headers to prevent caching of index.html
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
