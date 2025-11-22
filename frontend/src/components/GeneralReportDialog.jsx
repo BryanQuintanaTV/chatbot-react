@@ -45,17 +45,17 @@ export function GeneralReportDialog({ children }) {
     e.preventDefault();
 
     if (!category) {
-      toast.error(t('report.selectCategory'));
+      toast.error(t('generalReport.selectCategory'));
       return;
     }
 
     if (!title.trim()) {
-      toast.error(t('report.enterTitle'));
+      toast.error(t('generalReport.enterTitle'));
       return;
     }
 
     if (!description.trim()) {
-      toast.error(t('report.enterDescription'));
+      toast.error(t('generalReport.enterDescription'));
       return;
     }
 
@@ -79,7 +79,7 @@ export function GeneralReportDialog({ children }) {
 
       console.log('General report submitted:', payload);
 
-      toast.success(t('report.success'));
+      toast.success(t('generalReport.success'));
 
       // Reset form
       setCategory('');
@@ -88,7 +88,7 @@ export function GeneralReportDialog({ children }) {
       setOpen(false);
     } catch (err) {
       console.error('Error al enviar el reporte:', err);
-      toast.error(t('report.error'));
+      toast.error(t('generalReport.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -97,35 +97,35 @@ export function GeneralReportDialog({ children }) {
   const form = (
     <form className="grid gap-4" onSubmit={handleSubmit}>
       <div className="grid gap-2">
-        <Label htmlFor="category">{t('report.category')}</Label>
+        <Label htmlFor="category">{t('generalReport.category')}</Label>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger id="category">
-            <SelectValue placeholder={t('report.selectCategoryPlaceholder')} />
+            <SelectValue placeholder={t('generalReport.selectCategoryPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="bug">{t('report.categories.bug')}</SelectItem>
-            <SelectItem value="feature">{t('report.categories.feature')}</SelectItem>
-            <SelectItem value="ui">{t('report.categories.ui')}</SelectItem>
-            <SelectItem value="performance">{t('report.categories.performance')}</SelectItem>
-            <SelectItem value="other">{t('report.categories.other')}</SelectItem>
+            <SelectItem value="bug">{t('generalReport.categories.bug')}</SelectItem>
+            <SelectItem value="feature">{t('generalReport.categories.feature')}</SelectItem>
+            <SelectItem value="ui">{t('generalReport.categories.ui')}</SelectItem>
+            <SelectItem value="performance">{t('generalReport.categories.performance')}</SelectItem>
+            <SelectItem value="other">{t('generalReport.categories.other')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="title">{t('report.title')}</Label>
+        <Label htmlFor="title">{t('generalReport.title')}</Label>
         <Input
           id="title"
-          placeholder={t('report.titlePlaceholder')}
+          placeholder={t('generalReport.titlePlaceholder')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={100}
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="description">{t('report.description')}</Label>
+        <Label htmlFor="description">{t('generalReport.description')}</Label>
         <Textarea
           id="description"
-          placeholder={t('report.descriptionPlaceholder')}
+          placeholder={t('generalReport.descriptionPlaceholder')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={5}
@@ -133,7 +133,7 @@ export function GeneralReportDialog({ children }) {
         />
       </div>
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? t('report.sending') : t('report.submit')}
+        {isSubmitting ? t('generalReport.sending') : t('generalReport.submit')}
       </Button>
     </form>
   );
@@ -144,14 +144,14 @@ export function GeneralReportDialog({ children }) {
         <DialogTrigger asChild>
           {children || (
             <Button variant="ghost" className="w-full justify-start">
-              {t('report.buttonText')}
+              {t('generalReport.buttonText')}
             </Button>
           )}
         </DialogTrigger>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{t('report.dialogTitle')}</DialogTitle>
-            <DialogDescription>{t('report.dialogDescription')}</DialogDescription>
+            <DialogTitle>{t('generalReport.dialogTitle')}</DialogTitle>
+            <DialogDescription>{t('generalReport.dialogDescription')}</DialogDescription>
           </DialogHeader>
           {form}
         </DialogContent>
@@ -164,14 +164,14 @@ export function GeneralReportDialog({ children }) {
       <DrawerTrigger asChild>
         {children || (
           <Button variant="ghost" className="w-full justify-start">
-            {t('report.buttonText')}
+            {t('generalReport.buttonText')}
           </Button>
         )}
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>{t('report.dialogTitle')}</DrawerTitle>
-          <DrawerDescription>{t('report.dialogDescription')}</DrawerDescription>
+          <DrawerTitle>{t('generalReport.dialogTitle')}</DrawerTitle>
+          <DrawerDescription>{t('generalReport.dialogDescription')}</DrawerDescription>
         </DrawerHeader>
         <div className="px-4 pb-4 max-h-[60vh] overflow-y-auto">{form}</div>
         <DrawerFooter>

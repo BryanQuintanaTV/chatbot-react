@@ -409,7 +409,7 @@
       }
     }
   },
-  "report": {
+  "generalReport": {
     "buttonText": "Report an Issue",
     "dialogTitle": "Report an Issue",
     "dialogDescription": "Help us improve Tec Bot by reporting problems or suggesting improvements",
