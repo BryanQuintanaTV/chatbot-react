@@ -87,7 +87,7 @@ const getIconComponent = (iconName) => {
 
 export function ChatList({ onChatSelect, showArchived = false }) {
   const { t } = useTranslation();
-  const { chats, activeChat, createNewChat, switchChat, updateChat, togglePinChat, toggleArchiveChat, deleteChat } = useChat();
+  const { chats, activeChat, createNewChat, switchChat, updateChat, togglePinChat, toggleArchiveChat, deleteChat, clearChatMessages } = useChat();
   const { isReadOnly } = useReadOnly();
   const { isAuthenticated } = useAuth();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -161,14 +161,11 @@ export function ChatList({ onChatSelect, showArchived = false }) {
   const handleDeleteClick = (chat, e) => {
     e.stopPropagation();
 
-    // For unauthenticated users, allow delete but auto-create new chat
+    // For unauthenticated users, reset (clear) the chat instead of deleting
     if (!isAuthenticated) {
-      // Delete current chat and create a new one immediately
-      const success = deleteChat(chat.id);
-      if (success) {
-        createNewChat();
-        toast.success(t('chat.chatReset'));
-      }
+      // Clear the messages of the current chat
+      clearChatMessages(chat.id);
+      toast.success(t('chat.chatReset'));
       setOpenDropdownId(null);
       return;
     }
