@@ -607,7 +607,7 @@
   },
   "maintenance": {
     "title": "Scheduled Maintenance",
-    "description": "We're improving the platform to give you a better experience",
+    "description": "We're improving the platform",
     "countdown": "We'll be back in:",
     "days": "days",
     "hours": "hours",
