@@ -22,7 +22,112 @@ Esto generará una carpeta `dist/` con todos los archivos optimizados.
 
 ## 🌐 Deployment según Plataforma
 
-### 1. Nginx
+### 1. Railway / Nixpacks (Recomendado) ⭐
+
+**Railway** detecta automáticamente el proyecto y usa Nixpacks para el build. La configuración ya está incluida.
+
+**Archivos importantes:**
+- `nixpacks.toml` - Configuración de build para Nixpacks
+- `server.js` - Servidor Express con MIME types correctos
+- `package.json` - Script `start` configurado
+
+**Paso 1: Deploy desde GitHub**
+
+1. Ve a [railway.app](https://railway.app)
+2. Haz clic en "New Project" → "Deploy from GitHub repo"
+3. Selecciona tu repositorio `chatbot-react`
+4. Railway detectará automáticamente el proyecto
+
+**Paso 2: Configurar el servicio**
+
+Railway autodetectará `nixpacks.toml`, pero verifica:
+
+- **Root Directory:** `frontend`
+- **Build Command:** `npm run build` (autodetectado)
+- **Start Command:** `npm run start` (autodetectado)
+- **Port:** Railway asignará automáticamente (variable `PORT`)
+
+**Paso 3: Variables de entorno**
+
+Agrega en el dashboard de Railway:
+
+```
+VITE_API_URL=https://tu-api.railway.app/api/v1/chat
+CHATBOT_VERSION=0.0.2
+VITE_MAINTENANCE_MODE=false
+VITE_MAINTENANCE_WHITELIST_IPS=
+VITE_ENABLE_BACKEND_HEALTH_CHECK=true
+VITE_READ_ONLY_MODE=false
+NODE_ENV=production
+```
+
+**Paso 4: Deploy**
+
+Railway deployeará automáticamente cada push a la rama configurada.
+
+**Verificar el deploy:**
+```bash
+# Ver logs en tiempo real
+railway logs
+
+# O desde el dashboard web
+```
+
+**URLs generadas:**
+- Railway genera automáticamente una URL: `tu-proyecto.up.railway.app`
+- Puedes configurar un dominio personalizado en Settings → Domains
+
+**Troubleshooting Railway:**
+
+1. **Build falla:**
+   ```bash
+   # Verifica los logs en el dashboard
+   # Asegúrate que nixpacks.toml está en frontend/
+   ```
+
+2. **App no inicia:**
+   - Verifica que `server.js` existe
+   - Verifica que `npm run start` funciona localmente
+   - Revisa los logs: Railway → Deployments → View Logs
+
+3. **MIME type error persiste:**
+   - El `server.js` ya maneja esto automáticamente
+   - Verifica que el build se completó: debe existir `dist/` con archivos
+
+4. **Variables de entorno no funcionan:**
+   - Recuerda: las variables `VITE_*` se inyectan en build time
+   - Necesitas re-deploy después de cambiar variables `VITE_*`
+   - `PORT` se inyecta automáticamente por Railway
+
+**Deploy manual con Railway CLI:**
+
+```bash
+# Instalar Railway CLI
+npm install -g @railway/cli
+
+# Login
+railway login
+
+# Link al proyecto
+railway link
+
+# Deploy
+railway up
+```
+
+---
+
+### 2. Otras Plataformas con Nixpacks
+
+Cualquier plataforma que soporte Nixpacks puede usar la misma configuración:
+
+- **Render.com**: Selecciona "Node" y configurará automáticamente
+- **Zeabur**: Detecta automáticamente Nixpacks
+- **Fly.io**: Requiere Dockerfile (ver sección siguiente)
+
+---
+
+### 3. Nginx
 
 **Paso 1:** Copia el build al servidor
 ```bash
