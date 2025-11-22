@@ -34,12 +34,16 @@ export function ChatPage() {
   useEffect(() => {
     if (!isAuthenticated) {
       const dismissed = sessionStorage.getItem('welcome-modal-dismissed');
+      console.log('Checking welcome modal - dismissed:', dismissed);
       if (!dismissed) {
         // Show modal after a short delay for better UX
         const timer = setTimeout(() => {
+          console.log('Showing welcome modal');
           setShowWelcomeModal(true);
         }, 1000);
         return () => clearTimeout(timer);
+      } else {
+        console.log('Welcome modal already dismissed for this session');
       }
     }
   }, [isAuthenticated]);

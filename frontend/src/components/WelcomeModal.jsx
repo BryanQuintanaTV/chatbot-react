@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -14,6 +15,7 @@ import { UserPlus, LogIn, Sparkles, MessageSquare, Save, Zap } from 'lucide-reac
 export function WelcomeModal({ open, onOpenChange }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const previousOpen = useRef(open);
 
   const handleRegister = () => {
     onOpenChange(false);
@@ -25,19 +27,23 @@ export function WelcomeModal({ open, onOpenChange }) {
     navigate('/login');
   };
 
+  // Detect when modal closes and save to sessionStorage
+  useEffect(() => {
+    // When modal transitions from open to closed
+    if (previousOpen.current === true && open === false) {
+      sessionStorage.setItem('welcome-modal-dismissed', 'true');
+      console.log('Welcome modal dismissed and saved to sessionStorage');
+    }
+    previousOpen.current = open;
+  }, [open]);
+
   const handleContinue = () => {
-    // Store that user dismissed the modal for this session only
-    // Using sessionStorage so it appears again when user reopens the app
-    sessionStorage.setItem('welcome-modal-dismissed', 'true');
+    // Close modal (the useEffect will handle saving to sessionStorage)
     onOpenChange(false);
   };
 
-  // Handle modal close (including X button)
   const handleOpenChange = (newOpen) => {
-    if (!newOpen) {
-      // Modal is being closed, save to sessionStorage
-      sessionStorage.setItem('welcome-modal-dismissed', 'true');
-    }
+    // Just pass through to parent - useEffect will handle sessionStorage
     onOpenChange(newOpen);
   };
 
