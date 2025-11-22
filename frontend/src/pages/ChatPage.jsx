@@ -5,6 +5,7 @@ import Chatbot from '@/components/Chatbot';
 import { Sidebar } from '@/components/Sidebar';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useChat } from '@/contexts/ChatContext';
+import { useReadOnly } from '@/contexts/ReadOnlyContext';
 import { useTheme } from '@/components/theme-provider';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
@@ -17,6 +18,7 @@ export function ChatPage() {
   const navigate = useNavigate();
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
   const { createNewChat, chats, activeChatId, switchChat, clearChatMessages, deleteChat, activeChat } = useChat();
+  const { isReadOnly } = useReadOnly();
   const { setTheme, theme } = useTheme();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -163,7 +165,7 @@ export function ChatPage() {
         variant="destructive"
       />
       <div
-        className='flex flex-col h-screen w-full overflow-hidden'
+        className={`flex flex-col h-screen w-full overflow-hidden box-border ${isReadOnly ? 'pt-[60px]' : ''}`}
         style={{ marginLeft: isMobile ? '0' : '64px' }}
       >
         <Toaster richColors position="top-right" />
