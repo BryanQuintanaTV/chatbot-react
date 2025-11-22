@@ -636,7 +636,7 @@
     "footer": "Si crees que esto es un error, contacta a soporte técnico"
   },
   "readOnly": {
-    "banner": "⚠️ Modo solo lectura activo - No puedes enviar mensajes ni editar chats",
+    "banner": "Modo solo lectura activo - No puedes enviar mensajes ni editar chats",
     "inputPlaceholder": "El chatbot está en modo solo lectura...",
     "tooltip": "Las funciones de edición están deshabilitadas temporalmente",
     "newChatDisabled": "No puedes crear nuevos chats en modo solo lectura",

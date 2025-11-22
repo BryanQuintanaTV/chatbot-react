@@ -636,7 +636,7 @@
     "footer": "If you believe this is an error, please contact technical support"
   },
   "readOnly": {
-    "banner": "⚠️ Read-only mode active - You cannot send messages or edit chats",
+    "banner": "Read-only mode active - You cannot send messages or edit chats",
     "inputPlaceholder": "Chatbot is in read-only mode...",
     "tooltip": "Editing features are temporarily disabled",
     "newChatDisabled": "You cannot create new chats in read-only mode",

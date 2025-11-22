@@ -11,8 +11,8 @@
  */
 
 // Configuration
-const USE_DUMMY_DATA = true;
-const API_BASE_URL = 'http://localhost:8000/api';
+const USE_DUMMY_DATA = false;
+const API_BASE_URL = 'https://apichat.bryanquintana.com/';
 
 // ============================================================================
 // DUMMY DATA - Remove this section when backend is ready
