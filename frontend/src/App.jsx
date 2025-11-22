@@ -34,29 +34,31 @@ function AppContent({ isReadOnly }) {
     <ReadOnlyProvider isReadOnly={isReadOnly}>
       <OfflineDetector />
       {isReadOnly && <ReadOnlyBanner />}
-      <ChatProvider>
-        <SidebarProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<ChatPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/help" element={<HelpCenter />} />
-              <Route path="/release-notes" element={<ReleaseNotes />} />
-            </Routes>
-          </Router>
-        </SidebarProvider>
-      </ChatProvider>
+      <div className={isReadOnly ? 'pt-[60px]' : ''}>
+        <ChatProvider>
+          <SidebarProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<ChatPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/release-notes" element={<ReleaseNotes />} />
+              </Routes>
+            </Router>
+          </SidebarProvider>
+        </ChatProvider>
+      </div>
     </ReadOnlyProvider>
   );
 }
