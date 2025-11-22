@@ -20,6 +20,8 @@ import { OfflineDetector } from '@/components/OfflineDetector';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
 import { useBackendHealth } from '@/hooks/useBackendHealth';
 import { useAccountStatus } from '@/hooks/useAccountStatus';
+import { useClientIP } from '@/hooks/useClientIP';
+import { isIPWhitelisted, isMaintenanceBypassEnabled } from '@/lib/ipWhitelist';
 
 function AppContent({ isReadOnly }) {
   const { isAuthenticated, token } = useAuth();
@@ -68,18 +70,49 @@ function App() {
   // Check if read-only mode is enabled
   const isReadOnlyMode = import.meta.env.VITE_READ_ONLY_MODE === 'true';
 
+  // Get client IP for maintenance whitelist check
+  const { ip: clientIP, loading: ipLoading } = useClientIP();
+
+  // Check if IP is whitelisted or bypass is enabled
+  const isWhitelisted = isIPWhitelisted(clientIP);
+  const isBypassEnabled = isMaintenanceBypassEnabled();
+
+  // Determine if we should show maintenance page
+  const shouldShowMaintenance = isMaintenanceMode && !isWhitelisted && !isBypassEnabled;
+
   // Check backend health (only if not in maintenance mode)
   const healthCheckEnabled = import.meta.env.VITE_ENABLE_BACKEND_HEALTH_CHECK === 'true';
   const { isHealthy, retryCount, checkNow } = useBackendHealth(
-    healthCheckEnabled && !isMaintenanceMode,
+    healthCheckEnabled && !shouldShowMaintenance,
     30000
   );
 
-  // If in maintenance mode, show maintenance page
-  if (isMaintenanceMode) {
+  // If in maintenance mode and IP not whitelisted, show maintenance page
+  // Wait for IP check to complete before deciding
+  if (isMaintenanceMode && !ipLoading) {
+    if (shouldShowMaintenance) {
+      return (
+        <ThemeProvider defaultTheme="light" storageKey="tec-bot-theme">
+          <MaintenancePage />
+        </ThemeProvider>
+      );
+    }
+    // If whitelisted or bypass enabled, log it for debugging
+    if (isWhitelisted || isBypassEnabled) {
+      console.info(
+        'Maintenance mode bypassed:',
+        isWhitelisted ? `IP ${clientIP} is whitelisted` : 'Bypass enabled in localStorage'
+      );
+    }
+  }
+
+  // Show loading while checking IP (only if in maintenance mode)
+  if (isMaintenanceMode && ipLoading) {
     return (
       <ThemeProvider defaultTheme="light" storageKey="tec-bot-theme">
-        <MaintenancePage />
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
       </ThemeProvider>
     );
   }
