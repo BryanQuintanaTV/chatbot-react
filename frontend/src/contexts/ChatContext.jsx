@@ -1,9 +1,12 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { ModelChangeWarning } from '@/components/ModelChangeWarning';
+import { conversationsAPI } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ChatContext = createContext();
 
 export function ChatProvider({ children }) {
+  const { isAuthenticated, token } = useAuth();
   const [chats, setChats] = useState(() => {
     // Load chats from localStorage
     const saved = localStorage.getItem('chatbot-conversations');
@@ -88,22 +91,118 @@ export function ChatProvider({ children }) {
     };
   }, [selectedModel]);
 
+  // Load conversations from backend when user logs in
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      // Load conversations from backend
+      conversationsAPI.getAll(token)
+        .then(backendChats => {
+          if (backendChats && backendChats.length > 0) {
+            // Map backend conversations to frontend format
+            const formattedChats = backendChats.map(chat => ({
+              id: chat.id,
+              title: chat.title || 'Nueva Conversación',
+              messages: chat.messages || [],
+              createdAt: chat.created_at || chat.createdAt,
+              updatedAt: chat.updated_at || chat.updatedAt,
+              icon: chat.icon || 'MessageSquare',
+              color: chat.color || '#8B5CF6',
+              category: chat.category || 'uncategorized',
+              pinned: chat.pinned || false,
+              archived: chat.archived || false,
+              bgColor: chat.bg_color || chat.bgColor || null,
+              modelUsed: chat.model_used || chat.modelUsed || 'auto',
+            }));
+            setChats(formattedChats);
+            // Set first chat as active if there's no active chat
+            if (!activeChatId || !formattedChats.find(c => c.id === activeChatId)) {
+              setActiveChatId(formattedChats[0].id);
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error loading conversations from backend:', error);
+          // If error, keep using localStorage conversations
+        });
+    } else if (!isAuthenticated) {
+      // When user logs out, clear backend conversations and use default
+      const saved = localStorage.getItem('chatbot-conversations');
+      if (saved) {
+        const parsedChats = JSON.parse(saved);
+        setChats(parsedChats.map(chat => ({
+          ...chat,
+          modelUsed: chat.modelUsed || 'auto',
+        })));
+      } else {
+        // Create default chat for unauthenticated users
+        const defaultChat = {
+          id: Date.now().toString(),
+          title: 'Nueva Conversación',
+          messages: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          icon: 'MessageSquare',
+          color: '#8B5CF6',
+          category: 'uncategorized',
+          pinned: false,
+          archived: false,
+          bgColor: null,
+          modelUsed: 'pytorch',
+        };
+        setChats([defaultChat]);
+        setActiveChatId(defaultChat.id);
+      }
+    }
+  }, [isAuthenticated, token]); // Only run when auth status changes
+
   const activeChat = chats.find((chat) => chat.id === activeChatId) || chats[0];
 
-  const createNewChat = () => {
-    const newChat = {
-      id: Date.now().toString(),
+  const createNewChat = async () => {
+    const newChatData = {
       title: 'Nueva Conversación',
-      messages: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
       icon: 'MessageSquare',
       color: '#8B5CF6', // Purple
       category: 'uncategorized',
+      bgColor: null,
+    };
+
+    // If user is authenticated, create in backend
+    if (isAuthenticated && token) {
+      try {
+        const backendChat = await conversationsAPI.create(token, newChatData);
+        const newChat = {
+          id: backendChat.id,
+          title: backendChat.title,
+          messages: backendChat.messages || [],
+          createdAt: backendChat.created_at || backendChat.createdAt,
+          updatedAt: backendChat.updated_at || backendChat.updatedAt,
+          icon: backendChat.icon || 'MessageSquare',
+          color: backendChat.color || '#8B5CF6',
+          category: backendChat.category || 'uncategorized',
+          pinned: backendChat.pinned || false,
+          archived: backendChat.archived || false,
+          bgColor: backendChat.bg_color || backendChat.bgColor || null,
+          modelUsed: backendChat.model_used || backendChat.modelUsed || selectedModel,
+        };
+        setChats([newChat, ...chats]);
+        setActiveChatId(newChat.id);
+        return newChat;
+      } catch (error) {
+        console.error('Error creating chat in backend:', error);
+        // Fall through to create locally
+      }
+    }
+
+    // For unauthenticated users or if backend fails, create locally
+    const newChat = {
+      id: Date.now().toString(),
+      ...newChatData,
+      messages: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       pinned: false,
       archived: false,
-      bgColor: null,
-      modelUsed: selectedModel, // Track which model this chat uses
+      modelUsed: selectedModel,
     };
     setChats([newChat, ...chats]);
     setActiveChatId(newChat.id);
@@ -173,7 +272,8 @@ export function ChatProvider({ children }) {
     );
   };
 
-  const updateChat = (chatId, updates) => {
+  const updateChat = async (chatId, updates) => {
+    // Update locally first for immediate UI feedback
     setChats((prevChats) =>
       prevChats.map((chat) =>
         chat.id === chatId
@@ -181,34 +281,55 @@ export function ChatProvider({ children }) {
           : chat
       )
     );
+
+    // If user is authenticated, update in backend
+    if (isAuthenticated && token) {
+      try {
+        // Convert camelCase to snake_case for backend
+        const backendUpdates = {
+          title: updates.title,
+          icon: updates.icon,
+          color: updates.color,
+          category: updates.category,
+          pinned: updates.pinned,
+          archived: updates.archived,
+          bg_color: updates.bgColor,
+          model_used: updates.modelUsed,
+        };
+        // Remove undefined fields
+        Object.keys(backendUpdates).forEach(key =>
+          backendUpdates[key] === undefined && delete backendUpdates[key]
+        );
+
+        await conversationsAPI.update(token, chatId, backendUpdates);
+      } catch (error) {
+        console.error('Error updating chat in backend:', error);
+        // UI already updated, so just log the error
+      }
+    }
   };
 
   const togglePinChat = (chatId) => {
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat.id === chatId
-          ? { ...chat, pinned: !chat.pinned, updatedAt: new Date().toISOString() }
-          : chat
-      )
-    );
+    const chat = chats.find(c => c.id === chatId);
+    if (chat) {
+      updateChat(chatId, { pinned: !chat.pinned });
+    }
   };
 
   const toggleArchiveChat = (chatId) => {
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat.id === chatId
-          ? { ...chat, archived: !chat.archived, updatedAt: new Date().toISOString() }
-          : chat
-      )
-    );
+    const chat = chats.find(c => c.id === chatId);
+    if (chat) {
+      updateChat(chatId, { archived: !chat.archived });
+    }
   };
 
-  const deleteChat = (chatId) => {
+  const deleteChat = async (chatId) => {
     // Don't allow deleting the last chat
     if (chats.length === 1) {
       return false;
     }
 
+    // Delete locally first
     setChats((prevChats) => {
       const filtered = prevChats.filter((chat) => chat.id !== chatId);
 
@@ -219,10 +340,22 @@ export function ChatProvider({ children }) {
 
       return filtered;
     });
+
+    // If user is authenticated, delete from backend
+    if (isAuthenticated && token) {
+      try {
+        await conversationsAPI.delete(token, chatId);
+      } catch (error) {
+        console.error('Error deleting chat from backend:', error);
+        // Chat already deleted locally
+      }
+    }
+
     return true;
   };
 
-  const clearChatMessages = (chatId) => {
+  const clearChatMessages = async (chatId) => {
+    // Clear locally first
     setChats((prevChats) =>
       prevChats.map((chat) =>
         chat.id === chatId
@@ -235,6 +368,16 @@ export function ChatProvider({ children }) {
           : chat
       )
     );
+
+    // If user is authenticated, clear in backend
+    if (isAuthenticated && token) {
+      try {
+        await conversationsAPI.clearMessages(token, chatId);
+      } catch (error) {
+        console.error('Error clearing messages in backend:', error);
+        // Messages already cleared locally
+      }
+    }
   };
 
   // Handle global model change from settings
