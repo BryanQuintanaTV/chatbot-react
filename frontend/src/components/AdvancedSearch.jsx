@@ -137,17 +137,18 @@ export function AdvancedSearch({ messages = [], onMessageClick }) {
           {t('search.button')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl h-[85vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl h-[85vh] md:h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>{t('search.title')}</DialogTitle>
           <DialogDescription>
             {t('search.description')}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
+        <ScrollArea className="flex-1 pr-4">
+          <div className="flex flex-col space-y-4">
           {/* Search Input */}
-          <div className="relative flex-shrink-0">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('search.placeholder')}
@@ -168,7 +169,7 @@ export function AdvancedSearch({ messages = [], onMessageClick }) {
           </div>
 
           {/* Toggle Filters Button */}
-          <div className="flex-shrink-0">
+          <div>
             <Button
               variant="outline"
               size="sm"
@@ -185,7 +186,7 @@ export function AdvancedSearch({ messages = [], onMessageClick }) {
 
           {/* Filters - Collapsible */}
           {showFilters && (
-            <div className="bg-muted/50 rounded-lg p-4 space-y-4 flex-shrink-0">
+            <div className="bg-muted/50 rounded-lg p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Message Type Filters */}
                 <div className="space-y-3">
@@ -238,7 +239,7 @@ export function AdvancedSearch({ messages = [], onMessageClick }) {
 
           {/* Statistics */}
           {(searchQuery || filters.dateRange !== 'all') && (
-            <div className="flex items-center gap-4 text-sm flex-shrink-0">
+            <div className="flex items-center gap-4 text-sm">
               <Badge variant="secondary">
                 {stats.total} {t('search.results', { count: stats.total })}
               </Badge>
@@ -248,51 +249,50 @@ export function AdvancedSearch({ messages = [], onMessageClick }) {
             </div>
           )}
 
-          <Separator className="flex-shrink-0" />
+          <Separator />
 
-          {/* Results - Takes remaining space */}
-          <div className="flex-1 min-h-0">
-            <ScrollArea className="h-full pr-4">
-              {searchResults.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center py-8">
-                  <Search className="h-12 w-12 text-muted-foreground/50 mb-3" />
-                  <p className="text-sm text-muted-foreground">
-                    {searchQuery
-                      ? t('search.noResults')
-                      : t('search.emptyState')}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3 pb-4">
-                  {searchResults.map((msg, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleResultClick(msg.originalIndex)}
-                      className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant={msg.role === 'user' ? 'default' : 'secondary'}>
-                          {msg.role === 'user' ? `👤 ${t('search.userBadge')}` : `🤖 ${t('search.assistantBadge')}`}
-                        </Badge>
-                        {msg.timestamp && (
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(msg.timestamp).toLocaleString(t('common.locale'), {
-                              dateStyle: 'short',
-                              timeStyle: 'short'
-                            })}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm line-clamp-3">
-                        {highlightText(msg.content, searchQuery)}
-                      </p>
+          {/* Results */}
+          <div className="min-h-[200px]">
+            {searchResults.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center py-8">
+                <Search className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                <p className="text-sm text-muted-foreground">
+                  {searchQuery
+                    ? t('search.noResults')
+                    : t('search.emptyState')}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3 pb-4">
+                {searchResults.map((msg, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleResultClick(msg.originalIndex)}
+                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant={msg.role === 'user' ? 'default' : 'secondary'}>
+                        {msg.role === 'user' ? `👤 ${t('search.userBadge')}` : `🤖 ${t('search.assistantBadge')}`}
+                      </Badge>
+                      {msg.timestamp && (
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(msg.timestamp).toLocaleString(t('common.locale'), {
+                            dateStyle: 'short',
+                            timeStyle: 'short'
+                          })}
+                        </span>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
+                    <p className="text-sm line-clamp-3">
+                      {highlightText(msg.content, searchQuery)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

@@ -32,8 +32,17 @@ export function WelcomeModal({ open, onOpenChange }) {
     onOpenChange(false);
   };
 
+  // Handle modal close (including X button)
+  const handleOpenChange = (newOpen) => {
+    if (!newOpen) {
+      // Modal is being closed, save to sessionStorage
+      sessionStorage.setItem('welcome-modal-dismissed', 'true');
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
