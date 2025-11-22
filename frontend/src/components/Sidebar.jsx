@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { useReadOnly } from '@/contexts/ReadOnlyContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
@@ -37,6 +38,7 @@ import {
   Archive,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function Sidebar({ onShowShortcuts }) {
@@ -44,6 +46,7 @@ export function Sidebar({ onShowShortcuts }) {
   const { user, logout, isAuthenticated } = useAuth();
   const { createNewChat } = useChat();
   const { sidebarState, toggleSidebar, closeSidebar, isMobile } = useSidebar();
+  const { isReadOnly } = useReadOnly();
   const navigate = useNavigate();
   const [chatsOpen, setChatsOpen] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
@@ -130,15 +133,27 @@ export function Sidebar({ onShowShortcuts }) {
 
         {/* New Chat Button */}
         <div className="p-3">
-          <Button
-            onClick={handleNewChat}
-            variant="outline"
-            className={`w-full ${isCollapsed ? 'px-0' : 'justify-start'}`}
-            title={isCollapsed ? t('chat.newChat') : undefined}
-          >
-            <Plus className="h-4 w-4 text-foreground" />
-            {isExpanded && <span className="ml-2 text-foreground">{t('chat.newChat')}</span>}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handleNewChat}
+                  variant="outline"
+                  className={`w-full ${isCollapsed ? 'px-0' : 'justify-start'}`}
+                  title={isCollapsed && !isReadOnly ? t('chat.newChat') : undefined}
+                  disabled={isReadOnly}
+                >
+                  <Plus className="h-4 w-4 text-foreground" />
+                  {isExpanded && <span className="ml-2 text-foreground">{t('chat.newChat')}</span>}
+                </Button>
+              </TooltipTrigger>
+              {isReadOnly && (
+                <TooltipContent>
+                  <p>{t('readOnly.newChatDisabled')}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         {/* Chats Section - Collapsible */}

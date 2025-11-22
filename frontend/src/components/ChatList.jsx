@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useChat } from '@/contexts/ChatContext';
+import { useReadOnly } from '@/contexts/ReadOnlyContext';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -86,6 +87,7 @@ const getIconComponent = (iconName) => {
 export function ChatList({ onChatSelect, showArchived = false }) {
   const { t } = useTranslation();
   const { chats, activeChat, createNewChat, switchChat, updateChat, togglePinChat, toggleArchiveChat, deleteChat } = useChat();
+  const { isReadOnly } = useReadOnly();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [chatToEdit, setChatToEdit] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -306,7 +308,11 @@ export function ChatList({ onChatSelect, showArchived = false }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={(e) => handleEditClick(chat, e)} className="cursor-pointer">
+          <DropdownMenuItem
+            onClick={(e) => !isReadOnly && handleEditClick(chat, e)}
+            className="cursor-pointer"
+            disabled={isReadOnly}
+          >
             <Pencil className="h-4 w-4 mr-2" />
             {t('chat.edit') || 'Editar'}
           </DropdownMenuItem>
@@ -329,8 +335,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={(e) => handleDeleteClick(chat, e)}
+            onClick={(e) => !isReadOnly && handleDeleteClick(chat, e)}
             className="text-destructive focus:text-destructive cursor-pointer"
+            disabled={isReadOnly}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {t('chat.delete')}

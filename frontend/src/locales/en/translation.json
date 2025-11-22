@@ -594,5 +594,43 @@
     "successMessage": "Report sent successfully",
     "errorMessage": "Error sending report",
     "errorEmpty": "Please describe the problem before sending."
+  },
+  "maintenance": {
+    "title": "Scheduled Maintenance",
+    "description": "We're improving the platform to give you a better experience",
+    "countdown": "We'll be back in:",
+    "days": "days",
+    "hours": "hours",
+    "minutes": "minutes",
+    "seconds": "seconds",
+    "almostReady": "Almost ready!",
+    "noEstimate": "We're working to be back as soon as possible. Thank you for your patience.",
+    "footer": "Thank you for your understanding and patience"
+  },
+  "serviceDown": {
+    "title": "Service Temporarily Unavailable",
+    "description": "We're experiencing technical difficulties. Our team is working to resolve them.",
+    "retrying": "Retrying in {{seconds}}s...",
+    "retry": "Retry Now",
+    "checking": "Checking availability...",
+    "footer": "If the problem persists, please contact support"
+  },
+  "suspended": {
+    "title": "Account Suspended",
+    "description": "Your account has been temporarily suspended",
+    "reason": "Reason:",
+    "until": "Suspended until:",
+    "permanent": "Permanent suspension",
+    "contact": "Contact Support",
+    "noReason": "No specific reason was provided",
+    "footer": "If you believe this is an error, please contact technical support"
+  },
+  "readOnly": {
+    "banner": "⚠️ Read-only mode active - You cannot send messages or edit chats",
+    "inputPlaceholder": "Chatbot is in read-only mode...",
+    "tooltip": "Editing features are temporarily disabled",
+    "newChatDisabled": "You cannot create new chats in read-only mode",
+    "editDisabled": "You cannot edit chats in read-only mode",
+    "deleteDisabled": "You cannot delete chats in read-only mode"
   }
 }

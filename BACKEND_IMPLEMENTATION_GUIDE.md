@@ -1001,6 +1001,7 @@ El frontend está preparado para manejar errores específicos con translation ke
 | `INVALID_PASSWORD` | `auth.invalidCredentials` | 401 | La contraseña es incorrecta |
 | `EMAIL_EXISTS` | `auth.emailAlreadyExists` | 400 | Ya existe una cuenta con ese email |
 | `WEAK_PASSWORD` | `auth.passwordTooWeak` | 400 | La contraseña no cumple requisitos de seguridad |
+| `ACCOUNT_SUSPENDED` | `auth.accountSuspended` | 403 | Cuenta del usuario suspendida |
 
 ### Formato de Respuesta de Error
 
@@ -1045,6 +1046,46 @@ return res.status(401).json({
   detail: "auth.invalidCredentials",
   code: "INVALID_PASSWORD"
 });
+
+// Cuenta suspendida
+return res.status(403).json({
+  detail: "auth.accountSuspended",
+  code: "ACCOUNT_SUSPENDED",
+  reason: "Violación de términos de servicio", // Opcional
+  suspendedUntil: "2024-12-15T00:00:00Z"      // Opcional (null para permanente)
+});
+```
+
+### Respuesta de Cuenta Suspendida
+
+Cuando un usuario intente iniciar sesión o su cuenta sea verificada (GET `/api/auth/me`) y esté suspendida, el backend debe retornar:
+
+**HTTP Status:** 403 Forbidden
+
+**Response Body:**
+```json
+{
+  "detail": "auth.accountSuspended",
+  "code": "ACCOUNT_SUSPENDED",
+  "reason": "Violación de los términos de servicio",
+  "suspendedUntil": "2024-12-15T00:00:00Z"
+}
+```
+
+**Campos:**
+- `detail` (string, required): Translation key para el frontend ("auth.accountSuspended")
+- `code` (string, required): Código de error ("ACCOUNT_SUSPENDED")
+- `reason` (string, optional): Razón de la suspensión (texto libre)
+- `suspendedUntil` (ISO string, optional): Fecha y hora hasta cuando está suspendido. Si es `null` o no se provee, se considera suspensión permanente.
+
+**Campos adicionales en tabla `users`:**
+
+Para implementar esta funcionalidad, agregar a la tabla `users`:
+
+```sql
+ALTER TABLE users ADD COLUMN suspended BOOLEAN DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN suspended_until TIMESTAMP NULL;
+ALTER TABLE users ADD COLUMN suspension_reason TEXT NULL;
 ```
 
 ---

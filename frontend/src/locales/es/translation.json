@@ -594,5 +594,43 @@
     "successMessage": "Reporte enviado correctamente",
     "errorMessage": "Error al enviar el reporte",
     "errorEmpty": "Por favor escribe el problema antes de enviar."
+  },
+  "maintenance": {
+    "title": "Mantenimiento Programado",
+    "description": "Estamos mejorando la plataforma para ofrecerte una mejor experiencia",
+    "countdown": "Volveremos en:",
+    "days": "días",
+    "hours": "horas",
+    "minutes": "minutos",
+    "seconds": "segundos",
+    "almostReady": "¡Casi listos!",
+    "noEstimate": "Estamos trabajando para volver lo antes posible. Gracias por tu paciencia.",
+    "footer": "Gracias por tu comprensión y paciencia"
+  },
+  "serviceDown": {
+    "title": "Servicio Temporalmente No Disponible",
+    "description": "Estamos experimentando problemas técnicos. Nuestro equipo está trabajando para resolverlos.",
+    "retrying": "Reintentando en {{seconds}}s...",
+    "retry": "Reintentar Ahora",
+    "checking": "Verificando disponibilidad...",
+    "footer": "Si el problema persiste, por favor contacta a soporte"
+  },
+  "suspended": {
+    "title": "Cuenta Suspendida",
+    "description": "Tu cuenta ha sido suspendida temporalmente",
+    "reason": "Razón:",
+    "until": "Suspendido hasta:",
+    "permanent": "Suspensión permanente",
+    "contact": "Contactar Soporte",
+    "noReason": "No se proporcionó una razón específica",
+    "footer": "Si crees que esto es un error, contacta a soporte técnico"
+  },
+  "readOnly": {
+    "banner": "⚠️ Modo solo lectura activo - No puedes enviar mensajes ni editar chats",
+    "inputPlaceholder": "El chatbot está en modo solo lectura...",
+    "tooltip": "Las funciones de edición están deshabilitadas temporalmente",
+    "newChatDisabled": "No puedes crear nuevos chats en modo solo lectura",
+    "editDisabled": "No puedes editar chats en modo solo lectura",
+    "deleteDisabled": "No puedes eliminar chats en modo solo lectura"
   }
 }
