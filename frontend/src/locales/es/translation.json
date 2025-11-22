@@ -53,7 +53,7 @@
     "namePlaceholder": "Juan Pérez González"
   },
   "sidebar": {
-    "menu": "Menu",
+    "menu": "Menú",
     "user": "Usuario",
     "student": "Estudiante",
     "completeProfile": "Completa tu perfil",
@@ -63,6 +63,7 @@
     "settings": "Configuración",
     "theme": "Tema",
     "changeTheme": "Cambiar Tema",
+    "changeLanguage": "Cambiar Idioma",
     "darkMode": "Modo Oscuro",
     "lightMode": "Modo Claro",
     "chatHistory": "Historial de Chats",

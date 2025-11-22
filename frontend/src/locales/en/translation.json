@@ -63,6 +63,7 @@
     "settings": "Settings",
     "theme": "Theme",
     "changeTheme": "Change Theme",
+    "changeLanguage": "Change Language",
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
     "chatHistory": "Chat History",
