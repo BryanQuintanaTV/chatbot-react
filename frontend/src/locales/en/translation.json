@@ -29,7 +29,9 @@
     "registerError": "Registration Error",
     "registerToCreateChats": "You need to create an account to have multiple conversations",
     "registerToEdit": "You need to create an account to edit conversations",
-    "registerToDelete": "You need to create an account to delete conversations"
+    "registerToDelete": "You need to create an account to delete conversations",
+    "registerToPin": "You need to create an account to pin conversations",
+    "registerToArchive": "You need to create an account to archive conversations"
   },
   "login": {
     "title": "Log In",
@@ -148,6 +150,8 @@
     "deleteSuccess": "Conversation deleted successfully",
     "deleteError": "You cannot delete the last conversation",
     "cannotDeleteLastChat": "You cannot delete the last chat",
+    "reset": "Reset Chat",
+    "chatReset": "Chat reset. A new conversation has been created",
     "clearChat": "Clear Chat",
     "editChat": "Edit Chat",
     "editChatDescription": "Customize the name, icon, color and more",

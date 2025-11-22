@@ -29,7 +29,9 @@
     "registerError": "Error de Registro",
     "registerToCreateChats": "Necesitas crear una cuenta para tener múltiples conversaciones",
     "registerToEdit": "Necesitas crear una cuenta para editar conversaciones",
-    "registerToDelete": "Necesitas crear una cuenta para eliminar conversaciones"
+    "registerToDelete": "Necesitas crear una cuenta para eliminar conversaciones",
+    "registerToPin": "Necesitas crear una cuenta para fijar conversaciones",
+    "registerToArchive": "Necesitas crear una cuenta para archivar conversaciones"
   },
   "login": {
     "title": "Iniciar Sesión",
@@ -148,6 +150,8 @@
     "deleteSuccess": "Conversación eliminada correctamente",
     "deleteError": "No puedes eliminar la última conversación",
     "cannotDeleteLastChat": "No puedes eliminar el último chat",
+    "reset": "Reiniciar Chat",
+    "chatReset": "Chat reiniciado. Se ha creado una nueva conversación",
     "clearChat": "Limpiar Chat",
     "editChat": "Editar Chat",
     "editChatDescription": "Personaliza el nombre, icono, color y más",

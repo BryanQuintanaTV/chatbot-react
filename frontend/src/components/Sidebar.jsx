@@ -195,16 +195,18 @@ export function Sidebar({ onShowShortcuts }) {
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="flex-1 overflow-hidden mt-2 flex flex-col min-h-0">
-                {/* Archive Toggle Button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowArchived(!showArchived)}
-                  className="mb-2 justify-start text-xs h-8 flex-shrink-0 dark:bg-gray-800 dark:border dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-100"
-                >
-                  <Archive className="h-3 w-3 mr-2" />
-                  {showArchived ? (t('chat.showActive') || 'Ver Activos') : (t('chat.showArchived') || 'Ver Archivados')}
-                </Button>
+                {/* Archive Toggle Button - Only for authenticated users */}
+                {isAuthenticated && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowArchived(!showArchived)}
+                    className="mb-2 justify-start text-xs h-8 flex-shrink-0 dark:bg-gray-800 dark:border dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-100"
+                  >
+                    <Archive className="h-3 w-3 mr-2" />
+                    {showArchived ? (t('chat.showActive') || 'Ver Activos') : (t('chat.showArchived') || 'Ver Archivados')}
+                  </Button>
+                )}
 
                 {/* Chat List */}
                 <div className="flex-1 overflow-y-auto min-h-0">

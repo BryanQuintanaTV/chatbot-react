@@ -130,6 +130,14 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
   const handlePinClick = (chat, e) => {
     e.stopPropagation();
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.error(t('auth.registerToPin'));
+      setOpenDropdownId(null);
+      return;
+    }
+
     togglePinChat(chat.id);
     toast.success(chat.pinned ? t('chat.unpinSuccess') || 'Chat despegado' : t('chat.pinSuccess') || 'Chat fijado');
     setOpenDropdownId(null);
@@ -137,6 +145,14 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
   const handleArchiveClick = (chat, e) => {
     e.stopPropagation();
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.error(t('auth.registerToArchive'));
+      setOpenDropdownId(null);
+      return;
+    }
+
     toggleArchiveChat(chat.id);
     toast.success(chat.archived ? t('chat.unarchiveSuccess') || 'Chat desarchivado' : t('chat.archiveSuccess') || 'Chat archivado');
     setOpenDropdownId(null);
@@ -145,9 +161,14 @@ export function ChatList({ onChatSelect, showArchived = false }) {
   const handleDeleteClick = (chat, e) => {
     e.stopPropagation();
 
-    // Check if user is authenticated
+    // For unauthenticated users, allow delete but auto-create new chat
     if (!isAuthenticated) {
-      toast.error(t('auth.registerToDelete'));
+      // Delete current chat and create a new one immediately
+      const success = deleteChat(chat.id);
+      if (success) {
+        createNewChat();
+        toast.success(t('chat.chatReset'));
+      }
       setOpenDropdownId(null);
       return;
     }
@@ -334,11 +355,19 @@ export function ChatList({ onChatSelect, showArchived = false }) {
             <Pencil className="h-4 w-4 mr-2" />
             {t('chat.edit') || 'Editar'}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => handlePinClick(chat, e)} className="cursor-pointer">
+          <DropdownMenuItem
+            onClick={(e) => isAuthenticated && handlePinClick(chat, e)}
+            className="cursor-pointer"
+            disabled={!isAuthenticated}
+          >
             <Pin className="h-4 w-4 mr-2" />
             {chat.pinned ? (t('chat.unpin') || 'Despegar') : (t('chat.pin') || 'Fijar')}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => handleArchiveClick(chat, e)} className="cursor-pointer">
+          <DropdownMenuItem
+            onClick={(e) => isAuthenticated && handleArchiveClick(chat, e)}
+            className="cursor-pointer"
+            disabled={!isAuthenticated}
+          >
             {chat.archived ? (
               <>
                 <ArchiveRestore className="h-4 w-4 mr-2" />
@@ -353,12 +382,12 @@ export function ChatList({ onChatSelect, showArchived = false }) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={(e) => (!isReadOnly && isAuthenticated) && handleDeleteClick(chat, e)}
+            onClick={(e) => !isReadOnly && handleDeleteClick(chat, e)}
             className="text-destructive focus:text-destructive cursor-pointer"
-            disabled={isReadOnly || !isAuthenticated}
+            disabled={isReadOnly}
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            {t('chat.delete')}
+            {isAuthenticated ? t('chat.delete') : t('chat.reset')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
