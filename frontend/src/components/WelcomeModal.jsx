@@ -26,8 +26,9 @@ export function WelcomeModal({ open, onOpenChange }) {
   };
 
   const handleContinue = () => {
-    // Store that user dismissed the modal
-    localStorage.setItem('welcome-modal-dismissed', 'true');
+    // Store that user dismissed the modal for this session only
+    // Using sessionStorage so it appears again when user reopens the app
+    sessionStorage.setItem('welcome-modal-dismissed', 'true');
     onOpenChange(false);
   };
 

@@ -29,10 +29,11 @@ export function ChatPage() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const chatInputRef = useRef(null);
 
-  // Show welcome modal for unauthenticated users on first visit
+  // Show welcome modal for unauthenticated users on first visit of the session
+  // Using sessionStorage so modal appears again when user reopens the app
   useEffect(() => {
     if (!isAuthenticated) {
-      const dismissed = localStorage.getItem('welcome-modal-dismissed');
+      const dismissed = sessionStorage.getItem('welcome-modal-dismissed');
       if (!dismissed) {
         // Show modal after a short delay for better UX
         const timer = setTimeout(() => {
