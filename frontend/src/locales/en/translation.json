@@ -3,6 +3,7 @@
     "login": "Log In",
     "register": "Sign Up",
     "logout": "Log Out",
+    "logoutSuccess": "Successfully logged out",
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
@@ -25,7 +26,10 @@
     "emailAlreadyExists": "An account with this email already exists",
     "passwordTooWeak": "Password is too weak",
     "loginError": "Login Error",
-    "registerError": "Registration Error"
+    "registerError": "Registration Error",
+    "registerToCreateChats": "You need to create an account to have multiple conversations",
+    "registerToEdit": "You need to create an account to edit conversations",
+    "registerToDelete": "You need to create an account to delete conversations"
   },
   "login": {
     "title": "Log In",
@@ -430,7 +434,8 @@
     "description": "Select which model you want to use for responses",
     "groq": "Smart Agent",
     "pytorch": "Basic Chatbot (Spanish Only)",
-    "unavailable": "Unavailable"
+    "unavailable": "Unavailable",
+    "requiresAuth": "Requires account"
   },
   "modelChange": {
     "upgradeTitle": "Switch this Chat to Smart Model",
@@ -632,5 +637,26 @@
     "newChatDisabled": "You cannot create new chats in read-only mode",
     "editDisabled": "You cannot edit chats in read-only mode",
     "deleteDisabled": "You cannot delete chats in read-only mode"
+  },
+  "welcome": {
+    "title": "Welcome to TecBot!",
+    "description": "Create a free account to unlock all chatbot features and enhance your learning experience.",
+    "createAccount": "Create Free Account",
+    "login": "I already have an account",
+    "continueWithout": "Continue without account",
+    "benefits": {
+      "smartModel": {
+        "title": "Access to Smart Models",
+        "description": "Use the automatic model and smart agent to get more accurate and complete answers."
+      },
+      "unlimitedChats": {
+        "title": "Unlimited Conversations",
+        "description": "Create and organize multiple conversations without limit. Without an account you can only have 1 conversation."
+      },
+      "saveHistory": {
+        "title": "Saved History",
+        "description": "All your conversations are automatically saved and you can access them from any device."
+      }
+    }
   }
 }

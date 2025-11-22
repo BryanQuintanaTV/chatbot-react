@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useCallback } from 'react';
+import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Chatbot from '@/components/Chatbot';
@@ -6,10 +6,12 @@ import { Sidebar } from '@/components/Sidebar';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useChat } from '@/contexts/ChatContext';
 import { useReadOnly } from '@/contexts/ReadOnlyContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/components/theme-provider';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { WelcomeModal } from '@/components/WelcomeModal';
 import logo from '@/assets/images/itch_II_logo.png';
 import { Toaster, toast } from "sonner";
 
@@ -19,11 +21,27 @@ export function ChatPage() {
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
   const { createNewChat, chats, activeChatId, switchChat, clearChatMessages, deleteChat, activeChat } = useChat();
   const { isReadOnly } = useReadOnly();
+  const { isAuthenticated } = useAuth();
   const { setTheme, theme } = useTheme();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const chatInputRef = useRef(null);
+
+  // Show welcome modal for unauthenticated users on first visit
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const dismissed = localStorage.getItem('welcome-modal-dismissed');
+      if (!dismissed) {
+        // Show modal after a short delay for better UX
+        const timer = setTimeout(() => {
+          setShowWelcomeModal(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isAuthenticated]);
 
   // Keyboard shortcuts handlers
   const handleClearChat = useCallback(() => {
@@ -163,6 +181,10 @@ export function ChatPage() {
         confirmText={t('common.delete') || t('chat.delete')}
         cancelText={t('common.cancel')}
         variant="destructive"
+      />
+      <WelcomeModal
+        open={showWelcomeModal}
+        onOpenChange={setShowWelcomeModal}
       />
       <div
         className={`flex flex-col h-screen w-full overflow-hidden box-border ${isReadOnly ? 'pt-[60px]' : ''}`}

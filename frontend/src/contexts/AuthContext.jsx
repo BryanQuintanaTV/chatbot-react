@@ -71,6 +71,9 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem('user');
     localStorage.removeItem('authToken');
+    // Clear user conversations on logout
+    localStorage.removeItem('chatbot-conversations');
+    localStorage.removeItem('chatbot-active-chat');
   };
 
   const updateUser = async (updates) => {

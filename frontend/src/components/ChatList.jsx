@@ -2,6 +2,7 @@ import { useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useChat } from '@/contexts/ChatContext';
 import { useReadOnly } from '@/contexts/ReadOnlyContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -88,6 +89,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
   const { t } = useTranslation();
   const { chats, activeChat, createNewChat, switchChat, updateChat, togglePinChat, toggleArchiveChat, deleteChat } = useChat();
   const { isReadOnly } = useReadOnly();
+  const { isAuthenticated } = useAuth();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [chatToEdit, setChatToEdit] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -105,6 +107,14 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
   const handleEditClick = (chat, e) => {
     e.stopPropagation();
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.error(t('auth.registerToEdit'));
+      setOpenDropdownId(null);
+      return;
+    }
+
     setChatToEdit(chat);
     setEditDialogOpen(true);
     setOpenDropdownId(null);
@@ -134,6 +144,14 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
   const handleDeleteClick = (chat, e) => {
     e.stopPropagation();
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.error(t('auth.registerToDelete'));
+      setOpenDropdownId(null);
+      return;
+    }
+
     setChatToDelete(chat);
     setDeleteDialogOpen(true);
     setOpenDropdownId(null);
@@ -309,9 +327,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
-            onClick={(e) => !isReadOnly && handleEditClick(chat, e)}
+            onClick={(e) => (!isReadOnly && isAuthenticated) && handleEditClick(chat, e)}
             className="cursor-pointer"
-            disabled={isReadOnly}
+            disabled={isReadOnly || !isAuthenticated}
           >
             <Pencil className="h-4 w-4 mr-2" />
             {t('chat.edit') || 'Editar'}
@@ -335,9 +353,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={(e) => !isReadOnly && handleDeleteClick(chat, e)}
+            onClick={(e) => (!isReadOnly && isAuthenticated) && handleDeleteClick(chat, e)}
             className="text-destructive focus:text-destructive cursor-pointer"
-            disabled={isReadOnly}
+            disabled={isReadOnly || !isAuthenticated}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {t('chat.delete')}

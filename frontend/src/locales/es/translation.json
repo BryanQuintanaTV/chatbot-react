@@ -3,6 +3,7 @@
     "login": "Iniciar Sesión",
     "register": "Registrarse",
     "logout": "Cerrar Sesión",
+    "logoutSuccess": "Sesión cerrada exitosamente",
     "email": "Correo Electrónico",
     "password": "Contraseña",
     "confirmPassword": "Confirmar Contraseña",
@@ -25,7 +26,10 @@
     "emailAlreadyExists": "Ya existe una cuenta con este correo",
     "passwordTooWeak": "La contraseña es muy débil",
     "loginError": "Error de Inicio de Sesión",
-    "registerError": "Error de Registro"
+    "registerError": "Error de Registro",
+    "registerToCreateChats": "Necesitas crear una cuenta para tener múltiples conversaciones",
+    "registerToEdit": "Necesitas crear una cuenta para editar conversaciones",
+    "registerToDelete": "Necesitas crear una cuenta para eliminar conversaciones"
   },
   "login": {
     "title": "Iniciar Sesión",
@@ -430,7 +434,8 @@
     "description": "Selecciona qué modelo quieres usar para las respuestas",
     "groq": "Agente Inteligente",
     "pytorch": "Chatbot Básico (Solo Español)",
-    "unavailable": "No disponible"
+    "unavailable": "No disponible",
+    "requiresAuth": "Requiere cuenta"
   },
   "modelChange": {
     "upgradeTitle": "Cambiar este Chat a Modelo Inteligente",
@@ -632,5 +637,26 @@
     "newChatDisabled": "No puedes crear nuevos chats en modo solo lectura",
     "editDisabled": "No puedes editar chats en modo solo lectura",
     "deleteDisabled": "No puedes eliminar chats en modo solo lectura"
+  },
+  "welcome": {
+    "title": "¡Bienvenido al TecBot!",
+    "description": "Crea una cuenta gratuita para desbloquear todas las funciones del chatbot y mejorar tu experiencia de aprendizaje.",
+    "createAccount": "Crear Cuenta Gratis",
+    "login": "Ya tengo cuenta",
+    "continueWithout": "Continuar sin cuenta",
+    "benefits": {
+      "smartModel": {
+        "title": "Acceso a Modelos Inteligentes",
+        "description": "Usa el modelo automático y el agente inteligente para obtener respuestas más precisas y completas."
+      },
+      "unlimitedChats": {
+        "title": "Conversaciones Ilimitadas",
+        "description": "Crea y organiza múltiples conversaciones sin límite. Sin cuenta solo puedes tener 1 conversación."
+      },
+      "saveHistory": {
+        "title": "Historial Guardado",
+        "description": "Todas tus conversaciones se guardan automáticamente y puedes acceder a ellas desde cualquier dispositivo."
+      }
+    }
   }
 }

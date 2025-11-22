@@ -41,6 +41,12 @@ export function ChatProvider({ children }) {
 
   const [selectedModel, setSelectedModel] = useState(() => {
     const saved = localStorage.getItem('chatbot-selected-model');
+    // Check if user is authenticated
+    const token = localStorage.getItem('authToken');
+    // If not authenticated, force pytorch model
+    if (!token) {
+      return 'pytorch';
+    }
     return saved || 'auto'; // Default to 'auto'
   });
 
@@ -62,6 +68,24 @@ export function ChatProvider({ children }) {
   // Save selected model
   useEffect(() => {
     localStorage.setItem('chatbot-selected-model', selectedModel);
+  }, [selectedModel]);
+
+  // Force pytorch model for unauthenticated users
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('authToken');
+      if (!token && selectedModel !== 'pytorch') {
+        setSelectedModel('pytorch');
+      }
+    };
+
+    // Check on mount and when storage changes
+    checkAuth();
+    window.addEventListener('storage', checkAuth);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    };
   }, [selectedModel]);
 
   const activeChat = chats.find((chat) => chat.id === activeChatId) || chats[0];

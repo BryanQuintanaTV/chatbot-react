@@ -8,6 +8,7 @@ import { useReadOnly } from '@/contexts/ReadOnlyContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
+import { toast } from 'sonner';
 import {
   Popover,
   PopoverContent,
@@ -44,7 +45,7 @@ import logo from '@/assets/images/itch_II_logo.png';
 export function Sidebar({ onShowShortcuts }) {
   const { t } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
-  const { createNewChat } = useChat();
+  const { createNewChat, chats } = useChat();
   const { sidebarState, toggleSidebar, closeSidebar, isMobile } = useSidebar();
   const { isReadOnly } = useReadOnly();
   const navigate = useNavigate();
@@ -53,10 +54,17 @@ export function Sidebar({ onShowShortcuts }) {
 
   const handleLogout = () => {
     logout();
+    toast.success(t('auth.logoutSuccess'));
     navigate('/');
   };
 
   const handleNewChat = () => {
+    // If user is not authenticated and already has 1 conversation, don't allow more
+    if (!isAuthenticated && chats.length >= 1) {
+      toast.error(t('auth.registerToCreateChats'));
+      return;
+    }
+
     createNewChat();
     // Ensure we're showing active chats (not archived) so new chat is visible
     setShowArchived(false);

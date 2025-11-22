@@ -39,7 +39,7 @@ import logo from '@/assets/images/itch_II_logo.png';
 
 export function Settings() {
   const { t, i18n } = useTranslation();
-  const { user, updateUser, changePassword, deleteAccount, logout } = useAuth();
+  const { user, updateUser, changePassword, deleteAccount, logout, isAuthenticated } = useAuth();
   const { theme, setTheme } = useTheme();
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
   const { selectedModel, setSelectedModel } = useChat();
@@ -494,25 +494,36 @@ export function Settings() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {models.map((model) => (
-                    <SelectItem
-                      key={model.id}
-                      value={model.id}
-                      disabled={!model.available}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{model.name}</span>
-                        {model.recommended && (
-                          <span className="text-xs">⭐</span>
-                        )}
-                        {!model.available && (
-                          <span className="text-xs text-muted-foreground">
-                            ({t('models.unavailable')})
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {models.map((model) => {
+                    // Disable intelligent models for unauthenticated users
+                    const requiresAuth = model.id !== 'pytorch';
+                    const isDisabled = !model.available || (!isAuthenticated && requiresAuth);
+
+                    return (
+                      <SelectItem
+                        key={model.id}
+                        value={model.id}
+                        disabled={isDisabled}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{model.name}</span>
+                          {model.recommended && (
+                            <span className="text-xs">⭐</span>
+                          )}
+                          {!model.available && (
+                            <span className="text-xs text-muted-foreground">
+                              ({t('models.unavailable')})
+                            </span>
+                          )}
+                          {!isAuthenticated && requiresAuth && (
+                            <span className="text-xs text-muted-foreground">
+                              ({t('models.requiresAuth')})
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               {selectedModel && models.find(m => m.id === selectedModel) && (
