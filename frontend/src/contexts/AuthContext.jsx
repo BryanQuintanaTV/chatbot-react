@@ -41,6 +41,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await authAPI.login(email, password);
+
+      // Check if user is suspended (backend might allow login but mark as suspended)
+      if (response.user && response.user.isSuspended) {
+        // Create suspension error instead of logging in
+        const error = new Error('ACCOUNT_SUSPENDED');
+        error.code = 'ACCOUNT_SUSPENDED';
+        error.reason = response.user.suspensionReason || null;
+        error.suspendedUntil = response.user.suspendedUntil || null;
+        error.isPermanent = !response.user.suspendedUntil;
+        throw error;
+      }
+
       setUser(response.user);
       setToken(response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
