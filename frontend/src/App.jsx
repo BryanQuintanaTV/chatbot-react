@@ -27,11 +27,6 @@ function AppContent({ isReadOnly }) {
   const { isAuthenticated, token } = useAuth();
   const { isSuspended, suspensionInfo } = useAccountStatus(isAuthenticated, token);
 
-  // If account is suspended, show suspension page
-  if (isSuspended) {
-    return <AccountSuspendedPage suspensionInfo={suspensionInfo} />;
-  }
-
   return (
     <ReadOnlyProvider isReadOnly={isReadOnly}>
       <OfflineDetector />
@@ -39,24 +34,31 @@ function AppContent({ isReadOnly }) {
       <ChatProvider>
         <SidebarProvider>
           <Router>
-            <Routes>
-              <Route path="/" element={<ChatPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/suspended" element={<AccountSuspendedPage />} />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/help" element={<HelpCenter />} />
-              <Route path="/release-notes" element={<ReleaseNotes />} />
-            </Routes>
+            {/* If account is suspended, show suspension page */}
+            {isSuspended ? (
+              <Routes>
+                <Route path="*" element={<AccountSuspendedPage suspensionInfo={suspensionInfo} />} />
+              </Routes>
+            ) : (
+              <Routes>
+                <Route path="/" element={<ChatPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/suspended" element={<AccountSuspendedPage />} />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/release-notes" element={<ReleaseNotes />} />
+              </Routes>
+            )}
           </Router>
         </SidebarProvider>
       </ChatProvider>
