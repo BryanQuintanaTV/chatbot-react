@@ -56,10 +56,12 @@ export function ChatProvider({ children }) {
   const [pendingModelChange, setPendingModelChange] = useState(null);
   const [showModelWarning, setShowModelWarning] = useState(false);
 
-  // Save to localStorage whenever chats change
+  // Save to localStorage ONLY for unauthenticated users
   useEffect(() => {
-    localStorage.setItem('chatbot-conversations', JSON.stringify(chats));
-  }, [chats]);
+    if (!isAuthenticated) {
+      localStorage.setItem('chatbot-conversations', JSON.stringify(chats));
+    }
+  }, [chats, isAuthenticated]);
 
   // Save active chat ID
   useEffect(() => {
@@ -94,6 +96,9 @@ export function ChatProvider({ children }) {
   // Load conversations from backend when user logs in
   useEffect(() => {
     if (isAuthenticated && token) {
+      // Clear localStorage for authenticated users - backend is source of truth
+      localStorage.removeItem('chatbot-conversations');
+
       // Load conversations from backend
       conversationsAPI.getAll(token)
         .then(backendChats => {
@@ -102,6 +107,12 @@ export function ChatProvider({ children }) {
             // Map backend conversations to frontend format
             // Backend uses camelCase for all fields
             const formattedChats = backendChats.map(chat => {
+              // Skip chats without valid IDs
+              if (!chat.id) {
+                console.error('Skipping chat without ID:', chat);
+                return null;
+              }
+
               const formattedChat = {
                 id: String(chat.id), // Ensure ID is a string
                 title: chat.title || 'Nueva Conversación',
@@ -121,7 +132,7 @@ export function ChatProvider({ children }) {
 
               console.log('Formatted chat:', formattedChat);
               return formattedChat;
-            });
+            }).filter(chat => chat !== null); // Remove any chats that were skipped
 
             setChats(formattedChats);
             // Set first chat as active if there's no active chat
@@ -183,6 +194,12 @@ export function ChatProvider({ children }) {
       try {
         const backendChat = await conversationsAPI.create(token, newChatData);
         console.log('Backend chat created:', backendChat);
+
+        // Validate backend response has an ID
+        if (!backendChat || !backendChat.id) {
+          console.error('Backend did not return a valid chat with ID:', backendChat);
+          throw new Error('Backend did not return a valid chat ID');
+        }
 
         // Backend uses camelCase for all fields
         const newChat = {
