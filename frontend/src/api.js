@@ -12,11 +12,24 @@ async function getAvailableModels() {
   return await res.json();
 }
 
-async function sendChatMessage(chatId, message, model = 'auto') {
+async function sendChatMessage(chatId, message, model = 'auto', token = null) {
+  const headers = { 'Content-Type': 'application/json' };
+
+  // Add authorization header if token is provided
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Include conversationId in request body if provided
+  const body = { message, model };
+  if (chatId) {
+    body.conversationId = chatId;
+  }
+
   const res = await fetch(`https://apichat.bryanquintana.com` + `/api/v1/chat/`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, model })
+    headers,
+    body: JSON.stringify(body)
   });
 
   if (!res.ok) {

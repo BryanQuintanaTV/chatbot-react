@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useImmer } from 'use-immer';
 import { useTranslation } from 'react-i18next';
 import { useChat } from '@/contexts/ChatContext';
+import { useAuth } from '@/contexts/AuthContext';
 import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
@@ -13,6 +14,7 @@ import { ShareConversation } from '@/components/ShareConversation';
 function Chatbot() {
   const { t } = useTranslation();
   const { activeChat, updateChatMessages, selectedModel } = useChat();
+  const { token } = useAuth();
   const VITE_API_URL = import.meta.env.VITE_VERSION;
   const [messages, setMessages] = useImmer(activeChat?.messages || []);
   const [newMessage, setNewMessage] = useState('');
@@ -42,15 +44,17 @@ function Chatbot() {
     ]);
     setNewMessage('');
 
-    // let chatIdOrNew = chatId;
-    try {
-      // if (!chatId) {
-      //   const { id } = await api.createChat();
-      //   setChatId(id);
-      //   chatIdOrNew = id;
-      // }
+    // Use the active chat's ID for backend conversations
+    // For authenticated users with backend conversations (not local), this will save messages
+    const conversationId = activeChat?.id;
 
-      const { stream, modelUsed } = await api.sendChatMessage(1, trimmedMessage, selectedModel);
+    try {
+      const { stream, modelUsed } = await api.sendChatMessage(
+        conversationId,
+        trimmedMessage,
+        selectedModel,
+        token  // Pass auth token for backend conversations
+      );
 
       // Store which model was used
       setMessages(draft => {
