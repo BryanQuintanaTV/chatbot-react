@@ -56,14 +56,16 @@ export function Login() {
       // Check if this is an account suspension error
       if (error.code === 'ACCOUNT_SUSPENDED' ||
           error.message?.includes('ACCOUNT_SUSPENDED')) {
-        // Show suspension information in the error dialog
-        const suspensionMessage = error.reason
-          ? `${t('auth.accountSuspended')}\n\n${t('suspended.reason')}: ${error.reason}`
-          : t('auth.accountSuspended');
-
-        setErrorDialog({
-          open: true,
-          message: suspensionMessage,
+        // Navigate to suspended page with state (no localStorage needed)
+        navigate('/suspended', {
+          state: {
+            suspensionInfo: {
+              reason: error.reason || null,
+              suspendedUntil: error.suspendedUntil || null,
+              isPermanent: error.isPermanent || !error.suspendedUntil,
+            }
+          },
+          replace: true
         });
         return;
       }

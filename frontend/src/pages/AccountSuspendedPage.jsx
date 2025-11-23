@@ -1,10 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { ShieldAlert, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import logo from '@/assets/images/itch_II_logo.png';
 
-export function AccountSuspendedPage({ suspensionInfo = {} }) {
+export function AccountSuspendedPage({ suspensionInfo: propsSuspensionInfo = {} }) {
   const { t } = useTranslation();
+  const location = useLocation();
+
+  // Use suspensionInfo from either location.state (from login error) or props (from useAccountStatus)
+  const suspensionInfo = location.state?.suspensionInfo || propsSuspensionInfo;
 
   const {
     reason,

@@ -43,6 +43,7 @@ function AppContent({ isReadOnly }) {
               <Route path="/" element={<ChatPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/suspended" element={<AccountSuspendedPage />} />
               <Route
                 path="/settings"
                 element={
