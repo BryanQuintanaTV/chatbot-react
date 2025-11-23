@@ -104,7 +104,7 @@ export function ChatProvider({ children }) {
 
       // Load conversations from backend
       conversationsAPI.getAll(token)
-        .then(backendChatsResponse => {
+        .then(async backendChatsResponse => {
           console.log('Backend chats response:', backendChatsResponse);
 
           // Handle nested response format: {conversations: [...]} or direct array
@@ -114,9 +114,35 @@ export function ChatProvider({ children }) {
           }
 
           if (backendChats && backendChats.length > 0) {
+            // Load full conversation details (with messages) for each conversation in parallel
+            // GET /api/conversations returns metadata only
+            // GET /api/conversations/{id} returns full conversation with messages
+            const conversationPromises = backendChats.map(chat =>
+              conversationsAPI.getById(token, chat.id)
+                .then(fullChat => {
+                  console.log(`Loaded full conversation ${chat.id}:`, fullChat);
+
+                  // Handle nested response format
+                  let conversationData = fullChat;
+                  if (fullChat && fullChat.conversation) {
+                    conversationData = fullChat.conversation;
+                  }
+
+                  return conversationData;
+                })
+                .catch(error => {
+                  console.error(`Error loading conversation ${chat.id}:`, error);
+                  // Return metadata only if we can't fetch full conversation
+                  return chat;
+                })
+            );
+
+            // Wait for all conversations to be loaded
+            const fullConversations = await Promise.all(conversationPromises);
+
             // Map backend conversations to frontend format
             // Backend uses camelCase for all fields
-            const formattedChats = backendChats.map(chat => {
+            const formattedChats = fullConversations.map(chat => {
               // Skip chats without valid IDs
               if (!chat.id) {
                 console.error('Skipping chat without ID:', chat);
