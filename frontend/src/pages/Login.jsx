@@ -53,7 +53,23 @@ export function Login() {
       toast.success(t('login.success'));
       navigate('/');
     } catch (error) {
-      // Use AlertDialog for authentication errors
+      // Check if this is an account suspension error
+      if (error.code === 'ACCOUNT_SUSPENDED' ||
+          error.message?.includes('ACCOUNT_SUSPENDED')) {
+        // Store suspension info in localStorage
+        const suspensionInfo = {
+          reason: error.reason || null,
+          suspendedUntil: error.suspendedUntil || null,
+          isPermanent: error.isPermanent || !error.suspendedUntil,
+        };
+        localStorage.setItem('accountSuspension', JSON.stringify(suspensionInfo));
+
+        // Navigate to home - the App will detect suspension and show the page
+        navigate('/');
+        return;
+      }
+
+      // Use AlertDialog for other authentication errors
       const errorMessage = error.message?.startsWith('auth.')
         ? t(error.message)
         : (error.message || t('login.error'));

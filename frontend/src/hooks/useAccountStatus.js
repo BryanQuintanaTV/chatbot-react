@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { authAPI } from '@/services/api';
 
 /**
@@ -11,10 +11,25 @@ export function useAccountStatus(isAuthenticated, token) {
   const [isSuspended, setIsSuspended] = useState(false);
   const [suspensionInfo, setSuspensionInfo] = useState(null);
 
+  // Check localStorage on mount for suspension info (from login failures)
+  useEffect(() => {
+    const storedSuspension = localStorage.getItem('accountSuspension');
+    if (storedSuspension) {
+      try {
+        const info = JSON.parse(storedSuspension);
+        console.log('Found suspension info in localStorage on mount:', info);
+        setIsSuspended(true);
+        setSuspensionInfo(info);
+      } catch (e) {
+        console.error('Error parsing stored suspension info on mount:', e);
+        localStorage.removeItem('accountSuspension');
+      }
+    }
+  }, []); // Run once on mount
+
   useEffect(() => {
     if (!isAuthenticated || !token) {
-      setIsSuspended(false);
-      setSuspensionInfo(null);
+      // Don't clear suspension state here - it might be from a failed login
       return;
     }
 
@@ -46,31 +61,34 @@ export function useAccountStatus(isAuthenticated, token) {
       } catch (error) {
         console.error('Error checking account status:', error);
 
-        // Check if error message indicates account suspension
-        if (error.message && (
-          error.message.includes('ACCOUNT_SUSPENDED') ||
-          error.message.includes('suspended') ||
-          error.message.includes('auth.accountSuspended')
-        )) {
-          // Try to parse suspension info from error
-          // Backend should ideally return: { detail: 'Account suspended', code: 'ACCOUNT_SUSPENDED', ... }
+        // Check if error code or message indicates account suspension
+        if (error.code === 'ACCOUNT_SUSPENDED' ||
+            (error.message && (
+              error.message.includes('ACCOUNT_SUSPENDED') ||
+              error.message.includes('suspended') ||
+              error.message.includes('auth.accountSuspended')
+            ))
+        ) {
+          // Extract suspension info from error object
           const info = {
             reason: error.reason || error.suspensionReason || null,
             suspendedUntil: error.suspendedUntil || null,
-            isPermanent: !error.suspendedUntil,
+            isPermanent: error.isPermanent || !error.suspendedUntil,
           };
 
+          console.log('Account is suspended:', info);
           setIsSuspended(true);
           setSuspensionInfo(info);
 
           // Store in localStorage for persistence
           localStorage.setItem('accountSuspension', JSON.stringify(info));
         } else {
-          // Check localStorage as fallback (in case of network error)
+          // For other errors (network, etc), check localStorage as fallback
           const storedSuspension = localStorage.getItem('accountSuspension');
           if (storedSuspension) {
             try {
               const info = JSON.parse(storedSuspension);
+              console.log('Using stored suspension info:', info);
               setIsSuspended(true);
               setSuspensionInfo(info);
             } catch (e) {
@@ -90,11 +108,19 @@ export function useAccountStatus(isAuthenticated, token) {
     return () => clearInterval(interval);
   }, [isAuthenticated, token]);
 
-  // Clear suspension on logout
+  // Clear suspension only when user explicitly logs out (transition from authenticated to not authenticated)
+  // We use a ref to track previous auth state to detect actual logout
+  const wasAuthenticated = useRef(isAuthenticated);
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Only clear if user was previously authenticated and is now not (actual logout)
+    if (wasAuthenticated.current && !isAuthenticated) {
+      console.log('User logged out, clearing suspension info');
+      setIsSuspended(false);
+      setSuspensionInfo(null);
       localStorage.removeItem('accountSuspension');
     }
+    wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated]);
 
   return {

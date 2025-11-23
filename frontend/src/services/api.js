@@ -243,7 +243,35 @@ const realAuth = {
       // Don't use credentials for GET requests with Bearer token
     });
     if (!response.ok) {
-      throw new Error('Invalid token');
+      // Try to parse error response for suspension info
+      try {
+        const errorData = await response.json();
+
+        // Check if this is an account suspension error
+        if (response.status === 403 && (
+          errorData.code === 'ACCOUNT_SUSPENDED' ||
+          errorData.detail?.includes('suspended') ||
+          errorData.detail?.includes('auth.accountSuspended')
+        )) {
+          // Create a special error with suspension info
+          const error = new Error('ACCOUNT_SUSPENDED');
+          error.code = 'ACCOUNT_SUSPENDED';
+          error.reason = errorData.reason || errorData.suspensionReason || null;
+          error.suspendedUntil = errorData.suspendedUntil || null;
+          error.isPermanent = !errorData.suspendedUntil;
+          throw error;
+        }
+
+        // Other errors
+        throw new Error(errorData.detail || 'Invalid token');
+      } catch (e) {
+        // If we already threw a structured error, re-throw it
+        if (e.code === 'ACCOUNT_SUSPENDED') {
+          throw e;
+        }
+        // Otherwise, it's a parsing error or generic error
+        throw new Error('Invalid token');
+      }
     }
     return await response.json();
   },
