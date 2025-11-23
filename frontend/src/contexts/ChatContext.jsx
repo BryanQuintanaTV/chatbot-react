@@ -238,6 +238,12 @@ export function ChatProvider({ children }) {
   };
 
   const updateChatMessages = (chatId, messages) => {
+    // Validate chatId exists
+    if (!chatId) {
+      console.error('updateChatMessages called with undefined chatId');
+      return;
+    }
+
     setChats((prevChats) =>
       prevChats.map((chat) => {
         if (chat.id === chatId) {
@@ -278,6 +284,12 @@ export function ChatProvider({ children }) {
   };
 
   const updateChat = async (chatId, updates) => {
+    // Validate chatId exists
+    if (!chatId) {
+      console.error('updateChat called with undefined chatId');
+      return;
+    }
+
     // Check if chat is local (created with timestamp ID when backend failed)
     const chat = chats.find(c => c.id === chatId);
     const isLocalChat = chat?.isLocal || false;
@@ -291,8 +303,8 @@ export function ChatProvider({ children }) {
       )
     );
 
-    // Only sync to backend if user is authenticated AND chat is not local
-    if (isAuthenticated && token && !isLocalChat) {
+    // Only sync to backend if user is authenticated AND chat is not local AND chatId is valid
+    if (isAuthenticated && token && !isLocalChat && chatId) {
       try {
         // Convert camelCase to snake_case for backend
         const backendUpdates = {
@@ -333,6 +345,12 @@ export function ChatProvider({ children }) {
   };
 
   const deleteChat = async (chatId) => {
+    // Validate chatId exists
+    if (!chatId) {
+      console.error('deleteChat called with undefined chatId');
+      return false;
+    }
+
     // Don't allow deleting the last chat
     if (chats.length === 1) {
       return false;
@@ -354,8 +372,8 @@ export function ChatProvider({ children }) {
       return filtered;
     });
 
-    // Only delete from backend if authenticated AND chat is not local
-    if (isAuthenticated && token && !isLocalChat) {
+    // Only delete from backend if authenticated AND chat is not local AND chatId is valid
+    if (isAuthenticated && token && !isLocalChat && chatId) {
       try {
         await conversationsAPI.delete(token, chatId);
       } catch (error) {
@@ -368,6 +386,12 @@ export function ChatProvider({ children }) {
   };
 
   const clearChatMessages = async (chatId) => {
+    // Validate chatId exists
+    if (!chatId) {
+      console.error('clearChatMessages called with undefined chatId');
+      return;
+    }
+
     // Check if chat is local
     const chat = chats.find(c => c.id === chatId);
     const isLocalChat = chat?.isLocal || false;
@@ -386,8 +410,8 @@ export function ChatProvider({ children }) {
       )
     );
 
-    // Only clear in backend if authenticated AND chat is not local
-    if (isAuthenticated && token && !isLocalChat) {
+    // Only clear in backend if authenticated AND chat is not local AND chatId is valid
+    if (isAuthenticated && token && !isLocalChat && chatId) {
       try {
         await conversationsAPI.clearMessages(token, chatId);
       } catch (error) {

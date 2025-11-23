@@ -25,7 +25,7 @@ function Chatbot() {
 
   // Update chat context when messages change
   useEffect(() => {
-    if (activeChat) {
+    if (activeChat && activeChat.id) {
       updateChatMessages(activeChat.id, messages);
     }
   }, [messages]);
