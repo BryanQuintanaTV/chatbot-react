@@ -100,24 +100,22 @@ export function ChatProvider({ children }) {
           console.log('Backend chats received:', backendChats);
           if (backendChats && backendChats.length > 0) {
             // Map backend conversations to frontend format
+            // Backend uses camelCase for all fields
             const formattedChats = backendChats.map(chat => {
-              // Ensure dates are valid ISO strings
-              const createdAt = chat.created_at || chat.createdAt || new Date().toISOString();
-              const updatedAt = chat.updated_at || chat.updatedAt || new Date().toISOString();
-
               const formattedChat = {
                 id: String(chat.id), // Ensure ID is a string
                 title: chat.title || 'Nueva Conversación',
                 messages: Array.isArray(chat.messages) ? chat.messages : [],
-                createdAt: createdAt,
-                updatedAt: updatedAt,
+                createdAt: chat.createdAt || new Date().toISOString(),
+                updatedAt: chat.updatedAt || new Date().toISOString(),
                 icon: chat.icon || 'MessageSquare',
                 color: chat.color || '#8B5CF6',
                 category: chat.category || 'uncategorized',
                 pinned: chat.pinned === true,
                 archived: chat.archived === true,
-                bgColor: chat.bg_color || chat.bgColor || null,
-                modelUsed: chat.model_used || chat.modelUsed || 'auto',
+                bgColor: chat.bgColor || null,
+                modelUsed: chat.modelUsed || 'auto',
+                messageCount: chat.messageCount || 0,
                 isLocal: false, // Backend chats can sync
               };
 
@@ -186,23 +184,21 @@ export function ChatProvider({ children }) {
         const backendChat = await conversationsAPI.create(token, newChatData);
         console.log('Backend chat created:', backendChat);
 
-        // Ensure dates are valid
-        const createdAt = backendChat.created_at || backendChat.createdAt || new Date().toISOString();
-        const updatedAt = backendChat.updated_at || backendChat.updatedAt || new Date().toISOString();
-
+        // Backend uses camelCase for all fields
         const newChat = {
           id: String(backendChat.id), // Ensure ID is a string
           title: backendChat.title || 'Nueva Conversación',
-          messages: Array.isArray(backendChat.messages) ? backendChat.messages : [],
-          createdAt: createdAt,
-          updatedAt: updatedAt,
+          messages: [], // New chats don't have messages yet
+          createdAt: backendChat.createdAt || new Date().toISOString(),
+          updatedAt: backendChat.updatedAt || new Date().toISOString(),
           icon: backendChat.icon || 'MessageSquare',
           color: backendChat.color || '#8B5CF6',
           category: backendChat.category || 'uncategorized',
           pinned: backendChat.pinned === true,
           archived: backendChat.archived === true,
-          bgColor: backendChat.bg_color || backendChat.bgColor || null,
-          modelUsed: backendChat.model_used || backendChat.modelUsed || selectedModel,
+          bgColor: backendChat.bgColor || null,
+          modelUsed: backendChat.modelUsed || selectedModel,
+          messageCount: 0,
           isLocal: false, // Backend chat - can sync
         };
 
@@ -325,7 +321,7 @@ export function ChatProvider({ children }) {
     // Only sync to backend if user is authenticated AND chat is not local AND chatId is valid
     if (isAuthenticated && token && !isLocalChat && chatId) {
       try {
-        // Convert camelCase to snake_case for backend
+        // Backend uses camelCase, send directly
         const backendUpdates = {
           title: updates.title,
           icon: updates.icon,
@@ -333,8 +329,8 @@ export function ChatProvider({ children }) {
           category: updates.category,
           pinned: updates.pinned,
           archived: updates.archived,
-          bg_color: updates.bgColor,
-          model_used: updates.modelUsed,
+          bgColor: updates.bgColor,
+          modelUsed: updates.modelUsed,
         };
         // Remove undefined fields
         Object.keys(backendUpdates).forEach(key =>
