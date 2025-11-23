@@ -204,8 +204,25 @@ const realAuth = {
 
     const response = await fetch(`${API_BASE_URL}/auth/login`, fetchOptions);
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Login failed');
+      const errorData = await response.json();
+
+      // Check if this is an account suspension error
+      if (response.status === 403 && (
+        errorData.code === 'ACCOUNT_SUSPENDED' ||
+        errorData.detail?.includes('suspended') ||
+        errorData.detail?.includes('auth.accountSuspended')
+      )) {
+        // Create a special error with suspension info
+        const error = new Error('ACCOUNT_SUSPENDED');
+        error.code = 'ACCOUNT_SUSPENDED';
+        error.reason = errorData.reason || errorData.suspensionReason || null;
+        error.suspendedUntil = errorData.suspendedUntil || null;
+        error.isPermanent = !errorData.suspendedUntil;
+        throw error;
+      }
+
+      // Other errors
+      throw new Error(errorData.detail || 'Login failed');
     }
     return await response.json();
   },
