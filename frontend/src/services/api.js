@@ -188,16 +188,21 @@ const realAuth = {
   async login(email, password) {
     const csrfToken = getCsrfToken();
     const headers = { 'Content-Type': 'application/json' };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const fetchOptions = {
       method: 'POST',
       headers,
-      credentials: 'include',
       body: JSON.stringify({ email, password }),
-    });
+    };
+
+    // Only include credentials if we have a CSRF token (backend supports it)
+    // This prevents CORS errors when backend is not configured for credentials
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/login`, fetchOptions);
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || 'Login failed');
@@ -208,16 +213,20 @@ const realAuth = {
   async register(userData) {
     const csrfToken = getCsrfToken();
     const headers = { 'Content-Type': 'application/json' };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    const fetchOptions = {
       method: 'POST',
       headers,
-      credentials: 'include',
       body: JSON.stringify(userData),
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/register`, fetchOptions);
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || 'Registration failed');
@@ -231,7 +240,7 @@ const realAuth = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
-      credentials: 'include',
+      // Don't use credentials for GET requests with Bearer token
     });
     if (!response.ok) {
       throw new Error('Invalid token');
@@ -245,16 +254,20 @@ const realAuth = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+    const fetchOptions = {
       method: 'PUT',
       headers,
-      credentials: 'include', // Include cookies in request
       body: JSON.stringify(updates),
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, fetchOptions);
     if (!response.ok) {
       // Try to parse error as JSON, but handle HTML responses
       let errorMessage = 'Update failed';
@@ -276,16 +289,20 @@ const realAuth = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/auth/password`, {
+    const fetchOptions = {
       method: 'PUT',
       headers,
-      credentials: 'include',
       body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/password`, fetchOptions);
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || 'Password change failed');
@@ -298,15 +315,19 @@ const realAuth = {
     const headers = {
       'Authorization': `Bearer ${token}`,
     };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/auth/account`, {
+    const fetchOptions = {
       method: 'DELETE',
       headers,
-      credentials: 'include',
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/account`, fetchOptions);
     if (!response.ok) {
       throw new Error('Delete account failed');
     }
@@ -404,7 +425,7 @@ const realConversations = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
-      credentials: 'include',
+      // Don't use credentials for GET requests with Bearer token
     });
     if (!response.ok) {
       throw new Error('Failed to fetch conversations');
@@ -418,16 +439,20 @@ const realConversations = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/conversations`, {
+    const fetchOptions = {
       method: 'POST',
       headers,
-      credentials: 'include',
       body: JSON.stringify(data),
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/conversations`, fetchOptions);
     if (!response.ok) {
       // Try to parse error as JSON, but handle HTML responses
       let errorMessage = 'Failed to create conversation';
@@ -449,7 +474,7 @@ const realConversations = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
-      credentials: 'include',
+      // Don't use credentials for GET requests
     });
     if (!response.ok) {
       throw new Error('Conversation not found');
@@ -463,16 +488,20 @@ const realConversations = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
+    const fetchOptions = {
       method: 'PUT',
       headers,
-      credentials: 'include',
       body: JSON.stringify(updates),
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, fetchOptions);
     if (!response.ok) {
       // Try to parse error as JSON, but handle HTML responses
       let errorMessage = 'Failed to update conversation';
@@ -493,15 +522,19 @@ const realConversations = {
     const headers = {
       'Authorization': `Bearer ${token}`,
     };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
+    const fetchOptions = {
       method: 'DELETE',
       headers,
-      credentials: 'include',
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, fetchOptions);
     if (!response.ok) {
       throw new Error('Failed to delete conversation');
     }
@@ -513,15 +546,19 @@ const realConversations = {
     const headers = {
       'Authorization': `Bearer ${token}`,
     };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
+    const fetchOptions = {
       method: 'DELETE',
       headers,
-      credentials: 'include',
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, fetchOptions);
     if (!response.ok) {
       throw new Error('Failed to clear messages');
     }
@@ -534,16 +571,20 @@ const realConversations = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     };
-    if (csrfToken) {
-      headers['X-CSRFToken'] = csrfToken;
-    }
 
-    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
+    const fetchOptions = {
       method: 'POST',
       headers,
-      credentials: 'include',
       body: JSON.stringify(messageData),
-    });
+    };
+
+    // Only include credentials if we have a CSRF token
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+      fetchOptions.credentials = 'include';
+    }
+
+    const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, fetchOptions);
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || 'Failed to add message');
