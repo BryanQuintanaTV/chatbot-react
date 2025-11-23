@@ -8,24 +8,28 @@ import { authAPI } from '@/services/api';
  * @returns {Object} { isSuspended, suspensionInfo }
  */
 export function useAccountStatus(isAuthenticated, token) {
-  const [isSuspended, setIsSuspended] = useState(false);
-  const [suspensionInfo, setSuspensionInfo] = useState(null);
-
-  // Check localStorage on mount for suspension info (from login failures)
-  useEffect(() => {
-    const storedSuspension = localStorage.getItem('accountSuspension');
-    if (storedSuspension) {
-      try {
-        const info = JSON.parse(storedSuspension);
-        console.log('Found suspension info in localStorage on mount:', info);
-        setIsSuspended(true);
-        setSuspensionInfo(info);
-      } catch (e) {
-        console.error('Error parsing stored suspension info on mount:', e);
-        localStorage.removeItem('accountSuspension');
-      }
+  // Initialize state by checking localStorage immediately
+  const [isSuspended, setIsSuspended] = useState(() => {
+    try {
+      const stored = localStorage.getItem('accountSuspension');
+      return !!stored; // Return true if suspension info exists
+    } catch {
+      return false;
     }
-  }, []); // Run once on mount
+  });
+
+  const [suspensionInfo, setSuspensionInfo] = useState(() => {
+    try {
+      const stored = localStorage.getItem('accountSuspension');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error('Error parsing stored suspension on init:', e);
+      localStorage.removeItem('accountSuspension');
+    }
+    return null;
+  });
 
   useEffect(() => {
     if (!isAuthenticated || !token) {
@@ -36,11 +40,13 @@ export function useAccountStatus(isAuthenticated, token) {
     // Check account status on mount and periodically
     const checkAccountStatus = async () => {
       try {
+        console.log('Checking account status...');
         // Call the backend to check account status
         const userData = await authAPI.me(token);
 
         // If successful and user has suspension data, check if still suspended
         if (userData.isSuspended) {
+          console.log('Account is still suspended:', userData);
           const info = {
             reason: userData.suspensionReason || null,
             suspendedUntil: userData.suspendedUntil || null,
@@ -54,6 +60,7 @@ export function useAccountStatus(isAuthenticated, token) {
           localStorage.setItem('accountSuspension', JSON.stringify(info));
         } else {
           // Account is not suspended, clear any stored suspension info
+          console.log('Account is NOT suspended, clearing suspension state');
           setIsSuspended(false);
           setSuspensionInfo(null);
           localStorage.removeItem('accountSuspension');
