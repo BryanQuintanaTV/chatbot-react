@@ -115,15 +115,29 @@ export function ChatList({ onChatSelect, showArchived = false }) {
       return;
     }
 
+    // Validate chat has an ID
+    if (!chat || !chat.id) {
+      console.error('Cannot edit chat: chat or chat.id is undefined', chat);
+      toast.error('Error: ID de conversación no válido');
+      setOpenDropdownId(null);
+      return;
+    }
+
+    console.log('Opening edit dialog for chat:', chat);
     setChatToEdit(chat);
     setEditDialogOpen(true);
     setOpenDropdownId(null);
   };
 
   const handleEditSave = (updates) => {
-    if (chatToEdit) {
+    if (chatToEdit && chatToEdit.id) {
+      console.log('Saving chat edits:', { chatId: chatToEdit.id, updates });
       updateChat(chatToEdit.id, updates);
       toast.success(t('chat.updateSuccess') || 'Chat actualizado exitosamente');
+      setChatToEdit(null);
+    } else {
+      console.error('Cannot save chat edit: chatToEdit or chatToEdit.id is undefined', chatToEdit);
+      toast.error('Error: ID de conversación no válido');
       setChatToEdit(null);
     }
   };

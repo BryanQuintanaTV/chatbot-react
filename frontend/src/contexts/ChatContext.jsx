@@ -97,23 +97,34 @@ export function ChatProvider({ children }) {
       // Load conversations from backend
       conversationsAPI.getAll(token)
         .then(backendChats => {
+          console.log('Backend chats received:', backendChats);
           if (backendChats && backendChats.length > 0) {
             // Map backend conversations to frontend format
-            const formattedChats = backendChats.map(chat => ({
-              id: chat.id,
-              title: chat.title || 'Nueva Conversación',
-              messages: chat.messages || [],
-              createdAt: chat.created_at || chat.createdAt,
-              updatedAt: chat.updated_at || chat.updatedAt,
-              icon: chat.icon || 'MessageSquare',
-              color: chat.color || '#8B5CF6',
-              category: chat.category || 'uncategorized',
-              pinned: chat.pinned || false,
-              archived: chat.archived || false,
-              bgColor: chat.bg_color || chat.bgColor || null,
-              modelUsed: chat.model_used || chat.modelUsed || 'auto',
-              isLocal: false, // Backend chats can sync
-            }));
+            const formattedChats = backendChats.map(chat => {
+              // Ensure dates are valid ISO strings
+              const createdAt = chat.created_at || chat.createdAt || new Date().toISOString();
+              const updatedAt = chat.updated_at || chat.updatedAt || new Date().toISOString();
+
+              const formattedChat = {
+                id: String(chat.id), // Ensure ID is a string
+                title: chat.title || 'Nueva Conversación',
+                messages: Array.isArray(chat.messages) ? chat.messages : [],
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                icon: chat.icon || 'MessageSquare',
+                color: chat.color || '#8B5CF6',
+                category: chat.category || 'uncategorized',
+                pinned: chat.pinned === true,
+                archived: chat.archived === true,
+                bgColor: chat.bg_color || chat.bgColor || null,
+                modelUsed: chat.model_used || chat.modelUsed || 'auto',
+                isLocal: false, // Backend chats can sync
+              };
+
+              console.log('Formatted chat:', formattedChat);
+              return formattedChat;
+            });
+
             setChats(formattedChats);
             // Set first chat as active if there's no active chat
             if (!activeChatId || !formattedChats.find(c => c.id === activeChatId)) {
@@ -173,21 +184,29 @@ export function ChatProvider({ children }) {
     if (isAuthenticated && token) {
       try {
         const backendChat = await conversationsAPI.create(token, newChatData);
+        console.log('Backend chat created:', backendChat);
+
+        // Ensure dates are valid
+        const createdAt = backendChat.created_at || backendChat.createdAt || new Date().toISOString();
+        const updatedAt = backendChat.updated_at || backendChat.updatedAt || new Date().toISOString();
+
         const newChat = {
-          id: backendChat.id,
-          title: backendChat.title,
-          messages: backendChat.messages || [],
-          createdAt: backendChat.created_at || backendChat.createdAt,
-          updatedAt: backendChat.updated_at || backendChat.updatedAt,
+          id: String(backendChat.id), // Ensure ID is a string
+          title: backendChat.title || 'Nueva Conversación',
+          messages: Array.isArray(backendChat.messages) ? backendChat.messages : [],
+          createdAt: createdAt,
+          updatedAt: updatedAt,
           icon: backendChat.icon || 'MessageSquare',
           color: backendChat.color || '#8B5CF6',
           category: backendChat.category || 'uncategorized',
-          pinned: backendChat.pinned || false,
-          archived: backendChat.archived || false,
+          pinned: backendChat.pinned === true,
+          archived: backendChat.archived === true,
           bgColor: backendChat.bg_color || backendChat.bgColor || null,
           modelUsed: backendChat.model_used || backendChat.modelUsed || selectedModel,
           isLocal: false, // Backend chat - can sync
         };
+
+        console.log('New chat formatted:', newChat);
         setChats([newChat, ...chats]);
         setActiveChatId(newChat.id);
         return newChat;
