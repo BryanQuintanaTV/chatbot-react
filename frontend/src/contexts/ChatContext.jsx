@@ -56,10 +56,12 @@ export function ChatProvider({ children }) {
   const [pendingModelChange, setPendingModelChange] = useState(null);
   const [showModelWarning, setShowModelWarning] = useState(false);
 
-  // Save to localStorage ONLY for unauthenticated users
+  // Save to localStorage ONLY for unauthenticated users with LOCAL chats
   useEffect(() => {
     if (!isAuthenticated) {
-      localStorage.setItem('chatbot-conversations', JSON.stringify(chats));
+      // Only save chats that are local (not from backend)
+      const localChats = chats.filter(chat => chat.isLocal !== false);
+      localStorage.setItem('chatbot-conversations', JSON.stringify(localChats));
     }
   }, [chats, isAuthenticated]);
 
@@ -93,16 +95,24 @@ export function ChatProvider({ children }) {
     };
   }, [selectedModel]);
 
-  // Load conversations from backend when user logs in
+  // Load conversations from backend when user logs in, clear when user logs out
   useEffect(() => {
     if (isAuthenticated && token) {
       // Clear localStorage for authenticated users - backend is source of truth
       localStorage.removeItem('chatbot-conversations');
+      localStorage.removeItem('chatbot-active-chat');
 
       // Load conversations from backend
       conversationsAPI.getAll(token)
-        .then(backendChats => {
-          console.log('Backend chats received:', backendChats);
+        .then(backendChatsResponse => {
+          console.log('Backend chats response:', backendChatsResponse);
+
+          // Handle nested response format: {conversations: [...]} or direct array
+          let backendChats = backendChatsResponse;
+          if (backendChatsResponse && backendChatsResponse.conversations) {
+            backendChats = backendChatsResponse.conversations;
+          }
+
           if (backendChats && backendChats.length > 0) {
             // Map backend conversations to frontend format
             // Backend uses camelCase for all fields
@@ -146,35 +156,49 @@ export function ChatProvider({ children }) {
           // If error, keep using localStorage conversations
         });
     } else if (!isAuthenticated) {
-      // When user logs out, clear backend conversations and use default
+      // When user logs out, IMMEDIATELY clear backend conversations from state
+      // This prevents the race condition where backend chats get saved to localStorage
+      setChats([]); // Clear state first
+
+      // Then load local conversations or create default
       const saved = localStorage.getItem('chatbot-conversations');
       if (saved) {
-        const parsedChats = JSON.parse(saved);
-        setChats(parsedChats.map(chat => ({
-          ...chat,
-          modelUsed: chat.modelUsed || 'auto',
-          isLocal: true, // Mark as local for unauthenticated users
-        })));
-      } else {
-        // Create default chat for unauthenticated users
-        const defaultChat = {
-          id: Date.now().toString(),
-          title: 'Nueva Conversación',
-          messages: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          icon: 'MessageSquare',
-          color: '#8B5CF6',
-          category: 'uncategorized',
-          pinned: false,
-          archived: false,
-          bgColor: null,
-          modelUsed: 'pytorch',
-          isLocal: true, // Local chat for unauthenticated users
-        };
-        setChats([defaultChat]);
-        setActiveChatId(defaultChat.id);
+        try {
+          const parsedChats = JSON.parse(saved);
+          // Filter out any backend chats that might have been saved incorrectly
+          const localChats = parsedChats.filter(chat => chat.isLocal !== false);
+          if (localChats.length > 0) {
+            setChats(localChats.map(chat => ({
+              ...chat,
+              modelUsed: chat.modelUsed || 'pytorch',
+              isLocal: true, // Ensure marked as local
+            })));
+            setActiveChatId(localChats[0].id);
+            return;
+          }
+        } catch (error) {
+          console.error('Error parsing localStorage chats:', error);
+        }
       }
+
+      // Create default chat for unauthenticated users
+      const defaultChat = {
+        id: Date.now().toString(),
+        title: 'Nueva Conversación',
+        messages: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        icon: 'MessageSquare',
+        color: '#8B5CF6',
+        category: 'uncategorized',
+        pinned: false,
+        archived: false,
+        bgColor: null,
+        modelUsed: 'pytorch',
+        isLocal: true, // Local chat for unauthenticated users
+      };
+      setChats([defaultChat]);
+      setActiveChatId(defaultChat.id);
     }
   }, [isAuthenticated, token]); // Only run when auth status changes
 
@@ -192,8 +216,14 @@ export function ChatProvider({ children }) {
     // If user is authenticated, create in backend
     if (isAuthenticated && token) {
       try {
-        const backendChat = await conversationsAPI.create(token, newChatData);
-        console.log('Backend chat created:', backendChat);
+        const backendChatResponse = await conversationsAPI.create(token, newChatData);
+        console.log('Backend chat response:', backendChatResponse);
+
+        // Handle nested response format: {conversation: {...}} or direct object
+        let backendChat = backendChatResponse;
+        if (backendChatResponse && backendChatResponse.conversation) {
+          backendChat = backendChatResponse.conversation;
+        }
 
         // Validate backend response has an ID
         if (!backendChat || !backendChat.id) {
@@ -316,6 +346,8 @@ export function ChatProvider({ children }) {
   };
 
   const updateChat = async (chatId, updates) => {
+    console.log('updateChat called:', { chatId, updates });
+
     // Validate chatId exists
     if (!chatId) {
       console.error('updateChat called with undefined chatId');
@@ -325,6 +357,15 @@ export function ChatProvider({ children }) {
     // Check if chat is local (created with timestamp ID when backend failed)
     const chat = chats.find(c => c.id === chatId);
     const isLocalChat = chat?.isLocal || false;
+
+    console.log('updateChat validation:', {
+      chatId,
+      chatFound: !!chat,
+      isLocalChat,
+      isAuthenticated,
+      hasToken: !!token,
+      willSyncToBackend: isAuthenticated && token && !isLocalChat && chatId
+    });
 
     // Update locally first for immediate UI feedback
     setChats((prevChats) =>
@@ -354,11 +395,20 @@ export function ChatProvider({ children }) {
           backendUpdates[key] === undefined && delete backendUpdates[key]
         );
 
-        await conversationsAPI.update(token, chatId, backendUpdates);
+        console.log('Calling backend API to update chat:', { chatId, backendUpdates });
+        const response = await conversationsAPI.update(token, chatId, backendUpdates);
+        console.log('Backend update response:', response);
       } catch (error) {
         console.error('Error updating chat in backend:', error);
         // UI already updated, so just log the error
       }
+    } else {
+      console.log('Skipping backend sync:', {
+        reason: !isAuthenticated ? 'not authenticated' :
+                !token ? 'no token' :
+                isLocalChat ? 'local chat' :
+                !chatId ? 'no chatId' : 'unknown'
+      });
     }
   };
 

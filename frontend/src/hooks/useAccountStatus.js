@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { authAPI } from '@/services/api';
 
 /**
  * Hook to check if user account is suspended
@@ -20,27 +21,15 @@ export function useAccountStatus(isAuthenticated, token) {
     // Check account status on mount and periodically
     const checkAccountStatus = async () => {
       try {
-        // Try to fetch user data from /api/auth/me
-        // This is a dummy check since we don't have the actual backend yet
-        // In production, this would call the real endpoint
+        // Call the backend to check account status
+        const userData = await authAPI.me(token);
 
-        // For now, check if there's suspension info in localStorage
-        const storedSuspension = localStorage.getItem('accountSuspension');
-        if (storedSuspension) {
-          const info = JSON.parse(storedSuspension);
-          setIsSuspended(true);
-          setSuspensionInfo(info);
-        } else {
-          setIsSuspended(false);
-          setSuspensionInfo(null);
-        }
-      } catch (error) {
-        // Check if error is account suspended (403 with code ACCOUNT_SUSPENDED)
-        if (error.status === 403 && error.data?.code === 'ACCOUNT_SUSPENDED') {
+        // If successful and user has suspension data, check if still suspended
+        if (userData.isSuspended) {
           const info = {
-            reason: error.data.reason || null,
-            suspendedUntil: error.data.suspendedUntil || null,
-            isPermanent: !error.data.suspendedUntil,
+            reason: userData.suspensionReason || null,
+            suspendedUntil: userData.suspendedUntil || null,
+            isPermanent: !userData.suspendedUntil,
           };
 
           setIsSuspended(true);
@@ -48,14 +37,55 @@ export function useAccountStatus(isAuthenticated, token) {
 
           // Store in localStorage for persistence
           localStorage.setItem('accountSuspension', JSON.stringify(info));
+        } else {
+          // Account is not suspended, clear any stored suspension info
+          setIsSuspended(false);
+          setSuspensionInfo(null);
+          localStorage.removeItem('accountSuspension');
+        }
+      } catch (error) {
+        console.error('Error checking account status:', error);
+
+        // Check if error message indicates account suspension
+        if (error.message && (
+          error.message.includes('ACCOUNT_SUSPENDED') ||
+          error.message.includes('suspended') ||
+          error.message.includes('auth.accountSuspended')
+        )) {
+          // Try to parse suspension info from error
+          // Backend should ideally return: { detail: 'Account suspended', code: 'ACCOUNT_SUSPENDED', ... }
+          const info = {
+            reason: error.reason || error.suspensionReason || null,
+            suspendedUntil: error.suspendedUntil || null,
+            isPermanent: !error.suspendedUntil,
+          };
+
+          setIsSuspended(true);
+          setSuspensionInfo(info);
+
+          // Store in localStorage for persistence
+          localStorage.setItem('accountSuspension', JSON.stringify(info));
+        } else {
+          // Check localStorage as fallback (in case of network error)
+          const storedSuspension = localStorage.getItem('accountSuspension');
+          if (storedSuspension) {
+            try {
+              const info = JSON.parse(storedSuspension);
+              setIsSuspended(true);
+              setSuspensionInfo(info);
+            } catch (e) {
+              console.error('Error parsing stored suspension info:', e);
+              localStorage.removeItem('accountSuspension');
+            }
+          }
         }
       }
     };
 
     checkAccountStatus();
 
-    // Check every 5 minutes
-    const interval = setInterval(checkAccountStatus, 5 * 60 * 1000);
+    // Check every 30 seconds for real-time updates
+    const interval = setInterval(checkAccountStatus, 30 * 1000);
 
     return () => clearInterval(interval);
   }, [isAuthenticated, token]);

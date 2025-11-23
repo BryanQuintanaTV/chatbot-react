@@ -37,26 +37,32 @@ export function AccountSuspendedPage({ suspensionInfo = {} }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-muted p-4 animate-in fade-in duration-700">
       <div className="max-w-2xl w-full text-center space-y-8">
         {/* Logo */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-8 animate-in slide-in-from-top duration-500">
           <img src={logo} className="h-16" alt="Logo" />
         </div>
 
         {/* Icon */}
-        <div className="relative flex items-center justify-center h-40">
-          {/* Pulse background */}
-          <div className="absolute h-32 w-32 rounded-full bg-destructive/20 dark:bg-destructive/10 animate-pulse" />
+        <div className="relative flex items-center justify-center h-40 animate-in zoom-in duration-700 delay-150">
+          {/* Animated pulse rings */}
+          <div className="absolute h-32 w-32 rounded-full bg-destructive/20 dark:bg-destructive/10 animate-ping"
+               style={{ animationDuration: '2s' }} />
+          <div className="absolute h-32 w-32 rounded-full bg-destructive/30 dark:bg-destructive/15 animate-pulse"
+               style={{ animationDuration: '3s' }} />
 
-          {/* Shield Alert Icon */}
+          {/* Shield Alert Icon with shake animation */}
           <ShieldAlert
-            className="relative h-24 w-24 text-destructive"
+            className="relative h-24 w-24 text-destructive animate-in zoom-in duration-500 delay-300"
+            style={{
+              filter: 'drop-shadow(0 0 10px rgba(239, 68, 68, 0.4))',
+            }}
           />
         </div>
 
         {/* Title */}
-        <div className="space-y-2">
+        <div className="space-y-2 animate-in slide-in-from-bottom duration-500 delay-300">
           <h1 className="text-4xl font-bold text-foreground">
             {t('suspended.title')}
           </h1>
@@ -66,10 +72,10 @@ export function AccountSuspendedPage({ suspensionInfo = {} }) {
         </div>
 
         {/* Suspension Details */}
-        <div className="space-y-4 mt-8">
+        <div className="space-y-4 mt-8 animate-in slide-in-from-bottom duration-500 delay-500">
           {/* Reason */}
           {reason && (
-            <div className="p-4 bg-card border border-border rounded-lg text-left">
+            <div className="p-4 bg-card border border-border rounded-lg text-left transform transition-all hover:scale-105 hover:shadow-lg">
               <p className="text-sm font-semibold text-foreground mb-2">
                 {t('suspended.reason')}
               </p>
@@ -80,7 +86,7 @@ export function AccountSuspendedPage({ suspensionInfo = {} }) {
           )}
 
           {!reason && (
-            <div className="p-4 bg-card border border-border rounded-lg">
+            <div className="p-4 bg-card border border-border rounded-lg transform transition-all hover:scale-105 hover:shadow-lg">
               <p className="text-sm text-muted-foreground italic">
                 {t('suspended.noReason')}
               </p>
@@ -88,7 +94,7 @@ export function AccountSuspendedPage({ suspensionInfo = {} }) {
           )}
 
           {/* Suspension Duration */}
-          <div className="p-4 bg-card border border-border rounded-lg">
+          <div className="p-4 bg-card border border-border rounded-lg transform transition-all hover:scale-105 hover:shadow-lg">
             <p className="text-sm font-semibold text-foreground mb-2">
               {isPermanent ? t('suspended.permanent') : t('suspended.until')}
             </p>
@@ -106,17 +112,19 @@ export function AccountSuspendedPage({ suspensionInfo = {} }) {
         </div>
 
         {/* Contact Support Button */}
-        <Button
-          onClick={handleContactSupport}
-          size="lg"
-          className="mt-6"
-        >
-          <Mail className="mr-2 h-5 w-5" />
-          {t('suspended.contact')}
-        </Button>
+        <div className="animate-in slide-in-from-bottom duration-500 delay-700">
+          <Button
+            onClick={handleContactSupport}
+            size="lg"
+            className="mt-6 transform transition-all hover:scale-110 hover:shadow-xl"
+          >
+            <Mail className="mr-2 h-5 w-5" />
+            {t('suspended.contact')}
+          </Button>
+        </div>
 
         {/* Footer */}
-        <div className="mt-12 pt-8 border-t border-border">
+        <div className="mt-12 pt-8 border-t border-border animate-in fade-in duration-500 delay-1000">
           <p className="text-sm text-muted-foreground">
             {t('suspended.footer')}
           </p>

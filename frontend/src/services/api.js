@@ -14,6 +14,23 @@
 const USE_DUMMY_DATA = false;
 const API_BASE_URL = 'https://apichat.bryanquintana.com/api';
 
+// Helper function to get CSRF token from cookies
+const getCsrfToken = () => {
+  const name = 'csrftoken';
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+};
+
 // ============================================================================
 // DUMMY DATA - Remove this section when backend is ready
 // ============================================================================
@@ -169,9 +186,16 @@ const dummyAuth = {
 
 const realAuth = {
   async login(email, password) {
+    const csrfToken = getCsrfToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
+      credentials: 'include',
       body: JSON.stringify({ email, password }),
     });
     if (!response.ok) {
@@ -182,9 +206,16 @@ const realAuth = {
   },
 
   async register(userData) {
+    const csrfToken = getCsrfToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
+      credentials: 'include',
       body: JSON.stringify(userData),
     });
     if (!response.ok) {
@@ -200,6 +231,7 @@ const realAuth = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+      credentials: 'include',
     });
     if (!response.ok) {
       throw new Error('Invalid token');
@@ -208,12 +240,19 @@ const realAuth = {
   },
 
   async updateProfile(token, updates) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
+      credentials: 'include', // Include cookies in request
       body: JSON.stringify(updates),
     });
     if (!response.ok) {
@@ -232,12 +271,19 @@ const realAuth = {
   },
 
   async changePassword(token, currentPassword, newPassword) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/auth/password`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
+      credentials: 'include',
       body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
     });
     if (!response.ok) {
@@ -248,11 +294,18 @@ const realAuth = {
   },
 
   async deleteAccount(token) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+    };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/auth/account`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
+      credentials: 'include',
     });
     if (!response.ok) {
       throw new Error('Delete account failed');
@@ -351,6 +404,7 @@ const realConversations = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+      credentials: 'include',
     });
     if (!response.ok) {
       throw new Error('Failed to fetch conversations');
@@ -359,12 +413,19 @@ const realConversations = {
   },
 
   async create(token, data) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/conversations`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -388,6 +449,7 @@ const realConversations = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+      credentials: 'include',
     });
     if (!response.ok) {
       throw new Error('Conversation not found');
@@ -396,12 +458,19 @@ const realConversations = {
   },
 
   async update(token, conversationId, updates) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
+      credentials: 'include',
       body: JSON.stringify(updates),
     });
     if (!response.ok) {
@@ -420,11 +489,18 @@ const realConversations = {
   },
 
   async delete(token, conversationId) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+    };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
+      credentials: 'include',
     });
     if (!response.ok) {
       throw new Error('Failed to delete conversation');
@@ -433,11 +509,18 @@ const realConversations = {
   },
 
   async clearMessages(token, conversationId) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+    };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
+      credentials: 'include',
     });
     if (!response.ok) {
       throw new Error('Failed to clear messages');
@@ -446,12 +529,19 @@ const realConversations = {
   },
 
   async addMessage(token, conversationId, messageData) {
+    const csrfToken = getCsrfToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
+      headers,
+      credentials: 'include',
       body: JSON.stringify(messageData),
     });
     if (!response.ok) {
