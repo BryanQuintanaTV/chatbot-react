@@ -42,9 +42,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.login(email, password);
 
+      // Always authenticate the user, even if suspended
+      setUser(response.user);
+      setToken(response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      localStorage.setItem('authToken', response.token);
+
       // Check if user is suspended (backend might allow login but mark as suspended)
       if (response.user && response.user.isSuspended) {
-        // Create suspension error instead of logging in
+        // Create suspension error so Login.jsx knows to navigate to /suspended
         const error = new Error('ACCOUNT_SUSPENDED');
         error.code = 'ACCOUNT_SUSPENDED';
         error.reason = response.user.suspensionReason || null;
@@ -53,10 +59,6 @@ export const AuthProvider = ({ children }) => {
         throw error;
       }
 
-      setUser(response.user);
-      setToken(response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      localStorage.setItem('authToken', response.token);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
