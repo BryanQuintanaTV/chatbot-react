@@ -217,8 +217,16 @@ const realAuth = {
       body: JSON.stringify(updates),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Update failed');
+      // Try to parse error as JSON, but handle HTML responses
+      let errorMessage = 'Update failed';
+      try {
+        const error = await response.json();
+        errorMessage = error.detail || errorMessage;
+      } catch (e) {
+        // Response is not JSON (probably HTML error page)
+        errorMessage = `Server error (${response.status})`;
+      }
+      throw new Error(errorMessage);
     }
     return await response.json();
   },
@@ -360,8 +368,16 @@ const realConversations = {
       body: JSON.stringify(data),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Failed to create conversation');
+      // Try to parse error as JSON, but handle HTML responses
+      let errorMessage = 'Failed to create conversation';
+      try {
+        const error = await response.json();
+        errorMessage = error.detail || errorMessage;
+      } catch (e) {
+        // Response is not JSON (probably HTML error page)
+        errorMessage = `Server error (${response.status})`;
+      }
+      throw new Error(errorMessage);
     }
     return await response.json();
   },
@@ -389,8 +405,16 @@ const realConversations = {
       body: JSON.stringify(updates),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Failed to update conversation');
+      // Try to parse error as JSON, but handle HTML responses
+      let errorMessage = 'Failed to update conversation';
+      try {
+        const error = await response.json();
+        errorMessage = error.detail || errorMessage;
+      } catch (e) {
+        // Response is not JSON (probably HTML error page)
+        errorMessage = `Server error (${response.status})`;
+      }
+      throw new Error(errorMessage);
     }
     return await response.json();
   },

@@ -112,6 +112,7 @@ export function ChatProvider({ children }) {
               archived: chat.archived || false,
               bgColor: chat.bg_color || chat.bgColor || null,
               modelUsed: chat.model_used || chat.modelUsed || 'auto',
+              isLocal: false, // Backend chats can sync
             }));
             setChats(formattedChats);
             // Set first chat as active if there's no active chat
@@ -132,6 +133,7 @@ export function ChatProvider({ children }) {
         setChats(parsedChats.map(chat => ({
           ...chat,
           modelUsed: chat.modelUsed || 'auto',
+          isLocal: true, // Mark as local for unauthenticated users
         })));
       } else {
         // Create default chat for unauthenticated users
@@ -148,6 +150,7 @@ export function ChatProvider({ children }) {
           archived: false,
           bgColor: null,
           modelUsed: 'pytorch',
+          isLocal: true, // Local chat for unauthenticated users
         };
         setChats([defaultChat]);
         setActiveChatId(defaultChat.id);
@@ -183,6 +186,7 @@ export function ChatProvider({ children }) {
           archived: backendChat.archived || false,
           bgColor: backendChat.bg_color || backendChat.bgColor || null,
           modelUsed: backendChat.model_used || backendChat.modelUsed || selectedModel,
+          isLocal: false, // Backend chat - can sync
         };
         setChats([newChat, ...chats]);
         setActiveChatId(newChat.id);
@@ -203,6 +207,7 @@ export function ChatProvider({ children }) {
       pinned: false,
       archived: false,
       modelUsed: selectedModel,
+      isLocal: true, // Local chat - don't sync to backend
     };
     setChats([newChat, ...chats]);
     setActiveChatId(newChat.id);
@@ -273,6 +278,10 @@ export function ChatProvider({ children }) {
   };
 
   const updateChat = async (chatId, updates) => {
+    // Check if chat is local (created with timestamp ID when backend failed)
+    const chat = chats.find(c => c.id === chatId);
+    const isLocalChat = chat?.isLocal || false;
+
     // Update locally first for immediate UI feedback
     setChats((prevChats) =>
       prevChats.map((chat) =>
@@ -282,8 +291,8 @@ export function ChatProvider({ children }) {
       )
     );
 
-    // If user is authenticated, update in backend
-    if (isAuthenticated && token) {
+    // Only sync to backend if user is authenticated AND chat is not local
+    if (isAuthenticated && token && !isLocalChat) {
       try {
         // Convert camelCase to snake_case for backend
         const backendUpdates = {
@@ -329,6 +338,10 @@ export function ChatProvider({ children }) {
       return false;
     }
 
+    // Check if chat is local
+    const chat = chats.find(c => c.id === chatId);
+    const isLocalChat = chat?.isLocal || false;
+
     // Delete locally first
     setChats((prevChats) => {
       const filtered = prevChats.filter((chat) => chat.id !== chatId);
@@ -341,8 +354,8 @@ export function ChatProvider({ children }) {
       return filtered;
     });
 
-    // If user is authenticated, delete from backend
-    if (isAuthenticated && token) {
+    // Only delete from backend if authenticated AND chat is not local
+    if (isAuthenticated && token && !isLocalChat) {
       try {
         await conversationsAPI.delete(token, chatId);
       } catch (error) {
@@ -355,6 +368,10 @@ export function ChatProvider({ children }) {
   };
 
   const clearChatMessages = async (chatId) => {
+    // Check if chat is local
+    const chat = chats.find(c => c.id === chatId);
+    const isLocalChat = chat?.isLocal || false;
+
     // Clear locally first
     setChats((prevChats) =>
       prevChats.map((chat) =>
@@ -369,8 +386,8 @@ export function ChatProvider({ children }) {
       )
     );
 
-    // If user is authenticated, clear in backend
-    if (isAuthenticated && token) {
+    // Only clear in backend if authenticated AND chat is not local
+    if (isAuthenticated && token && !isLocalChat) {
       try {
         await conversationsAPI.clearMessages(token, chatId);
       } catch (error) {
