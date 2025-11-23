@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { authAPI } from '@/services/api';
 
 /**
@@ -8,32 +8,14 @@ import { authAPI } from '@/services/api';
  * @returns {Object} { isSuspended, suspensionInfo }
  */
 export function useAccountStatus(isAuthenticated, token) {
-  // Initialize state by checking localStorage immediately
-  const [isSuspended, setIsSuspended] = useState(() => {
-    try {
-      const stored = localStorage.getItem('accountSuspension');
-      return !!stored; // Return true if suspension info exists
-    } catch {
-      return false;
-    }
-  });
-
-  const [suspensionInfo, setSuspensionInfo] = useState(() => {
-    try {
-      const stored = localStorage.getItem('accountSuspension');
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch (e) {
-      console.error('Error parsing stored suspension on init:', e);
-      localStorage.removeItem('accountSuspension');
-    }
-    return null;
-  });
+  const [isSuspended, setIsSuspended] = useState(false);
+  const [suspensionInfo, setSuspensionInfo] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated || !token) {
-      // Don't clear suspension state here - it might be from a failed login
+      // Clear suspension when not authenticated
+      setIsSuspended(false);
+      setSuspensionInfo(null);
       return;
     }
 
@@ -55,15 +37,11 @@ export function useAccountStatus(isAuthenticated, token) {
 
           setIsSuspended(true);
           setSuspensionInfo(info);
-
-          // Store in localStorage for persistence
-          localStorage.setItem('accountSuspension', JSON.stringify(info));
         } else {
-          // Account is not suspended, clear any stored suspension info
+          // Account is not suspended, clear suspension state
           console.log('Account is NOT suspended, clearing suspension state');
           setIsSuspended(false);
           setSuspensionInfo(null);
-          localStorage.removeItem('accountSuspension');
         }
       } catch (error) {
         console.error('Error checking account status:', error);
@@ -86,24 +64,9 @@ export function useAccountStatus(isAuthenticated, token) {
           console.log('Account is suspended:', info);
           setIsSuspended(true);
           setSuspensionInfo(info);
-
-          // Store in localStorage for persistence
-          localStorage.setItem('accountSuspension', JSON.stringify(info));
-        } else {
-          // For other errors (network, etc), check localStorage as fallback
-          const storedSuspension = localStorage.getItem('accountSuspension');
-          if (storedSuspension) {
-            try {
-              const info = JSON.parse(storedSuspension);
-              console.log('Using stored suspension info:', info);
-              setIsSuspended(true);
-              setSuspensionInfo(info);
-            } catch (e) {
-              console.error('Error parsing stored suspension info:', e);
-              localStorage.removeItem('accountSuspension');
-            }
-          }
         }
+        // For network errors or other issues, don't change suspension state
+        // It will be checked again on next interval (30s)
       }
     };
 
@@ -115,20 +78,8 @@ export function useAccountStatus(isAuthenticated, token) {
     return () => clearInterval(interval);
   }, [isAuthenticated, token]);
 
-  // Clear suspension only when user explicitly logs out (transition from authenticated to not authenticated)
-  // We use a ref to track previous auth state to detect actual logout
-  const wasAuthenticated = useRef(isAuthenticated);
-
-  useEffect(() => {
-    // Only clear if user was previously authenticated and is now not (actual logout)
-    if (wasAuthenticated.current && !isAuthenticated) {
-      console.log('User logged out, clearing suspension info');
-      setIsSuspended(false);
-      setSuspensionInfo(null);
-      localStorage.removeItem('accountSuspension');
-    }
-    wasAuthenticated.current = isAuthenticated;
-  }, [isAuthenticated]);
+  // Suspension state is managed entirely by the useEffect above
+  // When isAuthenticated becomes false, the first useEffect clears the state
 
   return {
     isSuspended,

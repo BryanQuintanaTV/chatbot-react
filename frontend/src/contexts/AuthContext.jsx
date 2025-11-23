@@ -86,6 +86,7 @@ export const AuthProvider = ({ children }) => {
     // Clear user conversations on logout
     localStorage.removeItem('chatbot-conversations');
     localStorage.removeItem('chatbot-active-chat');
+    // Note: accountSuspension is no longer used in localStorage
   };
 
   const updateUser = async (updates) => {
