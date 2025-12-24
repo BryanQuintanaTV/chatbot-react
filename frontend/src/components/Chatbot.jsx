@@ -1,15 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useImmer } from 'use-immer';
+import { useTranslation } from 'react-i18next';
+import { useChat } from '@/contexts/ChatContext';
+import { useAuth } from '@/contexts/AuthContext';
 import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
+import { ConversationActions } from '@/components/ConversationActions';
+import { AdvancedSearch } from '@/components/AdvancedSearch';
+import { ShareConversation } from '@/components/ShareConversation';
 
 function Chatbot() {
+  const { t } = useTranslation();
+  const { activeChat, updateChatMessages, selectedModel } = useChat();
+  const { token } = useAuth();
   const VITE_API_URL = import.meta.env.VITE_VERSION;
-  // const [chatId, setChatId] = useState(null);
-  const [messages, setMessages] = useImmer([]);
+  const [messages, setMessages] = useImmer(activeChat?.messages || []);
   const [newMessage, setNewMessage] = useState('');
+  const [highlightedMessageIndex, setHighlightedMessageIndex] = useState(null);
+
+  // Sync messages when active chat changes or messages are cleared
+  useEffect(() => {
+    setMessages(activeChat?.messages || []);
+  }, [activeChat?.id, activeChat?.messages.length, setMessages]);
+
+  // Update chat context when messages change
+  useEffect(() => {
+    if (activeChat && activeChat.id) {
+      updateChatMessages(activeChat.id, messages);
+    }
+  }, [messages]);
 
   const isLoading = messages.length && messages[messages.length - 1].loading;
 
@@ -19,19 +40,27 @@ function Chatbot() {
 
     setMessages(draft => [...draft,
       { role: 'user', content: trimmedMessage },
-      { role: 'assistant', content: '', sources: [], loading: true }
+      { role: 'assistant', content: '', sources: [], loading: true, modelUsed: null }
     ]);
     setNewMessage('');
 
-    // let chatIdOrNew = chatId;
-    try {
-      // if (!chatId) {
-      //   const { id } = await api.createChat();
-      //   setChatId(id);
-      //   chatIdOrNew = id;
-      // }
+    // Use the active chat's ID for backend conversations
+    // For authenticated users with backend conversations (not local), this will save messages
+    const conversationId = activeChat?.id;
 
-      const stream = await api.sendChatMessage(1, trimmedMessage);
+    try {
+      const { stream, modelUsed } = await api.sendChatMessage(
+        conversationId,
+        trimmedMessage,
+        selectedModel,
+        token  // Pass auth token for backend conversations
+      );
+
+      // Store which model was used
+      setMessages(draft => {
+        draft[draft.length - 1].modelUsed = modelUsed;
+      });
+
       for await (const textChunk of parseSSEStream(stream)) {
         setMessages(draft => {
           draft[draft.length - 1].content += textChunk;
@@ -49,19 +78,92 @@ function Chatbot() {
     }
   }
 
+  const handleImportConversation = (conversationData) => {
+    // Replace current messages with imported ones
+    setMessages(conversationData.messages);
+  };
+
+  const handleMessageClick = (messageIndex) => {
+    // Set the highlighted message
+    setHighlightedMessageIndex(messageIndex);
+
+    // Scroll to the message with better positioning
+    setTimeout(() => {
+      const messageElement = document.querySelector(`[data-message-index="${messageIndex}"]`);
+      if (messageElement) {
+        // Get the scrollable container
+        const scrollContainer = messageElement.closest('.overflow-y-auto');
+        if (scrollContainer) {
+          const elementTop = messageElement.offsetTop;
+          const containerHeight = scrollContainer.clientHeight;
+          const elementHeight = messageElement.clientHeight;
+
+          // Center the message in the viewport
+          const scrollPosition = elementTop - (containerHeight / 2) + (elementHeight / 2);
+
+          scrollContainer.scrollTo({
+            top: scrollPosition,
+            behavior: 'smooth'
+          });
+        } else {
+          // Fallback to scrollIntoView
+          messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }, 100);
+
+    // Remove highlight after 3 seconds
+    setTimeout(() => {
+      setHighlightedMessageIndex(null);
+    }, 3000);
+  };
+
   return (
-    <div className='relative grow flex flex-col gap-6 pt-6'>
-      {messages.length === 0 && (
-        <div className='mt-3 font-urbanist text-slate-500 text-xl font-light space-y-2'>
-          <p>👋 Bienvenido</p>
-          <p>Soy Un chatbot que te aydará a responder dudas generales sobre el TECNM</p>
-          <p><small>Versión Dataset: 4.0</small></p>
-        </div>
-      )}
-      <ChatMessages
-        messages={messages}
-        isLoading={isLoading}
-      />
+    <div className='flex flex-col flex-1 overflow-hidden relative'>
+      {/* Floating Action Buttons - Always visible in top-right */}
+      <div className='absolute top-4 right-4 z-10 flex flex-wrap gap-2 justify-end'>
+        {messages.length > 0 && (
+          <>
+            <AdvancedSearch
+              messages={messages}
+              onMessageClick={handleMessageClick}
+            />
+            <ShareConversation
+              messages={messages}
+              metadata={{
+                title: activeChat?.title || 'Conversación Tec Bot',
+                model: selectedModel
+              }}
+            />
+          </>
+        )}
+        <ConversationActions
+          messages={messages}
+          metadata={{
+            title: activeChat?.title || 'Conversación Tec Bot',
+            model: selectedModel
+          }}
+          onImport={handleImportConversation}
+        />
+      </div>
+
+      <div className='flex-1 overflow-y-auto pt-6 pb-4 px-4'>
+        {messages.length === 0 && (
+          <div className='space-y-4 mr-48'>
+            <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
+              <p>👋 {t('chat.welcome')}</p>
+              <p>{t('chat.welcomeDescription')}</p>
+              <p><small>{t('chat.datasetVersion')}</small></p>
+            </div>
+          </div>
+        )}
+
+        <ChatMessages
+          messages={messages}
+          isLoading={isLoading}
+          highlightedMessageIndex={highlightedMessageIndex}
+        />
+      </div>
       <ChatInput
         newMessage={newMessage}
         isLoading={isLoading}

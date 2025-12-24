@@ -1,0 +1,466 @@
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/AuthContext';
+import { useChat } from '@/contexts/ChatContext';
+import { useSidebar } from '@/contexts/SidebarContext';
+import { useReadOnly } from '@/contexts/ReadOnlyContext';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
+import { LANGUAGES } from '@/lib/constants';
+import { toast } from 'sonner';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { ChatList } from '@/components/ChatList';
+import { GeneralReportDialog } from '@/components/GeneralReportDialog';
+import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
+import {
+  PanelLeft,
+  Plus,
+  ChevronDown,
+  ChevronRight,
+  Settings,
+  LogOut,
+  LogIn,
+  HelpCircle,
+  BookOpen,
+  FileText,
+  AlertCircle,
+  Keyboard,
+  MessageSquare,
+  Archive,
+  Globe,
+} from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import logo from '@/assets/images/itch_II_logo.png';
+
+export function Sidebar({ onShowShortcuts }) {
+  const { t, i18n } = useTranslation();
+  const { user, logout, isAuthenticated } = useAuth();
+  const { createNewChat, chats } = useChat();
+  const { sidebarState, toggleSidebar, closeSidebar, isMobile } = useSidebar();
+  const { isReadOnly } = useReadOnly();
+  const navigate = useNavigate();
+  const [chatsOpen, setChatsOpen] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    toast.success(t('auth.logoutSuccess'));
+    navigate('/');
+  };
+
+  const toggleLanguage = () => {
+    const currentIndex = LANGUAGES.findIndex(lang => lang.value === i18n.language);
+    const nextIndex = (currentIndex + 1) % LANGUAGES.length;
+    const nextLanguage = LANGUAGES[nextIndex].value;
+    i18n.changeLanguage(nextLanguage);
+    localStorage.setItem('language', nextLanguage);
+  };
+
+  const handleNewChat = () => {
+    // If user is not authenticated and already has 1 conversation, don't allow more
+    if (!isAuthenticated && chats.length >= 1) {
+      toast.error(t('auth.registerToCreateChats'));
+      return;
+    }
+
+    createNewChat();
+    // Ensure we're showing active chats (not archived) so new chat is visible
+    setShowArchived(false);
+    // Ensure chats section is expanded
+    setChatsOpen(true);
+    // Navigate to home page when creating a new chat
+    navigate('/');
+    // Close sidebar after action
+    closeSidebar();
+  };
+
+  const handleSettings = () => {
+    navigate('/settings');
+    // Close sidebar after action
+    closeSidebar();
+  };
+
+  const handleChatSelect = () => {
+    // Navigate to home page when a chat is selected
+    navigate('/');
+    // Close sidebar after action
+    closeSidebar();
+  };
+
+  // Prevent body scroll when sidebar is fully expanded
+  useEffect(() => {
+    if (sidebarState === 'expanded') {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [sidebarState]);
+
+  const isExpanded = sidebarState === 'expanded';
+  const isCollapsed = sidebarState === 'collapsed';
+
+  return (
+    <>
+      {/* Backdrop overlay when sidebar is fully expanded */}
+      {isExpanded && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={closeSidebar}
+        />
+      )}
+
+      <div
+        className={`
+          fixed left-0 top-0 h-full bg-background border-r border-border
+          transition-all duration-300 ease-in-out z-50
+          ${isCollapsed ? 'w-16' : 'w-64'}
+          ${isMobile && isCollapsed ? '-translate-x-full' : 'translate-x-0'}
+        `}
+      >
+      <div className="flex flex-col h-full">
+        {/* Header with Logo/Toggle */}
+        <div className="h-16 flex items-center justify-between px-4 border-b">
+          {isExpanded && (
+            <img src={logo} className="h-8" alt="logo" />
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="shrink-0"
+          >
+            <PanelLeft className={`h-5 w-5 text-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          </Button>
+        </div>
+
+        {/* New Chat Button */}
+        <div className="p-3">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handleNewChat}
+                  variant="outline"
+                  className={`w-full ${isCollapsed ? 'px-0' : 'justify-start'}`}
+                  title={isCollapsed && !isReadOnly ? t('chat.newChat') : undefined}
+                  disabled={isReadOnly}
+                >
+                  <Plus className="h-4 w-4 text-foreground" />
+                  {isExpanded && <span className="ml-2 text-foreground">{t('chat.newChat')}</span>}
+                </Button>
+              </TooltipTrigger>
+              {isReadOnly && (
+                <TooltipContent>
+                  <p>{t('readOnly.newChatDisabled')}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        {/* Chats Section - Collapsible */}
+        {isExpanded && (
+          <div className="flex-1 overflow-hidden flex flex-col px-3 min-h-0">
+            <Collapsible open={chatsOpen} onOpenChange={setChatsOpen} className="flex flex-col flex-1 overflow-hidden min-h-0">
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-between px-2 hover:bg-muted flex-shrink-0"
+                >
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-foreground" />
+                    <span className="text-sm font-semibold text-foreground">{t('sidebar.chats')}</span>
+                  </div>
+                  {chatsOpen ? (
+                    <ChevronDown className="h-4 w-4 text-foreground" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-foreground" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="flex-1 overflow-hidden mt-2 flex flex-col min-h-0">
+                {/* Archive Toggle Button - Only for authenticated users */}
+                {isAuthenticated && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowArchived(!showArchived)}
+                    className="mb-2 justify-start text-xs h-8 flex-shrink-0 dark:bg-gray-800 dark:border dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-100"
+                  >
+                    <Archive className="h-3 w-3 mr-2" />
+                    {showArchived ? (t('chat.showActive') || 'Ver Activos') : (t('chat.showArchived') || 'Ver Archivados')}
+                  </Button>
+                )}
+
+                {/* Chat List */}
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  <ChatList onChatSelect={handleChatSelect} showArchived={showArchived} />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        )}
+
+        {/* Spacer - Only when sidebar is collapsed */}
+        {!isExpanded && <div className="flex-1" />}
+
+        {/* User Section at Bottom */}
+        <div className="border-t p-3">
+          <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={`${isCollapsed ? 'w-full px-0' : 'p-2 flex-1 justify-start'} h-auto`}
+                >
+                  {!isAuthenticated ? (
+                    /* Guest avatar when not authenticated */
+                    <>
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-muted">
+                          <Settings className="h-4 w-4 text-muted-foreground" />
+                        </AvatarFallback>
+                      </Avatar>
+                      {isExpanded && (
+                        <div className="ml-2 flex-1 text-left overflow-hidden">
+                          <p className="text-sm font-medium text-foreground">{t('sidebar.menu')}</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    /* User avatar when authenticated */
+                    <>
+                      <Avatar className="h-8 w-8">
+                        {getAvatarDisplay(user).type === 'url' && (
+                          <AvatarImage src={getAvatarDisplay(user).value} />
+                        )}
+                        {getAvatarDisplay(user).type === 'gradient' && (
+                          <div className={`w-full h-full bg-gradient-to-br ${getAvatarDisplay(user).value} flex items-center justify-center text-white font-semibold text-sm`}>
+                            {getUserInitials(user?.name)}
+                          </div>
+                        )}
+                        {getAvatarDisplay(user).type === 'initials' && (
+                          <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                            {getAvatarDisplay(user).value}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      {isExpanded && user && (
+                        <div className="ml-2 flex-1 text-left overflow-hidden">
+                          <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 shadow-xl border-2" align="end" side="top" sideOffset={12}>
+                {!isAuthenticated ? (
+                  /* Menu for non-authenticated users */
+                  <div className="space-y-1">
+                    {/* Theme Toggle */}
+                    <AnimatedThemeToggler
+                      variant="ghost"
+                      showText={true}
+                      text={t('sidebar.changeTheme')}
+                      className="w-full justify-start"
+                    />
+
+                    {/* Language Toggle */}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={toggleLanguage}
+                    >
+                      <Globe className="h-4 w-4 mr-2" />
+                      {t('sidebar.changeLanguage')} ({LANGUAGES.find(l => l.value === i18n.language)?.label})
+                    </Button>
+
+                    <Separator />
+
+                    {/* Release Notes */}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        navigate('/release-notes');
+                        closeSidebar();
+                      }}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      {t('sidebar.releaseNotes')}
+                    </Button>
+
+                    {/* Help Center */}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        navigate('/help');
+                        closeSidebar();
+                      }}
+                    >
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      {t('sidebar.helpCenter')}
+                    </Button>
+
+                    <Separator />
+
+                    {/* Login */}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        navigate('/login');
+                        closeSidebar();
+                      }}
+                    >
+                      <LogIn className="h-4 w-4 mr-2" />
+                      {t('auth.login')}
+                    </Button>
+                  </div>
+                ) : (
+                  /* Menu for authenticated users */
+                  <div className="space-y-1">
+                    {/* User Info */}
+                    {user && (
+                      <>
+                        <div className="px-2 py-1.5">
+                          <p className="text-sm font-medium">{user.name}</p>
+                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                        </div>
+                        <Separator />
+                      </>
+                    )}
+
+                    {/* Settings */}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={handleSettings}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      {t('sidebar.settings')}
+                    </Button>
+                    <Separator />
+
+                    {/* Theme Toggle */}
+                    <AnimatedThemeToggler
+                      variant="ghost"
+                      showText={true}
+                      text={t('sidebar.changeTheme')}
+                      className="w-full justify-start"
+                    />
+
+                    {/* Language Toggle */}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={toggleLanguage}
+                    >
+                      <Globe className="h-4 w-4 mr-2" />
+                      {t('sidebar.changeLanguage')} ({LANGUAGES.find(l => l.value === i18n.language)?.label})
+                    </Button>
+
+                    <Separator />
+
+                    {/* Help Menu - Nested Popover */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                        >
+                          <HelpCircle className="h-4 w-4 mr-2" />
+                          {t('sidebar.help')}
+                          <ChevronRight className="h-4 w-4 ml-auto" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-56 shadow-xl border-2"
+                        align={isMobile ? "start" : "end"}
+                        side={isMobile ? "top" : "right"}
+                        sideOffset={12}
+                        alignOffset={isMobile ? -40 : 0}
+                      >
+                        <div className="space-y-1">
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={() => {
+                              navigate('/help');
+                              closeSidebar();
+                            }}
+                          >
+                            <BookOpen className="h-4 w-4 mr-2" />
+                            {t('sidebar.helpCenter')}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={() => {
+                              navigate('/release-notes');
+                              closeSidebar();
+                            }}
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            {t('sidebar.releaseNotes')}
+                          </Button>
+                          <GeneralReportDialog>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start"
+                            >
+                              <AlertCircle className="h-4 w-4 mr-2" />
+                              {t('sidebar.reportIssue')}
+                            </Button>
+                          </GeneralReportDialog>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={onShowShortcuts}
+                          >
+                            <Keyboard className="h-4 w-4 mr-2" />
+                            {t('sidebar.keyboardShortcuts')}
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    <Separator />
+
+                    {/* Logout */}
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      {t('auth.logout')}
+                    </Button>
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
+        </div>
+      </div>
+    </div>
+    </>
+  );
+}

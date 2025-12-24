@@ -3,8 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Prevent caching to ensure maintenance mode updates are immediate -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#92b3ca">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Tec Bot">
     <title>Tec Chatbot</title>
+    <!-- Prevent FOUC (Flash of Unstyled Content) by applying theme before React loads -->
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem('theme');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {
+          // localStorage might not be available
+        }
+      })();
+    </script>
     <meta name="description" content="Chatbot con procesamiento de lenguanje natural para contestar dudas generales sobre el tecnm." />
     <!-- Open Graph Metadata -->
     <meta property="og:title" content="Tec Chatbot" />
