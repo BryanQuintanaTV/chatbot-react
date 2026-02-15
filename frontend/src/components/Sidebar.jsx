@@ -5,9 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useReadOnly } from '@/contexts/ReadOnlyContext';
+import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { LANGUAGES } from '@/lib/constants';
 import { toast } from 'sonner';
 import {
@@ -39,10 +39,80 @@ import {
   MessageSquare,
   Archive,
   Globe,
+  Palette,
+  Check,
+  Monitor,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import logo from '@/assets/images/itch_II_logo.png';
+
+/**
+ * ThemeSelector — nested popover showing all available themes + system option.
+ */
+function ThemeSelector({ isMobile }) {
+  const { t } = useTranslation();
+  const { theme: currentThemeId, themes, setTheme } = useTheme();
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" className="w-full justify-start">
+          <Palette className="h-4 w-4 mr-2" />
+          {t('sidebar.changeTheme')}
+          <ChevronRight className="h-4 w-4 ml-auto" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-56 shadow-xl border-2"
+        align={isMobile ? "start" : "end"}
+        side={isMobile ? "top" : "right"}
+        sideOffset={12}
+        alignOffset={isMobile ? -40 : 0}
+      >
+        <div className="space-y-1">
+          <p className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            {t('themes.title')}
+          </p>
+
+          {themes.map((themeItem) => (
+            <Button
+              key={themeItem.id}
+              variant="ghost"
+              className="w-full justify-start"
+              onClick={() => setTheme(themeItem.id)}
+            >
+              <div
+                className="h-4 w-4 rounded-full mr-2 border border-border shrink-0"
+                style={{
+                  background: `hsl(${themeItem.variables['--background']})`,
+                }}
+              />
+              {t(themeItem.nameKey, { defaultValue: themeItem.name })}
+              {currentThemeId === themeItem.id && (
+                <Check className="h-4 w-4 ml-auto text-primary" />
+              )}
+            </Button>
+          ))}
+
+          <Separator />
+
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={() => setTheme('system')}
+          >
+            <Monitor className="h-4 w-4 mr-2" />
+            {t('themes.system')}
+            {currentThemeId === 'system' && (
+              <Check className="h-4 w-4 ml-auto text-primary" />
+            )}
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export function Sidebar({ onShowShortcuts }) {
   const { t, i18n } = useTranslation();
@@ -201,7 +271,7 @@ export function Sidebar({ onShowShortcuts }) {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowArchived(!showArchived)}
-                    className="mb-2 justify-start text-xs h-8 flex-shrink-0 dark:bg-gray-800 dark:border dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-100"
+                    className="mb-2 justify-start text-xs h-8 flex-shrink-0 bg-secondary border border-border hover:bg-accent text-secondary-foreground"
                   >
                     <Archive className="h-3 w-3 mr-2" />
                     {showArchived ? (t('chat.showActive') || 'Ver Activos') : (t('chat.showArchived') || 'Ver Archivados')}
@@ -274,13 +344,8 @@ export function Sidebar({ onShowShortcuts }) {
                 {!isAuthenticated ? (
                   /* Menu for non-authenticated users */
                   <div className="space-y-1">
-                    {/* Theme Toggle */}
-                    <AnimatedThemeToggler
-                      variant="ghost"
-                      showText={true}
-                      text={t('sidebar.changeTheme')}
-                      className="w-full justify-start"
-                    />
+                    {/* Theme Selector */}
+                    <ThemeSelector isMobile={isMobile} />
 
                     {/* Language Toggle */}
                     <Button
@@ -360,13 +425,8 @@ export function Sidebar({ onShowShortcuts }) {
                     </Button>
                     <Separator />
 
-                    {/* Theme Toggle */}
-                    <AnimatedThemeToggler
-                      variant="ghost"
-                      showText={true}
-                      text={t('sidebar.changeTheme')}
-                      className="w-full justify-start"
-                    />
+                    {/* Theme Selector */}
+                    <ThemeSelector isMobile={isMobile} />
 
                     {/* Language Toggle */}
                     <Button

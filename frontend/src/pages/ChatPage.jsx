@@ -22,7 +22,6 @@ export function ChatPage() {
   const { createNewChat, chats, activeChatId, switchChat, clearChatMessages, deleteChat, activeChat } = useChat();
   const { isReadOnly } = useReadOnly();
   const { isAuthenticated } = useAuth();
-  const { setTheme, theme } = useTheme();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -80,9 +79,10 @@ export function ChatPage() {
     }
   }, [activeChatId, chats.length, deleteChat, t]);
 
+  const { toggleTheme } = useTheme();
   const handleToggleTheme = useCallback(() => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  }, [theme, setTheme]);
+    toggleTheme();
+  }, [toggleTheme]);
 
   const handleFocusInput = useCallback(() => {
     const input = document.getElementById('chat-input');

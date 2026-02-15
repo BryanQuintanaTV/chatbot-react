@@ -95,6 +95,7 @@
     "careerPlaceholder": "Select your major",
     "institution": "Institution",
     "theme": "Theme",
+    "themeDescription": "Select a theme for the application",
     "language": "Language",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
@@ -136,6 +137,7 @@
     "inputPlaceholder": "Type your message...",
     "send": "Send",
     "error": "Error generating response",
+    "moreActions": "More options",
     "generating": "Generating response...",
     "newChat": "New Conversation",
     "rename": "Rename",
@@ -634,6 +636,12 @@
     "contact": "Contact Support",
     "noReason": "No specific reason was provided",
     "footer": "If you believe this is an error, please contact technical support"
+  },
+  "themes": {
+    "title": "Themes",
+    "light": "Light",
+    "darkBlue": "Dark Blue",
+    "system": "System"
   },
   "readOnly": {
     "banner": "Read-only mode active - You cannot send messages or edit chats",

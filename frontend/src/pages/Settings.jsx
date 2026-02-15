@@ -28,19 +28,18 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { Sidebar } from '@/components/Sidebar';
 import { AvatarPicker } from '@/components/AvatarPicker';
 import { getTecnmCareers, SCHOOL_NAME, LANGUAGES } from '@/lib/constants';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
-import { ArrowLeft, AlertCircle, Lock } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Lock, Check, Monitor } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, changePassword, deleteAccount, logout, isAuthenticated } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { theme: currentThemeId, resolvedTheme, themes: availableThemes, setTheme, toggleTheme } = useTheme();
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
   const { selectedModel, setSelectedModel } = useChat();
   const { models, loading: modelsLoading } = useModels();
@@ -177,8 +176,8 @@ export function Settings() {
 
   // Keyboard shortcuts handlers
   const handleToggleTheme = useCallback(() => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  }, [theme, setTheme]);
+    toggleTheme();
+  }, [toggleTheme]);
 
   const handleEscape = useCallback(() => {
     // Priority order for ESC key:
@@ -443,14 +442,53 @@ export function Settings() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="space-y-3">
               <div>
                 <p className="font-medium">{t('settings.theme')}</p>
                 <p className="text-sm text-muted-foreground">
-                  {theme === 'light' ? t('settings.lightMode') : t('settings.darkMode')}
+                  {t('settings.themeDescription')}
                 </p>
               </div>
-              <AnimatedThemeToggler />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {availableThemes.map((themeItem) => (
+                  <button
+                    key={themeItem.id}
+                    onClick={() => setTheme(themeItem.id)}
+                    className={`relative flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-colors hover:bg-accent ${
+                      currentThemeId === themeItem.id
+                        ? 'border-primary ring-2 ring-primary/20'
+                        : 'border-border'
+                    }`}
+                  >
+                    <div
+                      className="h-6 w-6 rounded-full border border-border shrink-0"
+                      style={{
+                        background: `hsl(${themeItem.variables['--background']})`,
+                      }}
+                    />
+                    <span className="truncate">
+                      {t(themeItem.nameKey, { defaultValue: themeItem.name })}
+                    </span>
+                    {currentThemeId === themeItem.id && (
+                      <Check className="h-4 w-4 text-primary ml-auto shrink-0" />
+                    )}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setTheme('system')}
+                  className={`relative flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-colors hover:bg-accent ${
+                    currentThemeId === 'system'
+                      ? 'border-primary ring-2 ring-primary/20'
+                      : 'border-border'
+                  }`}
+                >
+                  <Monitor className="h-6 w-6 shrink-0 text-muted-foreground" />
+                  <span className="truncate">{t('themes.system')}</span>
+                  {currentThemeId === 'system' && (
+                    <Check className="h-4 w-4 text-primary ml-auto shrink-0" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <Separator />

@@ -8,7 +8,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "./ui/dialog"
 import {
   Drawer,
@@ -18,65 +17,75 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "./ui/drawer"
-import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Textarea } from "./ui/textarea"
 import api from "../api";
 import { toast } from "sonner";
 
-
-
-export default function ReportIssueDialog({ message, userMessage }) {
+/**
+ * ReportIssueDialog — controlled dialog for reporting a problem with a message.
+ *
+ * Props:
+ *   open        - Whether the dialog is open (controlled)
+ *   onOpenChange - Callback when open state changes
+ *   message     - The assistant's response text
+ *   userMessage - The user's original message
+ *   onSubmitted - Optional callback after successful submission
+ */
+export default function ReportIssueDialog({
+  open,
+  onOpenChange,
+  message,
+  userMessage,
+  onSubmitted,
+}) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!feedback.trim()) {
-    toast.error(t('report.errorEmpty'));
-    return;
-  }
+    if (!feedback.trim()) {
+      toast.error(t('report.errorEmpty'));
+      return;
+    }
 
-  const payload = {
-    message_send: userMessage,
-    message_receive: message,
-    date: new Date().toISOString(),
-    dataset_version: "4.0",
-    message_report: feedback
+    const payload = {
+      message_send: userMessage,
+      message_receive: message,
+      date: new Date().toISOString(),
+      dataset_version: "4.0",
+      message_report: feedback
+    };
+
+    try {
+      await api.sendReport(payload);
+      toast.success(t('report.successMessage'));
+      setFeedback("");
+      onOpenChange(false);
+      onSubmitted?.();
+    } catch (err) {
+      console.error("Error al enviar el reporte:", err);
+      toast.error(t('report.errorMessage'));
+    }
   };
-
-  try {
-    await api.sendReport(payload);
-    toast.success(t('report.successMessage'));
-    setFeedback("");
-    setIsSubmitted(true);  // 🔒 deshabilita el botón
-    setOpen(false);
-  } catch (err) {
-    console.error("Error al enviar el reporte:", err);
-    toast.error(t('report.errorMessage'));
-  }
-};
 
   const form = (
     <form className="grid gap-4" onSubmit={handleSubmit}>
       <div className="grid gap-2">
-        <Label htmlFor="userMessage">{t('report.userMessageLabel')}</Label>
-        <Textarea id="userMessage" value={userMessage || ""} readOnly />
+        <Label htmlFor="report-userMessage">{t('report.userMessageLabel')}</Label>
+        <Textarea id="report-userMessage" value={userMessage || ""} readOnly />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="message">{t('report.assistantMessageLabel')}</Label>
-        <Textarea id="message" value={message} readOnly />
+        <Label htmlFor="report-message">{t('report.assistantMessageLabel')}</Label>
+        <Textarea id="report-message" value={message || ""} readOnly />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="feedback">{t('report.feedbackLabel')}</Label>
+        <Label htmlFor="report-feedback">{t('report.feedbackLabel')}</Label>
         <Textarea
-          id="feedback"
+          id="report-feedback"
           placeholder={t('report.feedbackPlaceholder')}
           value={feedback}
           onChange={(e) => setFeedback(e.target.value)}
@@ -88,16 +97,7 @@ export default function ReportIssueDialog({ message, userMessage }) {
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-        <Button
-          disabled={isSubmitted}
-          variant={isSubmitted ? "outline" : "destructive"}
-          className={isSubmitted ? "bg-green-600 hover:bg-green-600 text-white" : ""}
-        >
-          {isSubmitted ? t('report.submitted') : t('report.button')}
-        </Button>
-        </DialogTrigger>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('report.title')}</DialogTitle>
@@ -113,16 +113,7 @@ export default function ReportIssueDialog({ message, userMessage }) {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-      <Button
-        disabled={isSubmitted}
-        variant={isSubmitted ? "outline" : "destructive"}
-        className={isSubmitted ? "bg-green-600 hover:bg-green-600 text-white" : ""}
-      >
-        {isSubmitted ? t('report.submitted') : t('report.button')}
-      </Button>
-      </DrawerTrigger>
+    <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>{t('report.title')}</DrawerTitle>
