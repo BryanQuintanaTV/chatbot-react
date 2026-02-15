@@ -201,9 +201,9 @@ export function ChatPage() {
         style={{ marginLeft: isMobile ? '0' : (sidebarState === 'expanded' ? '256px' : '64px') }}
       >
         <Toaster richColors position="top-right" />
-        <div className='flex flex-col h-full w-full max-w-7xl mx-auto px-4'>
+        <div className='flex flex-col h-full w-full px-4'>
           <header className='shrink-0 z-20 bg-background border-b'>
-            <div className='flex items-center h-full w-full gap-4 py-3'>
+            <div className='flex items-center h-full w-full gap-4 py-3 max-w-5xl mx-auto'>
               {isMobile && (
                 <button
                   onClick={toggleSidebar}
