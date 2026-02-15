@@ -17,7 +17,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export function AdvancedSearch({ messages = [], onMessageClick }) {
+export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,14 +128,12 @@ export function AdvancedSearch({ messages = [], onMessageClick }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 dark:text-gray-100"
-        >
-          <Search className="mr-2 h-4 w-4" />
-          {t('search.button')}
-        </Button>
+        {trigger || (
+          <Button variant="outline" size="sm">
+            <Search className="mr-2 h-4 w-4" />
+            {t('search.button')}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-3xl h-[85vh] md:h-[85vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">

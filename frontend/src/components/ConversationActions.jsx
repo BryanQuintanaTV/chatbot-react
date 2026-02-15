@@ -1,4 +1,4 @@
-import { Download, Upload, FileJson, FileText, Copy, Check, File } from 'lucide-react';
+import { Download, Upload, FileJson, FileText, Copy, Check, File, MoreVertical, Share2 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -30,7 +30,7 @@ import {
 } from '@/lib/exportConversation';
 import { processImportedConversation } from '@/lib/importConversation';
 
-export function ConversationActions({ messages = [], metadata = {}, onImport }) {
+export function ConversationActions({ messages = [], metadata = {}, onImport, compact = false }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
@@ -207,28 +207,83 @@ export function ConversationActions({ messages = [], metadata = {}, onImport }) 
     }
   };
 
+  const canShare = typeof navigator !== 'undefined' && navigator.share;
+
+  const handleShare = async () => {
+    const content = exportAsText(messages, metadata);
+    const title = metadata.title || 'Conversación de Tec Bot';
+    try {
+      await navigator.share({ title, text: content });
+      toast.success(t('share.success'));
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        toast.error(t('share.error'));
+      }
+    }
+  };
+
   return (
     <>
-      {!hasMessages ? (
-        // Show simple Import button when no messages
+      {compact ? (
+        // Compact mode: single icon button with all actions in one dropdown
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            {hasMessages && (
+              <>
+                <DropdownMenuLabel>{t('export.title')}</DropdownMenuLabel>
+                <DropdownMenuItem onClick={handleExportJSON}>
+                  <FileJson className="mr-2 h-4 w-4" />
+                  <span>{t('export.formatJSON')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportMarkdown}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  <span>{t('export.formatMarkdown')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportText}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  <span>{t('export.formatText')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleCopyToClipboard}>
+                  {copied ? (
+                    <Check className="mr-2 h-4 w-4 text-green-500" />
+                  ) : (
+                    <Copy className="mr-2 h-4 w-4" />
+                  )}
+                  <span>{copied ? t('export.copied') : t('export.copyClipboard')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
+            <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              <span>{t('import.button')}</span>
+            </DropdownMenuItem>
+            {hasMessages && canShare && (
+              <DropdownMenuItem onClick={handleShare}>
+                <Share2 className="mr-2 h-4 w-4" />
+                <span>{t('share.button')}</span>
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : !hasMessages ? (
         <Button
           variant="outline"
           size="sm"
           onClick={() => setImportDialogOpen(true)}
-          className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 dark:text-gray-100"
         >
           <Upload className="mr-2 h-4 w-4" />
           {t('import.button')}
         </Button>
       ) : (
-        // Show Export dropdown when there are messages
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 dark:text-gray-100"
-            >
+            <Button variant="outline" size="sm">
               <Download className="mr-2 h-4 w-4" />
               {t('export.button')}
             </Button>

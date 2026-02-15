@@ -1,6 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
-const SCROLL_THRESHOLD = 30;
+const SCROLL_THRESHOLD = 50;
 
 /**
  * Auto-scrolls the nearest scrollable ancestor of the observed content
@@ -8,11 +8,10 @@ const SCROLL_THRESHOLD = 30;
  *
  * Returns: { scrollContentRef, scrollToBottom, showScrollButton }
  */
-function useAutoScroll(active) {
+function useAutoScroll() {
   const scrollContentRef = useRef(null);
   const scrollContainerRef = useRef(null);
-  const isDisabled = useRef(false);
-  const prevScrollTop = useRef(0);
+  const userScrolledUp = useRef(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
   const getContainer = useCallback(() => {
@@ -30,11 +29,11 @@ function useAutoScroll(active) {
     return el.scrollHeight - el.clientHeight - el.scrollTop <= SCROLL_THRESHOLD;
   }, []);
 
-  // Observe the content element for size changes and auto-scroll
+  // Auto-scroll when content grows (new messages, streaming tokens)
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       const el = getContainer();
-      if (!el || isDisabled.current) return;
+      if (!el || userScrolledUp.current) return;
       el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     });
 
@@ -45,45 +44,45 @@ function useAutoScroll(active) {
     return () => resizeObserver.disconnect();
   }, [getContainer]);
 
-  // Track user scroll to disable/re-enable auto-scroll + show button
-  useLayoutEffect(() => {
+  // Track user scroll: if they scroll up, stop auto-scrolling;
+  // if they scroll back to bottom, re-enable it.
+  useEffect(() => {
     const container = getContainer();
     if (!container) return;
 
-    if (!active) {
-      isDisabled.current = true;
-      return;
-    }
-
-    isDisabled.current = false;
-    prevScrollTop.current = container.scrollTop;
+    let prevScrollTop = container.scrollTop;
 
     function onScroll() {
-      const el = container;
-      const currentTop = el.scrollTop;
-      const atBottom = isNearBottom(el);
+      const currentTop = container.scrollTop;
+      const atBottom = isNearBottom(container);
 
-      if (!isDisabled.current && currentTop < prevScrollTop.current && !atBottom) {
-        isDisabled.current = true;
-      } else if (isDisabled.current && atBottom) {
-        isDisabled.current = false;
+      if (currentTop < prevScrollTop && !atBottom) {
+        // User scrolled up
+        userScrolledUp.current = true;
+      } else if (atBottom) {
+        // Back at bottom
+        userScrolledUp.current = false;
       }
 
       setShowScrollButton(!atBottom);
-      prevScrollTop.current = currentTop;
+      prevScrollTop = currentTop;
     }
 
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);
-  }, [active, getContainer, isNearBottom]);
+  }, [getContainer, isNearBottom]);
 
+  // Imperative scroll — call after the user sends a message
   const scrollToBottom = useCallback(() => {
-    isDisabled.current = false;
+    userScrolledUp.current = false;
     setShowScrollButton(false);
     const el = getContainer();
     if (el) {
+      // Double-rAF to ensure React has committed the new DOM
       requestAnimationFrame(() => {
-        el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        requestAnimationFrame(() => {
+          el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        });
       });
     }
   }, [getContainer]);
