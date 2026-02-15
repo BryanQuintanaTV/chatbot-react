@@ -21,6 +21,9 @@ import {
   User,
   Moon,
   CheckCircle2,
+  Accessibility,
+  Wrench,
+  LayoutDashboard,
 } from 'lucide-react';
 
 export function ReleaseNotes() {
@@ -28,6 +31,75 @@ export function ReleaseNotes() {
   const navigate = useNavigate();
 
   const releases = [
+    {
+      version: '1.1.0',
+      date: t('releases.v1_1_0.date'),
+      type: 'minor',
+      highlights: t('releases.v1_1_0.highlights'),
+      sections: [
+        {
+          title: t('releases.v1_1_0.theming.title'),
+          icon: Palette,
+          items: [
+            t('releases.v1_1_0.theming.item1'),
+            t('releases.v1_1_0.theming.item2'),
+            t('releases.v1_1_0.theming.item3'),
+            t('releases.v1_1_0.theming.item4'),
+          ],
+        },
+        {
+          title: t('releases.v1_1_0.chatRedesign.title'),
+          icon: MessageSquare,
+          items: [
+            t('releases.v1_1_0.chatRedesign.item1'),
+            t('releases.v1_1_0.chatRedesign.item2'),
+            t('releases.v1_1_0.chatRedesign.item3'),
+            t('releases.v1_1_0.chatRedesign.item4'),
+            t('releases.v1_1_0.chatRedesign.item5'),
+          ],
+        },
+        {
+          title: t('releases.v1_1_0.uxImprovements.title'),
+          icon: Zap,
+          items: [
+            t('releases.v1_1_0.uxImprovements.item1'),
+            t('releases.v1_1_0.uxImprovements.item2'),
+            t('releases.v1_1_0.uxImprovements.item3'),
+            t('releases.v1_1_0.uxImprovements.item4'),
+            t('releases.v1_1_0.uxImprovements.item5'),
+            t('releases.v1_1_0.uxImprovements.item6'),
+          ],
+        },
+        {
+          title: t('releases.v1_1_0.accessibility.title'),
+          icon: Accessibility,
+          items: [
+            t('releases.v1_1_0.accessibility.item1'),
+            t('releases.v1_1_0.accessibility.item2'),
+            t('releases.v1_1_0.accessibility.item3'),
+            t('releases.v1_1_0.accessibility.item4'),
+          ],
+        },
+        {
+          title: t('releases.v1_1_0.security.title'),
+          icon: Shield,
+          items: [
+            t('releases.v1_1_0.security.item1'),
+            t('releases.v1_1_0.security.item2'),
+          ],
+        },
+        {
+          title: t('releases.v1_1_0.fixes.title'),
+          icon: Bug,
+          items: [
+            t('releases.v1_1_0.fixes.item1'),
+            t('releases.v1_1_0.fixes.item2'),
+            t('releases.v1_1_0.fixes.item3'),
+            t('releases.v1_1_0.fixes.item4'),
+          ],
+        },
+      ],
+    },
     {
       version: '1.0.0',
       date: t('releases.v1.date'),

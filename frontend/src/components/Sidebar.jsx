@@ -37,7 +37,29 @@ import {
   AlertCircle,
   Keyboard,
   MessageSquare,
+  MessagesSquare,
+  ClipboardList,
+  Target,
+  Star,
+  Lightbulb,
+  Flame,
+  Sparkles,
+  Book,
+  Newspaper,
+  GraduationCap,
+  Briefcase,
+  Home,
+  Gamepad2,
+  Music,
+  Film,
+  Dumbbell,
+  Brain,
+  Heart,
+  Code,
+  Coffee,
+  Rocket,
   Archive,
+  ArchiveRestore,
   Globe,
   Palette,
   Check,
@@ -46,6 +68,16 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import logo from '@/assets/images/itch_II_logo.png';
+
+// Icon mapping (mirrors ChatList.jsx)
+const ICON_MAP = {
+  MessageSquare, MessagesSquare, FileText, ClipboardList, BookOpen: BookOpen,
+  Target, Star, Lightbulb, Flame, Sparkles, Palette, Book, Newspaper,
+  GraduationCap, Briefcase, Home, Gamepad2, Music, Film, Dumbbell,
+  Brain, Heart, Code, Coffee, Rocket,
+};
+
+const getIconComponent = (iconName) => ICON_MAP[iconName] || MessageSquare;
 
 /**
  * ThemeSelector — nested popover showing all available themes + system option.
@@ -114,10 +146,81 @@ function ThemeSelector({ isMobile }) {
   );
 }
 
+/**
+ * CollapsedChatIcons — vertical list of chat icons when sidebar is collapsed.
+ */
+function CollapsedChatIcons({ chats, activeChat, showArchived, setShowArchived, isAuthenticated, onChatClick, t }) {
+  const filteredChats = chats.filter(chat =>
+    showArchived ? chat.archived : !chat.archived
+  );
+
+  return (
+    <div className="flex-1 flex flex-col items-center gap-1 px-2 pt-1 min-h-0 overflow-hidden">
+      {/* Archive toggle icon */}
+      {isAuthenticated && (
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setShowArchived(!showArchived)}
+                className="p-2 rounded-md hover:bg-muted transition-colors shrink-0"
+              >
+                {showArchived ? (
+                  <ArchiveRestore className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <Archive className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8}>
+              {showArchived ? (t('chat.showActive') || 'Ver Activos') : (t('chat.showArchived') || 'Ver Archivados')}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+
+      {isAuthenticated && <Separator className="w-8 my-1" />}
+
+      {/* Scrollable chat icons */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden w-full flex flex-col items-center gap-1">
+        {filteredChats.map((chat) => {
+          const IconComponent = getIconComponent(chat.icon);
+          const isActive = chat.id === activeChat?.id;
+
+          return (
+            <TooltipProvider key={chat.id} delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => onChatClick(chat.id)}
+                    className={`relative p-2 rounded-lg transition-all duration-200 shrink-0 ${
+                      isActive
+                        ? 'bg-primary/15 ring-2 ring-primary/50 shadow-sm shadow-primary/20'
+                        : 'hover:bg-muted'
+                    }`}
+                  >
+                    <IconComponent
+                      className="h-5 w-5 transition-transform duration-200"
+                      style={{ color: chat.color || (isActive ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))') }}
+                    />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}>
+                  <p className="max-w-[200px] truncate">{chat.title}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function Sidebar({ onShowShortcuts }) {
   const { t, i18n } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
-  const { createNewChat, chats } = useChat();
+  const { createNewChat, chats, activeChat, switchChat } = useChat();
   const { sidebarState, toggleSidebar, closeSidebar, isMobile } = useSidebar();
   const { isReadOnly } = useReadOnly();
   const navigate = useNavigate();
@@ -169,9 +272,9 @@ export function Sidebar({ onShowShortcuts }) {
     closeSidebar();
   };
 
-  // Prevent body scroll when sidebar is fully expanded
+  // Prevent body scroll when sidebar is expanded on mobile (overlay mode)
   useEffect(() => {
-    if (sidebarState === 'expanded') {
+    if (isMobile && sidebarState === 'expanded') {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -180,15 +283,15 @@ export function Sidebar({ onShowShortcuts }) {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [sidebarState]);
+  }, [sidebarState, isMobile]);
 
   const isExpanded = sidebarState === 'expanded';
   const isCollapsed = sidebarState === 'collapsed';
 
   return (
     <>
-      {/* Backdrop overlay when sidebar is fully expanded */}
-      {isExpanded && (
+      {/* Backdrop overlay when sidebar is fully expanded — mobile only */}
+      {isMobile && isExpanded && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
           onClick={closeSidebar}
@@ -244,7 +347,7 @@ export function Sidebar({ onShowShortcuts }) {
           </TooltipProvider>
         </div>
 
-        {/* Chats Section - Collapsible */}
+        {/* Chats Section - Expanded */}
         {isExpanded && (
           <div className="flex-1 overflow-hidden flex flex-col px-3 min-h-0">
             <Collapsible open={chatsOpen} onOpenChange={setChatsOpen} className="flex flex-col flex-1 overflow-hidden min-h-0">
@@ -287,8 +390,22 @@ export function Sidebar({ onShowShortcuts }) {
           </div>
         )}
 
-        {/* Spacer - Only when sidebar is collapsed */}
-        {!isExpanded && <div className="flex-1" />}
+        {/* Collapsed sidebar — chat icons */}
+        {isCollapsed && (
+          <CollapsedChatIcons
+            chats={chats}
+            activeChat={activeChat}
+            showArchived={showArchived}
+            setShowArchived={setShowArchived}
+            isAuthenticated={isAuthenticated}
+            onChatClick={(chatId) => {
+              switchChat(chatId);
+              navigate('/');
+              toggleSidebar();
+            }}
+            t={t}
+          />
+        )}
 
         {/* User Section at Bottom */}
         <div className="border-t p-3">

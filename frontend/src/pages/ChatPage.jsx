@@ -30,7 +30,7 @@ import { Toaster, toast } from "sonner";
 export function ChatPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
+  const { isMobile, sidebarState, toggleSidebar, closeSidebar } = useSidebar();
   const { createNewChat, chats, activeChatId, switchChat, clearChatMessages, deleteChat, activeChat, selectedModel } = useChat();
   const { isReadOnly } = useReadOnly();
   const { isAuthenticated } = useAuth();
@@ -197,13 +197,13 @@ export function ChatPage() {
         onOpenChange={setShowWelcomeModal}
       />
       <div
-        className={`flex flex-col h-screen w-full overflow-hidden box-border animate-page-enter ${isReadOnly ? 'pt-[60px]' : ''}`}
-        style={{ marginLeft: isMobile ? '0' : '64px' }}
+        className={`flex flex-col h-screen w-full overflow-hidden box-border animate-page-enter transition-[margin-left] duration-300 ease-in-out ${isReadOnly ? 'pt-[60px]' : ''}`}
+        style={{ marginLeft: isMobile ? '0' : (sidebarState === 'expanded' ? '256px' : '64px') }}
       >
         <Toaster richColors position="top-right" />
-        <div className='flex flex-col h-full w-full max-w-7xl mx-auto px-4'>
+        <div className='flex flex-col h-full w-full px-4'>
           <header className='shrink-0 z-20 bg-background border-b'>
-            <div className='flex items-center h-full w-full gap-4 py-3'>
+            <div className='flex items-center h-full w-full gap-4 py-3 max-w-5xl mx-auto'>
               {isMobile && (
                 <button
                   onClick={toggleSidebar}
@@ -230,7 +230,7 @@ export function ChatPage() {
                     messages={messages}
                     onMessageClick={handleMessageClick}
                     trigger={
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-foreground">
                         <Search className="h-4 w-4" />
                       </Button>
                     }

@@ -89,7 +89,7 @@ function MessageTimestamp({ timestamp, t: translate }) {
   const label = formatTimestamp(timestamp, translate);
   if (!label) return null;
   return (
-    <span className="text-[11px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity select-none">
+    <span className="text-[11px] text-muted-foreground select-none">
       {label}
     </span>
   );
@@ -114,14 +114,14 @@ function UserMessage({ content, user, isHighlighted, idx, timestamp }) {
   return (
     <Message
       data-message-index={idx}
-      className={cn(
-        'mx-auto flex w-full max-w-3xl flex-col items-end px-2 md:px-10 animate-message-enter',
-        isHighlighted && 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-xl'
-      )}
+      className="mx-auto flex w-full max-w-3xl flex-col items-end px-2 md:px-10 animate-message-enter"
     >
       <div className="group flex w-full flex-col items-end gap-1">
         <div className="flex items-end gap-2 max-w-[85%] sm:max-w-[75%]">
-          <MessageContent className="bg-muted text-foreground rounded-3xl px-5 py-2.5 whitespace-pre-line">
+          <MessageContent className={cn(
+            "bg-muted text-foreground rounded-3xl px-5 py-2.5 whitespace-pre-line transition-shadow duration-300",
+            isHighlighted && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+          )}>
             {content}
           </MessageContent>
           <Avatar className="h-7 w-7 shrink-0">
@@ -142,13 +142,15 @@ function UserMessage({ content, user, isHighlighted, idx, timestamp }) {
             )}
           </Avatar>
         </div>
-        <MessageActions className="mr-9 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+        <MessageActions className="mr-9 flex items-center gap-1">
           <MessageTimestamp timestamp={timestamp} t={t} />
-          <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
-            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={handleCopy}>
-              {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-            </Button>
-          </MessageAction>
+          <span className="opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+            <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
+              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={handleCopy}>
+                {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+              </Button>
+            </MessageAction>
+          </span>
         </MessageActions>
       </div>
     </Message>
@@ -218,10 +220,7 @@ function AssistantMessage({
     <>
       <Message
         data-message-index={idx}
-        className={cn(
-          'mx-auto flex w-full max-w-3xl flex-col gap-2 px-2 md:px-10 items-start animate-message-enter',
-          isHighlighted && 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-xl'
-        )}
+        className="mx-auto flex w-full max-w-3xl flex-col gap-2 px-2 md:px-10 items-start animate-message-enter"
       >
         <div className="flex items-start gap-3 w-full">
           <img className="h-8 w-8 shrink-0 rounded-full mt-0.5" src={bot} alt="assistant" />
@@ -230,7 +229,10 @@ function AssistantMessage({
               <TypingIndicator />
             ) : (
               <>
-                <MessageContent className="text-foreground bg-transparent p-0 markdown-container w-full min-w-0 flex-1">
+                <MessageContent className={cn(
+                  "text-foreground bg-transparent p-0 markdown-container w-full min-w-0 flex-1 transition-shadow duration-300 rounded-xl",
+                  isHighlighted && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                )}>
                   <Markdown>{content}</Markdown>
                 </MessageContent>
 
@@ -249,35 +251,35 @@ function AssistantMessage({
                   </div>
                 )}
 
-                <MessageActions
-                  className={cn(
-                    '-ml-2 mt-1 flex items-center gap-0 transition-opacity duration-150',
-                    isLastMessage ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                  )}
-                >
+                <MessageActions className="-ml-2 mt-1 flex items-center gap-0">
                   <MessageTimestamp timestamp={timestamp} t={t} />
 
-                  <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={handleCopy}>
-                      {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-                    </Button>
-                  </MessageAction>
-
-                  <DropdownMenu>
-                    <MessageAction tooltip={t('chat.moreActions')}>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                          <MoreHorizontal className="h-3.5 w-3.5" />
-                        </Button>
-                      </DropdownMenuTrigger>
+                  <span className={cn(
+                    'flex items-center gap-0 transition-opacity duration-150',
+                    isLastMessage ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  )}>
+                    <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={handleCopy}>
+                        {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+                      </Button>
                     </MessageAction>
-                    <DropdownMenuContent align="start" sideOffset={4}>
-                      <DropdownMenuItem disabled={isReported} onSelect={() => setReportOpen(true)}>
-                        <Flag className="h-4 w-4 mr-2" />
-                        {isReported ? t('report.submitted') : t('report.button')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+
+                    <DropdownMenu>
+                      <MessageAction tooltip={t('chat.moreActions')}>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                            <MoreHorizontal className="h-3.5 w-3.5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                      </MessageAction>
+                      <DropdownMenuContent align="start" sideOffset={4}>
+                        <DropdownMenuItem disabled={isReported} onSelect={() => setReportOpen(true)}>
+                          <Flag className="h-4 w-4 mr-2" />
+                          {isReported ? t('report.submitted') : t('report.button')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </span>
                 </MessageActions>
               </>
             )}
@@ -315,7 +317,7 @@ function ChatMessages({ messages, isLoading, highlightedMessageIndex, scrollCont
   const { t } = useTranslation();
 
   return (
-    <div ref={scrollContentRef} className="space-y-8 py-4">
+    <div ref={scrollContentRef} className="space-y-4 py-4">
       {/* #13 — aria-live region for screen readers */}
       <div aria-live="polite" aria-atomic="false" className="sr-only">
         {messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
