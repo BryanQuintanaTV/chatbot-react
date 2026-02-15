@@ -131,7 +131,7 @@ function Chatbot({ headerActions }) {
 
   return (
     <div className='flex flex-col flex-1 overflow-hidden relative'>
-      <div className='flex-1 overflow-y-auto pt-6 pb-4 px-4'>
+      <div className='flex-1 overflow-y-auto pt-4 pb-4 px-4'>
         {messages.length === 0 && (
           <div className='mx-auto max-w-3xl px-2 md:px-10'>
             <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>

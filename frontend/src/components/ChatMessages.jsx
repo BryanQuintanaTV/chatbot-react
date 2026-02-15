@@ -317,7 +317,7 @@ function ChatMessages({ messages, isLoading, highlightedMessageIndex, scrollCont
   const { t } = useTranslation();
 
   return (
-    <div ref={scrollContentRef} className="space-y-8 py-4">
+    <div ref={scrollContentRef} className="space-y-4 py-4">
       {/* #13 — aria-live region for screen readers */}
       <div aria-live="polite" aria-atomic="false" className="sr-only">
         {messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (

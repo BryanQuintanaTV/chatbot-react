@@ -155,7 +155,7 @@ function CollapsedChatIcons({ chats, activeChat, showArchived, setShowArchived, 
   );
 
   return (
-    <div className="flex-1 flex flex-col items-center gap-1 px-2 min-h-0 overflow-hidden">
+    <div className="flex-1 flex flex-col items-center gap-1 px-2 pt-1 min-h-0 overflow-hidden">
       {/* Archive toggle icon */}
       {isAuthenticated && (
         <TooltipProvider delayDuration={200}>
@@ -272,9 +272,9 @@ export function Sidebar({ onShowShortcuts }) {
     closeSidebar();
   };
 
-  // Prevent body scroll when sidebar is fully expanded
+  // Prevent body scroll when sidebar is expanded on mobile (overlay mode)
   useEffect(() => {
-    if (sidebarState === 'expanded') {
+    if (isMobile && sidebarState === 'expanded') {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -283,15 +283,15 @@ export function Sidebar({ onShowShortcuts }) {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [sidebarState]);
+  }, [sidebarState, isMobile]);
 
   const isExpanded = sidebarState === 'expanded';
   const isCollapsed = sidebarState === 'collapsed';
 
   return (
     <>
-      {/* Backdrop overlay when sidebar is fully expanded */}
-      {isExpanded && (
+      {/* Backdrop overlay when sidebar is fully expanded — mobile only */}
+      {isMobile && isExpanded && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
           onClick={closeSidebar}

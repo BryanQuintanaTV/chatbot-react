@@ -33,7 +33,7 @@ export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, changePassword, deleteAccount, logout, isAuthenticated } = useAuth();
   const { theme: currentThemeId, themes: availableThemes, setTheme, toggleTheme } = useTheme();
-  const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
+  const { isMobile, sidebarState, toggleSidebar, closeSidebar } = useSidebar();
   const { selectedModel, setSelectedModel } = useChat();
   const { models, loading: modelsLoading } = useModels();
   const navigate = useNavigate();
@@ -175,8 +175,8 @@ export function Settings() {
         variant="destructive"
       />
       <div
-        className="flex flex-col min-h-screen w-full animate-page-enter"
-        style={{ marginLeft: isMobile ? '0' : '64px' }}
+        className="flex flex-col min-h-screen w-full animate-page-enter transition-[margin-left] duration-300 ease-in-out"
+        style={{ marginLeft: isMobile ? '0' : (sidebarState === 'expanded' ? '256px' : '64px') }}
       >
         <div className="flex flex-col min-h-full w-full max-w-3xl mx-auto px-4">
           {/* Header */}

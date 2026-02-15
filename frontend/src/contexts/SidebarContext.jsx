@@ -5,13 +5,23 @@ const SidebarContext = createContext();
 export function SidebarProvider({ children }) {
   const [isMobile, setIsMobile] = useState(false);
   // Sidebar state: 'collapsed' (icons only - 64px), 'expanded' (full - 256px)
-  const [sidebarState, setSidebarState] = useState('collapsed');
+  // Desktop starts expanded, mobile starts collapsed
+  const [sidebarState, setSidebarState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768 ? 'expanded' : 'collapsed';
+    }
+    return 'collapsed';
+  });
 
   // Detect mobile screen size
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768; // md breakpoint
       setIsMobile(mobile);
+      // When switching to mobile, collapse sidebar
+      if (mobile) {
+        setSidebarState('collapsed');
+      }
     };
 
     checkMobile();
@@ -25,8 +35,10 @@ export function SidebarProvider({ children }) {
   };
 
   const closeSidebar = () => {
-    // Always go to collapsed state
-    setSidebarState('collapsed');
+    // On mobile: always collapse. On desktop: keep expanded (noop for navigation actions).
+    if (isMobile) {
+      setSidebarState('collapsed');
+    }
   };
 
   const value = {
