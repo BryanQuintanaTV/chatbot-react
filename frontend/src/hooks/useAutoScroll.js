@@ -1,61 +1,93 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
-const SCROLL_THRESHOLD = 10;
+const SCROLL_THRESHOLD = 50;
 
-function useAutoScroll(active) {
+/**
+ * Auto-scrolls the nearest scrollable ancestor of the observed content
+ * whenever content grows (new messages, streaming tokens, etc.).
+ *
+ * Returns: { scrollContentRef, scrollToBottom, showScrollButton }
+ */
+function useAutoScroll() {
   const scrollContentRef = useRef(null);
-  const isDisabled = useRef(false);
-  const prevScrollTop = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const userScrolledUp = useRef(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
+  const getContainer = useCallback(() => {
+    if (scrollContainerRef.current) return scrollContainerRef.current;
+    if (!scrollContentRef.current) return null;
+    const parent = scrollContentRef.current.closest('.overflow-y-auto');
+    if (parent) {
+      scrollContainerRef.current = parent;
+      return parent;
+    }
+    return null;
+  }, []);
+
+  const isNearBottom = useCallback((el) => {
+    return el.scrollHeight - el.clientHeight - el.scrollTop <= SCROLL_THRESHOLD;
+  }, []);
+
+  // Auto-scroll when content grows (new messages, streaming tokens)
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
-      const { scrollHeight, clientHeight, scrollTop } = document.documentElement;
-      if (!isDisabled.current && scrollHeight - clientHeight > scrollTop) {
-        document.documentElement.scrollTo({
-          top: scrollHeight - clientHeight,
-          behavior: 'smooth'
-        });
-      }
+      const el = getContainer();
+      if (!el || userScrolledUp.current) return;
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     });
 
     if (scrollContentRef.current) {
       resizeObserver.observe(scrollContentRef.current);
     }
-    
-    return () => resizeObserver.disconnect();
-  }, []);
 
-  useLayoutEffect(() => {
-    if (!active) {
-      isDisabled.current = true;
-      return;
-    }
+    return () => resizeObserver.disconnect();
+  }, [getContainer]);
+
+  // Track user scroll: if they scroll up, stop auto-scrolling;
+  // if they scroll back to bottom, re-enable it.
+  useEffect(() => {
+    const container = getContainer();
+    if (!container) return;
+
+    let prevScrollTop = container.scrollTop;
 
     function onScroll() {
-      const { scrollHeight, clientHeight, scrollTop } = document.documentElement;
-      if (
-        !isDisabled.current &&
-        window.scrollY < prevScrollTop.current &&
-        scrollHeight - clientHeight > scrollTop + SCROLL_THRESHOLD
-      ) {
-        isDisabled.current = true;
-      } else if (
-        isDisabled.current &&
-        scrollHeight - clientHeight <= scrollTop + SCROLL_THRESHOLD
-      ) {
-        isDisabled.current = false;
+      const currentTop = container.scrollTop;
+      const atBottom = isNearBottom(container);
+
+      if (currentTop < prevScrollTop && !atBottom) {
+        // User scrolled up
+        userScrolledUp.current = true;
+      } else if (atBottom) {
+        // Back at bottom
+        userScrolledUp.current = false;
       }
-      prevScrollTop.current = window.scrollY;
+
+      setShowScrollButton(!atBottom);
+      prevScrollTop = currentTop;
     }
-    
-    isDisabled.current = false;
-    prevScrollTop.current = document.documentElement.scrollTop;
-    window.addEventListener('scroll', onScroll);
 
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [active]);
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [getContainer, isNearBottom]);
 
-  return scrollContentRef;
+  // Imperative scroll — call after the user sends a message
+  const scrollToBottom = useCallback(() => {
+    userScrolledUp.current = false;
+    setShowScrollButton(false);
+    const el = getContainer();
+    if (el) {
+      // Double-rAF to ensure React has committed the new DOM
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        });
+      });
+    }
+  }, [getContainer]);
+
+  return { scrollContentRef, scrollToBottom, showScrollButton };
 }
 
 export default useAutoScroll;

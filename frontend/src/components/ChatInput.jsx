@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useAutosize from '@/hooks/useAutosize';
 import { useReadOnly } from '@/contexts/ReadOnlyContext';
@@ -11,6 +12,7 @@ function ChatInput({ newMessage, isLoading, setNewMessage, submitNewMessage }) {
   const { t } = useTranslation();
   const { isReadOnly } = useReadOnly();
   const textareaRef = useAutosize(newMessage);
+  const [showHint, setShowHint] = useState(true);
 
   function handleKeyDown(e) {
     if (e.keyCode === 13 && !e.shiftKey && !isLoading && !isReadOnly) {
@@ -35,18 +37,25 @@ function ChatInput({ newMessage, isLoading, setNewMessage, submitNewMessage }) {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={() => setShowHint(true)}
             disabled={isReadOnly}
             placeholder={isReadOnly ? t('readOnly.inputPlaceholder') : t('chat.inputPlaceholder')}
           />
           <Button
             size="icon"
             className={`absolute bottom-2 right-2 h-8 w-8 rounded-full transition-opacity ${canSend ? 'opacity-100' : 'opacity-40'}`}
-            onClick={submitNewMessage}
+            onClick={() => submitNewMessage()}
             disabled={!canSend}
           >
             <ArrowUp className="h-4 w-4" />
           </Button>
         </div>
+        {/* #8 — Shift+Enter hint */}
+        {showHint && !isReadOnly && (
+          <p className="text-[11px] text-muted-foreground/60 text-center mt-1.5 select-none">
+            {t('chat.shiftEnterHint')}
+          </p>
+        )}
       </div>
     </div>
   );

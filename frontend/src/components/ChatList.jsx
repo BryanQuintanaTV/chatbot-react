@@ -309,6 +309,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
   const renderChat = (chat) => {
     const IconComponent = getIconComponent(chat.icon);
+    // #10 — First user message as conversation preview
+    const firstUserMsg = chat.messages?.find(m => m.role === 'user');
+    const preview = firstUserMsg?.content?.slice(0, 80) || '';
 
     return (
       <div
@@ -319,10 +322,11 @@ export function ChatList({ onChatSelect, showArchived = false }) {
         onTouchMove={handleTouchMove}
         className={`group relative flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
           chat.id === activeChat?.id
-            ? 'bg-muted'
-            : 'hover:bg-muted/50'
+            ? 'bg-muted border-l-2 border-l-primary'
+            : 'hover:bg-muted/50 border-l-2 border-l-transparent'
         }`}
         style={{ backgroundColor: chat.id === activeChat?.id ? undefined : chat.bgColor }}
+        title={preview}
       >
         {/* Chat Icon */}
         <div className="shrink-0">
@@ -336,9 +340,16 @@ export function ChatList({ onChatSelect, showArchived = false }) {
         >
           {chat.title}
         </p>
-        <p className="text-xs text-muted-foreground">
-          {formatDate(chat.updatedAt)}
-        </p>
+        <div className="flex items-center gap-1">
+          <p className="text-xs text-muted-foreground">
+            {formatDate(chat.updatedAt)}
+          </p>
+        </div>
+        {preview && (
+          <p className="text-[11px] text-muted-foreground/70 truncate mt-0.5 hidden group-hover:block">
+            {preview}
+          </p>
+        )}
       </div>
 
       {/* Pin indicator */}

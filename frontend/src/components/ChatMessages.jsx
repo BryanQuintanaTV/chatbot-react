@@ -2,8 +2,6 @@ import { useState } from 'react';
 import Markdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
-import useAutoScroll from '@/hooks/useAutoScroll';
-import Spinner from '@/components/Spinner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,6 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   Message,
   MessageContent,
@@ -28,13 +32,72 @@ import {
   Check,
   Flag,
   AlertCircle,
+  RotateCcw,
 } from 'lucide-react';
 import bot from '@/assets/images/bot.svg';
 
-/**
- * UserMessage — pill-shaped bubble aligned right (prompt-kit style).
- */
-function UserMessage({ content, user, isHighlighted, idx }) {
+/* ── Helpers ────────────────────────────────────────────────── */
+
+function formatTimestamp(ts, t) {
+  if (!ts) return null;
+  const date = new Date(ts);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+
+  if (diffMins < 1) return t('chat.justNow');
+  if (diffMins < 60) return t('chat.minutesAgo', { count: diffMins });
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return t('chat.hoursAgo', { count: diffHours });
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function isSameDay(ts1, ts2) {
+  if (!ts1 || !ts2) return true;
+  const d1 = new Date(ts1);
+  const d2 = new Date(ts2);
+  return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+}
+
+function formatDaySeparator(ts) {
+  if (!ts) return null;
+  const date = new Date(ts);
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+
+  if (date.toDateString() === now.toDateString()) return null; // today — no separator needed
+  if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+/* ── Typing indicator (3 bouncing dots) ─────────────────────── */
+
+function TypingIndicator() {
+  return (
+    <div className="flex items-center gap-1 px-1 py-2">
+      <span className="typing-dot" />
+      <span className="typing-dot" />
+      <span className="typing-dot" />
+    </div>
+  );
+}
+
+/* ── Timestamp badge (shown on hover) ───────────────────────── */
+
+function MessageTimestamp({ timestamp, t: translate }) {
+  const label = formatTimestamp(timestamp, translate);
+  if (!label) return null;
+  return (
+    <span className="text-[11px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity select-none">
+      {label}
+    </span>
+  );
+}
+
+/* ── UserMessage ────────────────────────────────────────────── */
+
+function UserMessage({ content, user, isHighlighted, idx, timestamp }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
@@ -52,7 +115,7 @@ function UserMessage({ content, user, isHighlighted, idx }) {
     <Message
       data-message-index={idx}
       className={cn(
-        'mx-auto flex w-full max-w-3xl flex-col items-end px-2 md:px-10 transition-all duration-500',
+        'mx-auto flex w-full max-w-3xl flex-col items-end px-2 md:px-10 animate-message-enter',
         isHighlighted && 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-xl'
       )}
     >
@@ -79,19 +142,11 @@ function UserMessage({ content, user, isHighlighted, idx }) {
             )}
           </Avatar>
         </div>
-        <MessageActions className="mr-9 flex gap-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+        <MessageActions className="mr-9 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+          <MessageTimestamp timestamp={timestamp} t={t} />
           <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 rounded-full"
-              onClick={handleCopy}
-            >
-              {copied ? (
-                <Check className="h-3.5 w-3.5 text-green-500" />
-              ) : (
-                <Copy className="h-3.5 w-3.5" />
-              )}
+            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={handleCopy}>
+              {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
             </Button>
           </MessageAction>
         </MessageActions>
@@ -100,10 +155,8 @@ function UserMessage({ content, user, isHighlighted, idx }) {
   );
 }
 
-/**
- * AssistantMessage — full-width with avatar, markdown, model badge, and actions.
- * 3-dot menu with "Report Problem" appears on hover (always on last message).
- */
+/* ── AssistantMessage ───────────────────────────────────────── */
+
 function AssistantMessage({
   content,
   loading,
@@ -113,6 +166,8 @@ function AssistantMessage({
   isLastMessage,
   isHighlighted,
   idx,
+  timestamp,
+  onRetry,
 }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
@@ -136,14 +191,12 @@ function AssistantMessage({
       groq: {
         label: t('models.groq'),
         icon: '⚡',
-        className:
-          'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+        className: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
       },
       pytorch: {
         label: t('models.pytorch'),
         icon: '🏫',
-        className:
-          'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+        className: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
       },
     };
 
@@ -154,9 +207,7 @@ function AssistantMessage({
     };
 
     return (
-      <span
-        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${badge.className}`}
-      >
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${badge.className}`}>
         <span>{badge.icon}</span>
         <span>{badge.label}</span>
       </span>
@@ -168,84 +219,62 @@ function AssistantMessage({
       <Message
         data-message-index={idx}
         className={cn(
-          'mx-auto flex w-full max-w-3xl flex-col gap-2 px-2 md:px-10 items-start transition-all duration-500',
+          'mx-auto flex w-full max-w-3xl flex-col gap-2 px-2 md:px-10 items-start animate-message-enter',
           isHighlighted && 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-xl'
         )}
       >
         <div className="flex items-start gap-3 w-full">
-          <img
-            className="h-8 w-8 shrink-0 rounded-full mt-0.5"
-            src={bot}
-            alt="assistant"
-          />
+          <img className="h-8 w-8 shrink-0 rounded-full mt-0.5" src={bot} alt="assistant" />
           <div className="group flex w-full flex-col gap-0 min-w-0">
             {loading && !content ? (
-              <Spinner />
+              <TypingIndicator />
             ) : (
               <>
                 <MessageContent className="text-foreground bg-transparent p-0 markdown-container w-full min-w-0 flex-1">
                   <Markdown>{content}</Markdown>
                 </MessageContent>
 
-                {modelUsed && (
-                  <div className="mt-2">{getModelBadge(modelUsed)}</div>
-                )}
+                {modelUsed && <div className="mt-2">{getModelBadge(modelUsed)}</div>}
 
                 {error && (
-                  <div className="flex items-center gap-1.5 text-sm text-destructive mt-2">
+                  <div className="flex items-center gap-2 text-sm text-destructive mt-2">
                     <AlertCircle className="h-4 w-4" />
                     <span>{t('chat.error')}</span>
+                    {onRetry && (
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" onClick={onRetry}>
+                        <RotateCcw className="h-3 w-3" />
+                        {t('chat.retry')}
+                      </Button>
+                    )}
                   </div>
                 )}
 
                 <MessageActions
                   className={cn(
-                    '-ml-2 mt-1 flex gap-0 transition-opacity duration-150',
-                    isLastMessage
-                      ? 'opacity-100'
-                      : 'opacity-0 group-hover:opacity-100'
+                    '-ml-2 mt-1 flex items-center gap-0 transition-opacity duration-150',
+                    isLastMessage ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   )}
                 >
-                  <MessageAction
-                    tooltip={
-                      copied ? t('export.copied') : t('export.copyClipboard')
-                    }
-                  >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full"
-                      onClick={handleCopy}
-                    >
-                      {copied ? (
-                        <Check className="h-3.5 w-3.5 text-green-500" />
-                      ) : (
-                        <Copy className="h-3.5 w-3.5" />
-                      )}
+                  <MessageTimestamp timestamp={timestamp} t={t} />
+
+                  <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={handleCopy}>
+                      {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
                     </Button>
                   </MessageAction>
 
                   <DropdownMenu>
                     <MessageAction tooltip={t('chat.moreActions')}>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-full"
-                        >
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
                           <MoreHorizontal className="h-3.5 w-3.5" />
                         </Button>
                       </DropdownMenuTrigger>
                     </MessageAction>
                     <DropdownMenuContent align="start" sideOffset={4}>
-                      <DropdownMenuItem
-                        disabled={isReported}
-                        onSelect={() => setReportOpen(true)}
-                      >
+                      <DropdownMenuItem disabled={isReported} onSelect={() => setReportOpen(true)}>
                         <Flag className="h-4 w-4 mr-2" />
-                        {isReported
-                          ? t('report.submitted')
-                          : t('report.button')}
+                        {isReported ? t('report.submitted') : t('report.button')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -267,49 +296,71 @@ function AssistantMessage({
   );
 }
 
-/**
- * ChatMessages — renders the conversation using prompt-kit style components.
- */
-function ChatMessages({ messages, isLoading, highlightedMessageIndex }) {
+/* ── Day separator ──────────────────────────────────────────── */
+
+function DaySeparator({ label }) {
+  return (
+    <div className="flex items-center gap-3 mx-auto max-w-3xl px-2 md:px-10">
+      <div className="flex-1 h-px bg-border" />
+      <span className="text-xs text-muted-foreground font-medium">{label}</span>
+      <div className="flex-1 h-px bg-border" />
+    </div>
+  );
+}
+
+/* ── ChatMessages ───────────────────────────────────────────── */
+
+function ChatMessages({ messages, isLoading, highlightedMessageIndex, scrollContentRef, onRetry }) {
   const { user } = useAuth();
-  const scrollContentRef = useAutoScroll(isLoading);
+  const { t } = useTranslation();
 
   return (
     <div ref={scrollContentRef} className="space-y-8 py-4">
-      {messages.map(({ role, content, loading, error, modelUsed }, idx) => {
+      {/* #13 — aria-live region for screen readers */}
+      <div aria-live="polite" aria-atomic="false" className="sr-only">
+        {messages.length > 0 && messages[messages.length - 1].role === 'assistant' && (
+          <span>{messages[messages.length - 1].content}</span>
+        )}
+      </div>
+
+      {messages.map(({ role, content, loading, error, modelUsed, timestamp }, idx) => {
         const isLastMessage = idx === messages.length - 1;
         const userMessage =
           role === 'assistant'
-            ? messages
-                .slice(0, idx)
-                .reverse()
-                .find((m) => m.role === 'user')?.content
+            ? messages.slice(0, idx).reverse().find((m) => m.role === 'user')?.content
             : null;
 
-        if (role === 'user') {
-          return (
-            <UserMessage
-              key={idx}
-              content={content}
-              user={user}
-              isHighlighted={highlightedMessageIndex === idx}
-              idx={idx}
-            />
-          );
-        }
+        const prevTimestamp = idx > 0 ? messages[idx - 1].timestamp : null;
+        const showDaySeparator = timestamp && !isSameDay(prevTimestamp, timestamp);
+        const dayLabel = showDaySeparator ? formatDaySeparator(timestamp) : null;
 
         return (
-          <AssistantMessage
-            key={idx}
-            content={content}
-            loading={loading}
-            error={error}
-            modelUsed={modelUsed}
-            userMessage={userMessage}
-            isLastMessage={isLastMessage}
-            isHighlighted={highlightedMessageIndex === idx}
-            idx={idx}
-          />
+          <div key={idx}>
+            {dayLabel && <DaySeparator label={dayLabel} />}
+
+            {role === 'user' ? (
+              <UserMessage
+                content={content}
+                user={user}
+                isHighlighted={highlightedMessageIndex === idx}
+                idx={idx}
+                timestamp={timestamp}
+              />
+            ) : (
+              <AssistantMessage
+                content={content}
+                loading={loading}
+                error={error}
+                modelUsed={modelUsed}
+                userMessage={userMessage}
+                isLastMessage={isLastMessage}
+                isHighlighted={highlightedMessageIndex === idx}
+                idx={idx}
+                timestamp={timestamp}
+                onRetry={isLastMessage && error ? onRetry : undefined}
+              />
+            )}
+          </div>
         );
       })}
     </div>

@@ -46,7 +46,7 @@ export function ShareConversation({ messages, metadata = {} }) {
       variant="outline"
       size="sm"
       onClick={handleShare}
-      className="bg-background dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500 dark:text-gray-100"
+      className=""
     >
       <Share2 className="mr-2 h-4 w-4" />
       {t('share.button')}

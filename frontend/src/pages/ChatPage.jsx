@@ -12,6 +12,18 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { WelcomeModal } from '@/components/WelcomeModal';
+import { ConversationActions } from '@/components/ConversationActions';
+import { AdvancedSearch } from '@/components/AdvancedSearch';
+import { ShareConversation } from '@/components/ShareConversation';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical, Search, Upload, Download, Share2 } from 'lucide-react';
 import logo from '@/assets/images/itch_II_logo.png';
 import { Toaster, toast } from "sonner";
 
@@ -19,30 +31,29 @@ export function ChatPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isMobile, toggleSidebar, closeSidebar } = useSidebar();
-  const { createNewChat, chats, activeChatId, switchChat, clearChatMessages, deleteChat, activeChat } = useChat();
+  const { createNewChat, chats, activeChatId, switchChat, clearChatMessages, deleteChat, activeChat, selectedModel } = useChat();
   const { isReadOnly } = useReadOnly();
   const { isAuthenticated } = useAuth();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const chatInputRef = useRef(null);
+  const chatbotRef = useRef({});
+
+  const messages = activeChat?.messages || [];
+  const hasMessages = messages.length > 0;
 
   // Show welcome modal for unauthenticated users on first visit of the session
-  // Using sessionStorage so modal appears again when user reopens the app
   useEffect(() => {
     if (!isAuthenticated) {
       const dismissed = sessionStorage.getItem('welcome-modal-dismissed');
-      console.log('Checking welcome modal - dismissed:', dismissed);
       if (!dismissed) {
-        // Show modal after a short delay for better UX
         const timer = setTimeout(() => {
-          console.log('Showing welcome modal');
           setShowWelcomeModal(true);
         }, 1000);
         return () => clearTimeout(timer);
-      } else {
-        console.log('Welcome modal already dismissed for this session');
       }
     }
   }, [isAuthenticated]);
@@ -60,7 +71,6 @@ export function ChatPage() {
   }, [activeChatId, clearChatMessages, t]);
 
   const handleDeleteChat = useCallback(() => {
-    // Only allow deleting if there's more than one chat
     if (chats.length > 1) {
       setShowDeleteConfirm(true);
     } else {
@@ -110,9 +120,6 @@ export function ChatPage() {
   }, [chats, switchChat]);
 
   const handleEscape = useCallback(() => {
-    // Priority order for ESC key:
-    // 1. Close any open dialogs (handled by Radix UI automatically)
-    // 2. Close sidebar only if no dialogs are open
     if (showShortcuts) {
       setShowShortcuts(false);
     } else if (showClearConfirm) {
@@ -120,25 +127,27 @@ export function ChatPage() {
     } else if (showDeleteConfirm) {
       setShowDeleteConfirm(false);
     } else {
-      // Only close sidebar if no dialogs are open
       closeSidebar();
     }
   }, [showShortcuts, showClearConfirm, showDeleteConfirm, closeSidebar]);
 
+  const handleImportConversation = useCallback((data) => {
+    chatbotRef.current?.handleImportConversation?.(data);
+  }, []);
+
+  const handleMessageClick = useCallback((idx) => {
+    chatbotRef.current?.handleMessageClick?.(idx);
+  }, []);
+
   // Register keyboard shortcuts
   const shortcuts = useMemo(() => ({
-    // Navigation
     'ctrl+b': toggleSidebar,
-    'alt+n': createNewChat, // Changed from ctrl+n to avoid browser conflict
+    'alt+n': createNewChat,
     'ctrl+,': () => navigate('/settings'),
     'escape': handleEscape,
-
-    // Chat
     'ctrl+/': handleFocusInput,
     'ctrl+l': handleClearChat,
-    'ctrl+shift+backspace': handleDeleteChat, // Delete current chat
-
-    // Chat navigation
+    'ctrl+shift+backspace': handleDeleteChat,
     'ctrl+arrowup': () => handleNavigateChats('up'),
     'ctrl+arrowdown': () => handleNavigateChats('down'),
     'ctrl+1': () => handleGoToChat(1),
@@ -150,11 +159,7 @@ export function ChatPage() {
     'ctrl+7': () => handleGoToChat(7),
     'ctrl+8': () => handleGoToChat(8),
     'ctrl+9': () => handleGoToChat(9),
-
-    // Appearance
     'ctrl+d': handleToggleTheme,
-
-    // Utilities
     'ctrl+shift+k': () => setShowShortcuts(true),
   }), [toggleSidebar, createNewChat, navigate, handleEscape, handleFocusInput, handleClearChat, handleDeleteChat, handleNavigateChats, handleGoToChat, handleToggleTheme, setShowShortcuts]);
 
@@ -192,34 +197,59 @@ export function ChatPage() {
         onOpenChange={setShowWelcomeModal}
       />
       <div
-        className={`flex flex-col h-screen w-full overflow-hidden box-border ${isReadOnly ? 'pt-[60px]' : ''}`}
+        className={`flex flex-col h-screen w-full overflow-hidden box-border animate-page-enter ${isReadOnly ? 'pt-[60px]' : ''}`}
         style={{ marginLeft: isMobile ? '0' : '64px' }}
       >
         <Toaster richColors position="top-right" />
         <div className='flex flex-col h-full w-full max-w-7xl mx-auto px-4'>
           <header className='shrink-0 z-20 bg-background border-b'>
-            <div className='flex flex-col h-full w-full gap-1 pt-4 pb-2'>
-              <div className="flex items-center gap-3">
-                {isMobile && (
-                  <button
-                    onClick={toggleSidebar}
-                    className="p-2 hover:bg-muted rounded-md text-foreground"
-                    aria-label="Toggle sidebar"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  </button>
-                )}
-                <a href='https://chihuahua2.tecnm.mx/'>
-                  <img src={logo} className='w-32' alt='logo' />
-                </a>
+            <div className='flex items-center h-full w-full gap-4 py-3'>
+              {isMobile && (
+                <button
+                  onClick={toggleSidebar}
+                  className="p-2 hover:bg-muted rounded-md text-foreground shrink-0"
+                  aria-label="Toggle sidebar"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              )}
+              <a href='https://chihuahua2.tecnm.mx/' className="shrink-0">
+                <img src={logo} className='h-10' alt='logo' />
+              </a>
+              <div className="flex items-baseline gap-2 min-w-0 flex-1">
+                <h1 className='font-urbanist text-xl font-semibold text-foreground whitespace-nowrap'>{t('common.appName')}</h1>
+                <p className='font-urbanist text-destructive text-sm font-light whitespace-nowrap'>{t('common.testMode')}</p>
               </div>
-              <h1 className='font-urbanist text-[1.65rem] font-semibold text-foreground'>{t('common.appName')}</h1>
-              <p className='font-urbanist text-destructive text-md font-light'>{t('common.testMode')}</p>
+
+              {/* Compact actions — single icon button with dropdown */}
+              <div className="flex items-center gap-1 shrink-0">
+                {hasMessages && (
+                  <AdvancedSearch
+                    messages={messages}
+                    onMessageClick={handleMessageClick}
+                    trigger={
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Search className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
+                )}
+
+                <ConversationActions
+                  messages={messages}
+                  metadata={{
+                    title: activeChat?.title || 'Conversación Tec Bot',
+                    model: selectedModel
+                  }}
+                  onImport={handleImportConversation}
+                  compact
+                />
+              </div>
             </div>
           </header>
-          <Chatbot />
+          <Chatbot headerActions={chatbotRef} />
         </div>
       </div>
     </>
