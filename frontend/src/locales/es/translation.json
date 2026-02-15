@@ -336,6 +336,53 @@
     "patch": "Parche",
     "stayUpdated": "Mantente actualizado",
     "stayUpdatedDescription": "Consulta esta página regularmente para conocer las nuevas funcionalidades y mejoras del Tec Bot",
+    "v1_1_0": {
+      "date": "Febrero 2026",
+      "highlights": "Rediseño visual completo con nuevo sistema de temas, mejoras de UX y actualización de seguridad",
+      "theming": {
+        "title": "Nuevo Sistema de Temas",
+        "item1": "Tema oscuro rediseñado con paleta azul profesional",
+        "item2": "Sistema multi-tema con descubrimiento automático",
+        "item3": "Selector de tema en la barra lateral y configuración",
+        "item4": "Nuevo logo institucional actualizado"
+      },
+      "chatRedesign": {
+        "title": "Chat Rediseñado",
+        "item1": "Mensajes del usuario como burbujas pill alineadas a la derecha",
+        "item2": "Mensajes del asistente con avatar y markdown mejorado",
+        "item3": "Botón de copiar con tooltip al pasar el cursor",
+        "item4": "Menú de 3 puntos para acciones rápidas",
+        "item5": "Input redondeado con botón de envío modernizado"
+      },
+      "uxImprovements": {
+        "title": "Mejoras de Experiencia",
+        "item1": "Indicador de escritura con puntos animados",
+        "item2": "Botón flotante para volver al final del chat",
+        "item3": "Marcas de tiempo relativas y separadores por día",
+        "item4": "Botón de reintentar en mensajes fallidos",
+        "item5": "Vista previa de conversación al pasar el cursor en la barra lateral",
+        "item6": "Animaciones de entrada en mensajes y transiciones de página"
+      },
+      "accessibility": {
+        "title": "Accesibilidad y Configuración",
+        "item1": "Configuración organizada en pestañas (Perfil / Seguridad / Apariencia)",
+        "item2": "Regiones aria-live para lectores de pantalla",
+        "item3": "Indicadores de foco visibles en todos los elementos interactivos",
+        "item4": "Indicador Shift+Enter debajo del input de chat"
+      },
+      "security": {
+        "title": "Seguridad",
+        "item1": "React y dependencias actualizadas a las últimas versiones seguras",
+        "item2": "Correcciones de vulnerabilidades en paquetes npm"
+      },
+      "fixes": {
+        "title": "Correcciones",
+        "item1": "Auto-scroll mejorado entre mensajes",
+        "item2": "Diseño del encabezado con logo a la izquierda del título",
+        "item3": "Botones de acción consolidados en la barra del encabezado",
+        "item4": "Colores de tema oscuro corregidos en varios componentes"
+      }
+    },
     "v1": {
       "date": "Noviembre 2024",
       "highlights": "Rediseño completo con cuentas de usuario, organización avanzada de conversaciones y experiencia mejorada",

@@ -336,6 +336,53 @@
     "patch": "Patch",
     "stayUpdated": "Stay updated",
     "stayUpdatedDescription": "Check this page regularly to learn about new features and improvements to Tec Bot",
+    "v1_1_0": {
+      "date": "February 2026",
+      "highlights": "Complete visual redesign with new theming system, UX improvements, and security update",
+      "theming": {
+        "title": "New Theming System",
+        "item1": "Redesigned dark theme with professional blue palette",
+        "item2": "Multi-theme system with automatic discovery",
+        "item3": "Theme selector in sidebar and settings page",
+        "item4": "Updated institutional logo"
+      },
+      "chatRedesign": {
+        "title": "Redesigned Chat",
+        "item1": "User messages as right-aligned pill bubbles",
+        "item2": "Assistant messages with avatar and improved markdown",
+        "item3": "Copy button with tooltip on hover",
+        "item4": "3-dot menu for quick actions",
+        "item5": "Rounded input with modernized send button"
+      },
+      "uxImprovements": {
+        "title": "Experience Improvements",
+        "item1": "Typing indicator with animated bouncing dots",
+        "item2": "Floating scroll-to-bottom button",
+        "item3": "Relative timestamps and day separators",
+        "item4": "Retry button on failed messages",
+        "item5": "Conversation preview on hover in sidebar",
+        "item6": "Message entrance animations and page transitions"
+      },
+      "accessibility": {
+        "title": "Accessibility & Settings",
+        "item1": "Settings organized in tabs (Profile / Security / Appearance)",
+        "item2": "aria-live regions for screen readers",
+        "item3": "Visible focus indicators on all interactive elements",
+        "item4": "Shift+Enter hint below chat input"
+      },
+      "security": {
+        "title": "Security",
+        "item1": "React and dependencies updated to latest secure versions",
+        "item2": "npm package vulnerability fixes"
+      },
+      "fixes": {
+        "title": "Fixes",
+        "item1": "Improved auto-scroll between messages",
+        "item2": "Header layout with logo to the left of title",
+        "item3": "Action buttons consolidated in header bar",
+        "item4": "Dark theme colors fixed across various components"
+      }
+    },
     "v1": {
       "date": "November 2024",
       "highlights": "Complete redesign with user accounts, advanced conversation organization, and improved experience",
