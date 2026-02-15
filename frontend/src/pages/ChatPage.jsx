@@ -198,25 +198,25 @@ export function ChatPage() {
         <Toaster richColors position="top-right" />
         <div className='flex flex-col h-full w-full max-w-7xl mx-auto px-4'>
           <header className='shrink-0 z-20 bg-background border-b'>
-            <div className='flex flex-col h-full w-full gap-1 pt-4 pb-2'>
-              <div className="flex items-center gap-3">
-                {isMobile && (
-                  <button
-                    onClick={toggleSidebar}
-                    className="p-2 hover:bg-muted rounded-md text-foreground"
-                    aria-label="Toggle sidebar"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  </button>
-                )}
-                <a href='https://chihuahua2.tecnm.mx/'>
-                  <img src={logo} className='w-32' alt='logo' />
-                </a>
+            <div className='flex items-center h-full w-full gap-4 py-3'>
+              {isMobile && (
+                <button
+                  onClick={toggleSidebar}
+                  className="p-2 hover:bg-muted rounded-md text-foreground shrink-0"
+                  aria-label="Toggle sidebar"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              )}
+              <a href='https://chihuahua2.tecnm.mx/' className="shrink-0">
+                <img src={logo} className='h-10' alt='logo' />
+              </a>
+              <div className="flex items-baseline gap-2 min-w-0">
+                <h1 className='font-urbanist text-xl font-semibold text-foreground whitespace-nowrap'>{t('common.appName')}</h1>
+                <p className='font-urbanist text-destructive text-sm font-light whitespace-nowrap'>{t('common.testMode')}</p>
               </div>
-              <h1 className='font-urbanist text-[1.65rem] font-semibold text-foreground'>{t('common.appName')}</h1>
-              <p className='font-urbanist text-destructive text-md font-light'>{t('common.testMode')}</p>
             </div>
           </header>
           <Chatbot />

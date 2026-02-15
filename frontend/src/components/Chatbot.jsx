@@ -3,6 +3,7 @@ import { useImmer } from 'use-immer';
 import { useTranslation } from 'react-i18next';
 import { useChat } from '@/contexts/ChatContext';
 import { useAuth } from '@/contexts/AuthContext';
+import useAutoScroll from '@/hooks/useAutoScroll';
 import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
@@ -33,6 +34,7 @@ function Chatbot() {
   }, [messages]);
 
   const isLoading = messages.length && messages[messages.length - 1].loading;
+  const { scrollContentRef, scrollToBottom } = useAutoScroll(isLoading);
 
   async function submitNewMessage() {
     const trimmedMessage = newMessage.trim();
@@ -43,6 +45,7 @@ function Chatbot() {
       { role: 'assistant', content: '', sources: [], loading: true, modelUsed: null }
     ]);
     setNewMessage('');
+    scrollToBottom();
 
     // Use the active chat's ID for backend conversations
     // For authenticated users with backend conversations (not local), this will save messages
@@ -162,6 +165,7 @@ function Chatbot() {
           messages={messages}
           isLoading={isLoading}
           highlightedMessageIndex={highlightedMessageIndex}
+          scrollContentRef={scrollContentRef}
         />
       </div>
       <ChatInput

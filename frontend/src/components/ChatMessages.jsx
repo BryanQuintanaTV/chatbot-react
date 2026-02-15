@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Markdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
-import useAutoScroll from '@/hooks/useAutoScroll';
 import Spinner from '@/components/Spinner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -270,9 +269,8 @@ function AssistantMessage({
 /**
  * ChatMessages — renders the conversation using prompt-kit style components.
  */
-function ChatMessages({ messages, isLoading, highlightedMessageIndex }) {
+function ChatMessages({ messages, isLoading, highlightedMessageIndex, scrollContentRef }) {
   const { user } = useAuth();
-  const scrollContentRef = useAutoScroll(isLoading);
 
   return (
     <div ref={scrollContentRef} className="space-y-8 py-4">
