@@ -85,7 +85,7 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 animate-page-enter">
       <div className="w-full max-w-md space-y-6">
         {/* Logo and Header */}
         <div className="flex flex-col items-center space-y-2">

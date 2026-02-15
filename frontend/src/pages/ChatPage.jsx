@@ -192,7 +192,7 @@ export function ChatPage() {
         onOpenChange={setShowWelcomeModal}
       />
       <div
-        className={`flex flex-col h-screen w-full overflow-hidden box-border ${isReadOnly ? 'pt-[60px]' : ''}`}
+        className={`flex flex-col h-screen w-full overflow-hidden box-border animate-page-enter ${isReadOnly ? 'pt-[60px]' : ''}`}
         style={{ marginLeft: isMobile ? '0' : '64px' }}
       >
         <Toaster richColors position="top-right" />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useImmer } from 'use-immer';
 import { useTranslation } from 'react-i18next';
 import { useChat } from '@/contexts/ChatContext';
@@ -11,6 +11,8 @@ import ChatInput from '@/components/ChatInput';
 import { ConversationActions } from '@/components/ConversationActions';
 import { AdvancedSearch } from '@/components/AdvancedSearch';
 import { ShareConversation } from '@/components/ShareConversation';
+import { Button } from '@/components/ui/button';
+import { ArrowDown } from 'lucide-react';
 
 function Chatbot() {
   const { t } = useTranslation();
@@ -34,21 +36,21 @@ function Chatbot() {
   }, [messages]);
 
   const isLoading = messages.length && messages[messages.length - 1].loading;
-  const { scrollContentRef, scrollToBottom } = useAutoScroll(isLoading);
+  const { scrollContentRef, scrollToBottom, showScrollButton } = useAutoScroll(isLoading);
 
-  async function submitNewMessage() {
-    const trimmedMessage = newMessage.trim();
+  async function submitNewMessage(retryContent) {
+    const trimmedMessage = retryContent || newMessage.trim();
     if (!trimmedMessage || isLoading) return;
 
+    const now = Date.now();
+
     setMessages(draft => [...draft,
-      { role: 'user', content: trimmedMessage },
-      { role: 'assistant', content: '', sources: [], loading: true, modelUsed: null }
+      { role: 'user', content: trimmedMessage, timestamp: now },
+      { role: 'assistant', content: '', sources: [], loading: true, modelUsed: null, timestamp: now }
     ]);
-    setNewMessage('');
+    if (!retryContent) setNewMessage('');
     scrollToBottom();
 
-    // Use the active chat's ID for backend conversations
-    // For authenticated users with backend conversations (not local), this will save messages
     const conversationId = activeChat?.id;
 
     try {
@@ -56,10 +58,9 @@ function Chatbot() {
         conversationId,
         trimmedMessage,
         selectedModel,
-        token  // Pass auth token for backend conversations
+        token
       );
 
-      // Store which model was used
       setMessages(draft => {
         draft[draft.length - 1].modelUsed = modelUsed;
       });
@@ -81,41 +82,43 @@ function Chatbot() {
     }
   }
 
+  // #5 — Retry: remove failed pair and re-send the user message
+  const handleRetry = useCallback(() => {
+    if (messages.length < 2) return;
+    const lastUserMsg = messages[messages.length - 2];
+    if (lastUserMsg?.role !== 'user') return;
+
+    const userContent = lastUserMsg.content;
+    setMessages(draft => {
+      draft.splice(draft.length - 2, 2);
+    });
+    // Use setTimeout so the state update commits first
+    setTimeout(() => submitNewMessage(userContent), 0);
+  }, [messages, setMessages]);
+
   const handleImportConversation = (conversationData) => {
-    // Replace current messages with imported ones
     setMessages(conversationData.messages);
   };
 
   const handleMessageClick = (messageIndex) => {
-    // Set the highlighted message
     setHighlightedMessageIndex(messageIndex);
 
-    // Scroll to the message with better positioning
     setTimeout(() => {
       const messageElement = document.querySelector(`[data-message-index="${messageIndex}"]`);
       if (messageElement) {
-        // Get the scrollable container
         const scrollContainer = messageElement.closest('.overflow-y-auto');
         if (scrollContainer) {
           const elementTop = messageElement.offsetTop;
           const containerHeight = scrollContainer.clientHeight;
           const elementHeight = messageElement.clientHeight;
-
-          // Center the message in the viewport
           const scrollPosition = elementTop - (containerHeight / 2) + (elementHeight / 2);
-
-          scrollContainer.scrollTo({
-            top: scrollPosition,
-            behavior: 'smooth'
-          });
+          scrollContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
         } else {
-          // Fallback to scrollIntoView
           messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
     }, 100);
 
-    // Remove highlight after 3 seconds
     setTimeout(() => {
       setHighlightedMessageIndex(null);
     }, 3000);
@@ -123,7 +126,7 @@ function Chatbot() {
 
   return (
     <div className='flex flex-col flex-1 overflow-hidden relative'>
-      {/* Floating Action Buttons - Always visible in top-right */}
+      {/* Floating Action Buttons */}
       <div className='absolute top-4 right-4 z-10 flex flex-wrap gap-2 justify-end'>
         {messages.length > 0 && (
           <>
@@ -166,8 +169,24 @@ function Chatbot() {
           isLoading={isLoading}
           highlightedMessageIndex={highlightedMessageIndex}
           scrollContentRef={scrollContentRef}
+          onRetry={handleRetry}
         />
       </div>
+
+      {/* #3 — Scroll-to-bottom floating button */}
+      {showScrollButton && (
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 animate-message-enter">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="h-9 w-9 rounded-full shadow-lg border"
+            onClick={scrollToBottom}
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
       <ChatInput
         newMessage={newMessage}
         isLoading={isLoading}
