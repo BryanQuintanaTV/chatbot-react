@@ -414,7 +414,7 @@ Application > Service Workers > Unregister
 
 ---
 
-**Versión:** 2.0.0
+**Versión:** 1.1.0
 **Fecha:** 2025-11-20
 **Autor:** Claude Code Agent
 **Institución:** TecNM Campus Chihuahua II
