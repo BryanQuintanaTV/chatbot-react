@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, X, ChevronDown, ChevronUp, User, Bot, Calendar } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -16,12 +16,14 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(true);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const [showFilters, setShowFilters] = useState(isDesktop);
   const [filters, setFilters] = useState({
     userMessages: true,
     assistantMessages: true,
@@ -94,6 +96,13 @@ export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
     }));
   };
 
+  // Reset filter visibility when dialog opens based on screen size
+  useEffect(() => {
+    if (open) {
+      setShowFilters(isDesktop);
+    }
+  }, [open, isDesktop]);
+
   const clearSearch = () => {
     setSearchQuery('');
     setFilters({
@@ -135,24 +144,24 @@ export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-3xl h-[85vh] md:h-[85vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="max-w-3xl h-[90vh] md:h-[80vh] flex flex-col p-0">
+        <DialogHeader className="flex-shrink-0 px-4 pt-4 md:px-6 md:pt-6 pb-0">
           <DialogTitle>{t('search.title')}</DialogTitle>
           <DialogDescription>
             {t('search.description')}
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
-          <div className="flex flex-col space-y-4">
+        <div className="flex flex-col flex-1 overflow-hidden px-4 md:px-6 pb-4 md:pb-6 gap-3">
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('search.placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-9"
+              className="pl-9 pr-9 h-10"
+              autoFocus
             />
             {searchQuery && (
               <Button
@@ -166,49 +175,74 @@ export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
             )}
           </div>
 
-          {/* Toggle Filters Button */}
-          <div>
+          {/* Filters toggle + inline stats */}
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
             <Button
-              variant="outline"
+              variant={showFilters ? 'secondary' : 'outline'}
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className="w-full justify-between"
+              className="h-8 gap-1.5"
             >
-              <span className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                {t('search.filters')}
-              </span>
-              {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              <Filter className="h-3.5 w-3.5" />
+              {t('search.filters')}
+              {showFilters ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
             </Button>
+
+            {(searchQuery || filters.dateRange !== 'all') && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Badge variant="secondary" className="h-6 text-xs">
+                  {stats.total} {t('search.results', { count: stats.total })}
+                </Badge>
+                <span className="hidden sm:inline">
+                  {stats.userCount} {t('search.user')} · {stats.assistantCount} {t('search.assistant')}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Filters - Collapsible */}
           {showFilters && (
-            <div className="bg-muted/50 rounded-lg p-4 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Message Type Filters */}
-                <div className="space-y-3">
-                  <Label className="text-xs text-muted-foreground">{t('search.messageType')}</Label>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">{t('search.userMessages')}</span>
-                    <Switch
-                      checked={filters.userMessages}
-                      onCheckedChange={(checked) => handleFilterChange('userMessages', checked)}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">{t('search.assistantMessages')}</span>
-                    <Switch
-                      checked={filters.assistantMessages}
-                      onCheckedChange={(checked) => handleFilterChange('assistantMessages', checked)}
-                    />
+            <div className="bg-muted/30 rounded-lg p-3 flex-shrink-0 border">
+              <div className="flex flex-col md:flex-row gap-3">
+                {/* Message Type Filters — compact chips */}
+                <div className="space-y-1.5 flex-1">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                    <User className="h-3 w-3" />
+                    {t('search.messageType')}
+                  </Label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleFilterChange('userMessages', !filters.userMessages)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                        filters.userMessages
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-transparent text-muted-foreground border-border hover:bg-muted'
+                      }`}
+                    >
+                      <User className="h-3 w-3" />
+                      {t('search.userMessages')}
+                    </button>
+                    <button
+                      onClick={() => handleFilterChange('assistantMessages', !filters.assistantMessages)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                        filters.assistantMessages
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-transparent text-muted-foreground border-border hover:bg-muted'
+                      }`}
+                    >
+                      <Bot className="h-3 w-3" />
+                      {t('search.assistantMessages')}
+                    </button>
                   </div>
                 </div>
 
-                {/* Date Range Filter */}
-                <div className="space-y-3">
-                  <Label className="text-xs text-muted-foreground">{t('search.dateRange')}</Label>
-                  <div className="space-y-2">
+                {/* Date Range Filter — compact chips */}
+                <div className="space-y-1.5 flex-1">
+                  <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {t('search.dateRange')}
+                  </Label>
+                  <div className="flex flex-wrap gap-1.5">
                     {[
                       { value: 'all', label: t('search.dateAll') },
                       { value: 'today', label: t('search.dateToday') },
@@ -218,13 +252,11 @@ export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
                       <button
                         key={option.value}
                         onClick={() => handleFilterChange('dateRange', option.value)}
-                        className={`
-                          w-full text-left px-3 py-2 rounded-md text-sm transition-colors
-                          ${filters.dateRange === option.value
-                            ? 'bg-primary text-primary-foreground'
-                            : 'hover:bg-muted'
-                          }
-                        `}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                          filters.dateRange === option.value
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-transparent text-muted-foreground border-border hover:bg-muted'
+                        }`}
                       >
                         {option.label}
                       </button>
@@ -235,25 +267,13 @@ export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
             </div>
           )}
 
-          {/* Statistics */}
-          {(searchQuery || filters.dateRange !== 'all') && (
-            <div className="flex items-center gap-4 text-sm">
-              <Badge variant="secondary">
-                {stats.total} {t('search.results', { count: stats.total })}
-              </Badge>
-              <span className="text-muted-foreground">
-                {stats.userCount} {t('search.user')} • {stats.assistantCount} {t('search.assistant')}
-              </span>
-            </div>
-          )}
+          <Separator className="flex-shrink-0" />
 
-          <Separator />
-
-          {/* Results */}
-          <div className="min-h-[200px]">
+          {/* Results — scrollable */}
+          <ScrollArea className="flex-1 min-h-0">
             {searchResults.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-8">
-                <Search className="h-12 w-12 text-muted-foreground/50 mb-3" />
+              <div className="flex flex-col items-center justify-center text-center py-12">
+                <Search className="h-10 w-10 text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">
                   {searchQuery
                     ? t('search.noResults')
@@ -261,19 +281,19 @@ export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3 pb-4">
+              <div className="space-y-2 pr-4 pb-2">
                 {searchResults.map((msg, index) => (
                   <div
                     key={index}
                     onClick={() => handleResultClick(msg.originalIndex)}
-                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
+                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer group/result"
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant={msg.role === 'user' ? 'default' : 'secondary'}>
-                        {msg.role === 'user' ? `👤 ${t('search.userBadge')}` : `🤖 ${t('search.assistantBadge')}`}
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Badge variant={msg.role === 'user' ? 'default' : 'secondary'} className="text-xs h-5">
+                        {msg.role === 'user' ? t('search.userBadge') : t('search.assistantBadge')}
                       </Badge>
                       {msg.timestamp && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-[11px] text-muted-foreground ml-auto">
                           {new Date(msg.timestamp).toLocaleString(t('common.locale'), {
                             dateStyle: 'short',
                             timeStyle: 'short'
@@ -281,16 +301,15 @@ export function AdvancedSearch({ messages = [], onMessageClick, trigger }) {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm line-clamp-3">
+                    <p className="text-sm line-clamp-3 text-foreground/80">
                       {highlightText(msg.content, searchQuery)}
                     </p>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-          </div>
-        </ScrollArea>
+          </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

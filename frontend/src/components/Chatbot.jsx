@@ -117,7 +117,7 @@ function Chatbot({ headerActions }) {
 
     setTimeout(() => {
       setHighlightedMessageIndex(null);
-    }, 3000);
+    }, 1500);
   };
 
   // Expose data to parent so the header can render action buttons
