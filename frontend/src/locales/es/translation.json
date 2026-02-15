@@ -95,6 +95,7 @@
     "careerPlaceholder": "Selecciona tu carrera",
     "institution": "Institución",
     "theme": "Tema",
+    "themeDescription": "Selecciona un tema para la aplicación",
     "language": "Idioma",
     "lightMode": "Modo Claro",
     "darkMode": "Modo Oscuro",
@@ -136,6 +137,7 @@
     "inputPlaceholder": "Escribe tu mensaje...",
     "send": "Enviar",
     "error": "Error al generar la respuesta",
+    "moreActions": "Más opciones",
     "generating": "Generando respuesta...",
     "newChat": "Nueva Conversación",
     "rename": "Renombrar",
@@ -634,6 +636,12 @@
     "contact": "Contactar Soporte",
     "noReason": "No se proporcionó una razón específica",
     "footer": "Si crees que esto es un error, contacta a soporte técnico"
+  },
+  "themes": {
+    "title": "Temas",
+    "light": "Claro",
+    "darkBlue": "Azul Oscuro",
+    "system": "Sistema"
   },
   "readOnly": {
     "banner": "Modo solo lectura activo - No puedes enviar mensajes ni editar chats",
