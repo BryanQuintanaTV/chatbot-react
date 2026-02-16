@@ -222,7 +222,7 @@ export function ChatPage() {
               </a>
               <div className="flex items-baseline gap-2 min-w-0 flex-1">
                 <h1 className='font-urbanist text-xl font-semibold text-foreground whitespace-nowrap'>{t('common.appName')}</h1>
-                <p className='font-urbanist text-destructive text-sm font-light whitespace-nowrap'>{t('common.testMode')}</p>
+                <p className='font-urbanist text-destructive text-sm font-bold whitespace-nowrap'>{t('common.testMode')}</p>
               </div>
 
               {/* Compact actions — single icon button with dropdown */}

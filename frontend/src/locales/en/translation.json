@@ -134,7 +134,7 @@
   "chat": {
     "welcome": "Welcome",
     "welcomeDescription": "I'm a chatbot that will help you answer general questions about TECNM",
-    "datasetVersion": "Model Version: 1.0",
+    "datasetVersion": "Model Version: 1.5",
     "inputPlaceholder": "Type your message...",
     "send": "Send",
     "error": "Error generating response",
@@ -548,7 +548,7 @@
     "edit": "Edit",
     "confirm": "Confirm",
     "ok": "OK",
-    "testMode": "<Test Mode>",
+    "testMode": "Beta",
     "yesterday": "Yesterday",
     "locale": "en-US"
   },
