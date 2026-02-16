@@ -18,6 +18,7 @@ import { ServiceDownPage } from '@/pages/ServiceDownPage';
 import { AccountSuspendedPage } from '@/pages/AccountSuspendedPage';
 import { OfflineDetector } from '@/components/OfflineDetector';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { Toaster as SileoToaster } from 'sileo';
 import { useBackendHealth } from '@/hooks/useBackendHealth';
 import { useAccountStatus } from '@/hooks/useAccountStatus';
 import { useClientIP } from '@/hooks/useClientIP';
@@ -29,6 +30,7 @@ function AppContent({ isReadOnly }) {
 
   return (
     <ReadOnlyProvider isReadOnly={isReadOnly}>
+      <SileoToaster position="top-right" />
       <OfflineDetector />
       {isReadOnly && <ReadOnlyBanner />}
       <ChatProvider>

@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PREDEFINED_AVATARS, getUserInitials } from '@/lib/avatars';
 import { Camera, Upload, Check } from 'lucide-react';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 
 export function AvatarPicker({ user, onAvatarChange, children }) {
   const { t } = useTranslation();
@@ -31,13 +31,13 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error(t('settings.invalidImageType'));
+      notify.error({ title: t('settings.invalidImageType') });
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error(t('settings.imageTooLarge'));
+      notify.error({ title: t('settings.imageTooLarge') });
       return;
     }
 
@@ -55,10 +55,10 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
 
       // For now, store the preview URL
       setSelectedAvatar(previewUrl);
-      toast.success(t('settings.imageUploadSuccess'));
+      notify.success({ title: t('settings.imageUploadSuccess') });
     } catch (error) {
       console.error('Error uploading avatar:', error);
-      toast.error(t('settings.imageUploadError'));
+      notify.error({ title: t('settings.imageUploadError') });
     } finally {
       setUploading(false);
     }

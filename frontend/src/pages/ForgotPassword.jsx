@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ArrowLeft, Mail } from 'lucide-react';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function ForgotPassword() {
@@ -33,9 +33,9 @@ export function ForgotPassword() {
       // await api.forgotPassword({ email });
 
       setEmailSent(true);
-      toast.success(t('forgotPassword.emailSent'));
+      notify.success({ title: t('forgotPassword.emailSent') });
     } catch (error) {
-      toast.error(t('forgotPassword.error'));
+      notify.error({ title: t('forgotPassword.error') });
     } finally {
       setLoading(false);
     }

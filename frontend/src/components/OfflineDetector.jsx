@@ -1,31 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { WifiOff, Wifi } from 'lucide-react';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 
 export function OfflineDetector() {
   const { t } = useTranslation();
   const { isOnline } = useOnlineStatus();
   const [wasOffline, setWasOffline] = useState(false);
+  const offlineToastId = useRef(null);
 
   useEffect(() => {
     if (!isOnline && !wasOffline) {
       // User just went offline
-      toast.error(t('offline.lost'), {
+      offlineToastId.current = notify.error({
+        title: t('offline.lost'),
         description: t('offline.lostDescription'),
         icon: <WifiOff className="h-5 w-5" />,
-        duration: Infinity,
-        id: 'offline-status'
+        duration: null,
       });
       setWasOffline(true);
     } else if (isOnline && wasOffline) {
       // User came back online
-      toast.dismiss('offline-status');
-      toast.success(t('offline.restored'), {
+      if (offlineToastId.current) {
+        notify.dismiss(offlineToastId.current);
+        offlineToastId.current = null;
+      }
+      notify.success({
+        title: t('offline.restored'),
         description: t('offline.restoredDescription'),
         icon: <Wifi className="h-5 w-5" />,
-        duration: 3000
+        duration: 3000,
       });
       setWasOffline(false);
     }

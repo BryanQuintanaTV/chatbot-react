@@ -21,7 +21,7 @@ import {
 import { Label } from "./ui/label"
 import { Textarea } from "./ui/textarea"
 import api from "../api";
-import { toast } from "sonner";
+import { notify } from '@/lib/notify';
 
 /**
  * ReportIssueDialog — controlled dialog for reporting a problem with a message.
@@ -48,7 +48,7 @@ export default function ReportIssueDialog({
     e.preventDefault();
 
     if (!feedback.trim()) {
-      toast.error(t('report.errorEmpty'));
+      notify.error({ title: t('report.errorEmpty') });
       return;
     }
 
@@ -62,13 +62,13 @@ export default function ReportIssueDialog({
 
     try {
       await api.sendReport(payload);
-      toast.success(t('report.successMessage'));
+      notify.success({ title: t('report.successMessage') });
       setFeedback("");
       onOpenChange(false);
       onSubmitted?.();
     } catch (err) {
       console.error("Error al enviar el reporte:", err);
-      toast.error(t('report.errorMessage'));
+      notify.error({ title: t('report.errorMessage') });
     }
   };
 

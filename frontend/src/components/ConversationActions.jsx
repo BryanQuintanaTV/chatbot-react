@@ -1,7 +1,7 @@
 import { Download, Upload, FileJson, FileText, Copy, Check, File, MoreVertical, Share2 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,13 +49,9 @@ export function ConversationActions({ messages = [], metadata = {}, onImport, co
       const content = exportAsJSON(messages, metadata);
       const filename = generateFilename('conversacion', 'json');
       downloadFile(content, filename, 'application/json');
-      toast.success(t('export.success'), {
-        description: t('export.successJSON')
-      });
+      notify.success({ title: t('export.success'), description: t('export.successJSON') });
     } catch (error) {
-      toast.error(t('export.error'), {
-        description: t('export.errorDescription')
-      });
+      notify.error({ title: t('export.error'), description: t('export.errorDescription') });
     }
   };
 
@@ -64,13 +60,9 @@ export function ConversationActions({ messages = [], metadata = {}, onImport, co
       const content = exportAsMarkdown(messages, metadata);
       const filename = generateFilename('conversacion', 'md');
       downloadFile(content, filename, 'text/markdown');
-      toast.success(t('export.success'), {
-        description: t('export.successMarkdown')
-      });
+      notify.success({ title: t('export.success'), description: t('export.successMarkdown') });
     } catch (error) {
-      toast.error(t('export.error'), {
-        description: t('export.errorDescription')
-      });
+      notify.error({ title: t('export.error'), description: t('export.errorDescription') });
     }
   };
 
@@ -79,13 +71,9 @@ export function ConversationActions({ messages = [], metadata = {}, onImport, co
       const content = exportAsText(messages, metadata);
       const filename = generateFilename('conversacion', 'txt');
       downloadFile(content, filename, 'text/plain');
-      toast.success(t('export.success'), {
-        description: t('export.successText')
-      });
+      notify.success({ title: t('export.success'), description: t('export.successText') });
     } catch (error) {
-      toast.error(t('export.error'), {
-        description: t('export.errorDescription')
-      });
+      notify.error({ title: t('export.error'), description: t('export.errorDescription') });
     }
   };
 
@@ -96,17 +84,13 @@ export function ConversationActions({ messages = [], metadata = {}, onImport, co
 
       if (success) {
         setCopied(true);
-        toast.success(t('export.copied'), {
-          description: t('export.successCopy')
-        });
+        notify.success({ title: t('export.copied'), description: t('export.successCopy') });
         setTimeout(() => setCopied(false), 2000);
       } else {
         throw new Error('Failed to copy');
       }
     } catch (error) {
-      toast.error(t('export.errorCopy'), {
-        description: t('export.errorCopyDescription')
-      });
+      notify.error({ title: t('export.errorCopy'), description: t('export.errorCopyDescription') });
     }
   };
 
@@ -171,9 +155,7 @@ export function ConversationActions({ messages = [], metadata = {}, onImport, co
       }
 
       setSuccess(true);
-      toast.success(t('import.success'), {
-        description: t('import.successDescription', { count: conversationData.messages.length })
-      });
+      notify.success({ title: t('import.success'), description: t('import.successDescription', { count: conversationData.messages.length }) });
 
       setTimeout(() => {
         setImportDialogOpen(false);
@@ -182,9 +164,7 @@ export function ConversationActions({ messages = [], metadata = {}, onImport, co
     } catch (err) {
       const errorKey = err.message || 'import.processingError';
       setError(t(errorKey));
-      toast.error(t('import.error'), {
-        description: t(errorKey)
-      });
+      notify.error({ title: t('import.error'), description: t(errorKey) });
     } finally {
       setLoading(false);
     }
@@ -214,10 +194,10 @@ export function ConversationActions({ messages = [], metadata = {}, onImport, co
     const title = metadata.title || 'Conversación de Tec Bot';
     try {
       await navigator.share({ title, text: content });
-      toast.success(t('share.success'));
+      notify.success({ title: t('share.success') });
     } catch (err) {
       if (err.name !== 'AbortError') {
-        toast.error(t('share.error'));
+        notify.error({ title: t('share.error') });
       }
     }
   };

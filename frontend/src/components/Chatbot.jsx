@@ -10,6 +10,7 @@ import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
 import { Button } from '@/components/ui/button';
 import { ArrowDown } from 'lucide-react';
+import { notify } from '@/lib/notify';
 
 function Chatbot({ headerActions }) {
   const { t } = useTranslation();
@@ -76,6 +77,7 @@ function Chatbot({ headerActions }) {
         draft[draft.length - 1].loading = false;
         draft[draft.length - 1].error = true;
       });
+      notify.error({ title: t('chat.error'), description: t('chat.errorDescription') || err.message });
     }
   }
 
@@ -132,23 +134,28 @@ function Chatbot({ headerActions }) {
   return (
     <div className='flex flex-col flex-1 overflow-hidden relative'>
       <div className='flex-1 overflow-y-auto pt-4 pb-4 px-4'>
-        {messages.length === 0 && (
-          <div className='mx-auto max-w-3xl px-2 md:px-10'>
-            <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
-              <p>👋 {t('chat.welcome')}</p>
-              <p>{t('chat.welcomeDescription')}</p>
-              <p><small>{t('chat.datasetVersion')}</small></p>
+        <div
+          className="max-w-3xl transition-[margin] duration-300 ease-in-out"
+          style={{ marginLeft: 'max(0px, calc(50vw - var(--sidebar-width, 0px) - 384px))', marginRight: 'auto' }}
+        >
+          {messages.length === 0 && (
+            <div className='px-2 md:px-10'>
+              <div className='mt-3 font-urbanist text-muted-foreground text-xl font-light space-y-2'>
+                <p>👋 {t('chat.welcome')}</p>
+                <p>{t('chat.welcomeDescription')}</p>
+                <p><small>{t('chat.datasetVersion')}</small></p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <ChatMessages
-          messages={messages}
-          isLoading={isLoading}
-          highlightedMessageIndex={highlightedMessageIndex}
-          scrollContentRef={scrollContentRef}
-          onRetry={handleRetry}
-        />
+          <ChatMessages
+            messages={messages}
+            isLoading={isLoading}
+            highlightedMessageIndex={highlightedMessageIndex}
+            scrollContentRef={scrollContentRef}
+            onRetry={handleRetry}
+          />
+        </div>
       </div>
 
       {/* Scroll-to-bottom floating button */}

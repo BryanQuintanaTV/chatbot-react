@@ -128,7 +128,8 @@
     "changePassword": "Cambiar Contraseña",
     "changing": "Cambiando...",
     "passwordChangeSuccess": "Contraseña cambiada correctamente",
-    "passwordChangeError": "Error al cambiar la contraseña. Verifica tu contraseña actual."
+    "passwordChangeError": "Error al cambiar la contraseña. Verifica tu contraseña actual.",
+    "languageChanged": "Idioma cambiado"
   },
   "chat": {
     "welcome": "Bienvenido",
@@ -157,6 +158,8 @@
     "deleteSuccess": "Conversación eliminada correctamente",
     "deleteError": "No puedes eliminar la última conversación",
     "cannotDeleteLastChat": "No puedes eliminar el último chat",
+    "newChatCreated": "Nueva conversación creada",
+    "errorDescription": "No se pudo enviar el mensaje. Inténtalo de nuevo.",
     "reset": "Reiniciar Chat",
     "chatReset": "Chat reiniciado. Se ha creado una nueva conversación",
     "clearChat": "Limpiar Chat",
@@ -693,6 +696,7 @@
     "title": "Temas",
     "light": "Claro",
     "darkBlue": "Azul Oscuro",
+    "tealHeritage": "Verde Azulado",
     "system": "Sistema"
   },
   "readOnly": {

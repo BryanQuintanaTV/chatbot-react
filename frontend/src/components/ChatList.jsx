@@ -49,7 +49,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 
 // Icon mapping
 const ICON_MAP = {
@@ -110,7 +110,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
     // Check if user is authenticated
     if (!isAuthenticated) {
-      toast.error(t('auth.registerToEdit'));
+      notify.error({ title: t('auth.registerToEdit') });
       setOpenDropdownId(null);
       return;
     }
@@ -118,7 +118,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     // Validate chat has an ID
     if (!chat || !chat.id) {
       console.error('Cannot edit chat: chat or chat.id is undefined', chat);
-      toast.error('Error: ID de conversación no válido');
+      notify.error({ title: 'Error: ID de conversación no válido' });
       setOpenDropdownId(null);
       return;
     }
@@ -133,11 +133,11 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     if (chatToEdit && chatToEdit.id) {
       console.log('Saving chat edits:', { chatId: chatToEdit.id, updates });
       updateChat(chatToEdit.id, updates);
-      toast.success(t('chat.updateSuccess') || 'Chat actualizado exitosamente');
+      notify.success({ title: t('chat.updateSuccess') || 'Chat actualizado exitosamente' });
       setChatToEdit(null);
     } else {
       console.error('Cannot save chat edit: chatToEdit or chatToEdit.id is undefined', chatToEdit);
-      toast.error('Error: ID de conversación no válido');
+      notify.error({ title: 'Error: ID de conversación no válido' });
       setChatToEdit(null);
     }
   };
@@ -147,13 +147,13 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
     // Check if user is authenticated
     if (!isAuthenticated) {
-      toast.error(t('auth.registerToPin'));
+      notify.error({ title: t('auth.registerToPin') });
       setOpenDropdownId(null);
       return;
     }
 
     togglePinChat(chat.id);
-    toast.success(chat.pinned ? t('chat.unpinSuccess') || 'Chat despegado' : t('chat.pinSuccess') || 'Chat fijado');
+    notify.success({ title: chat.pinned ? t('chat.unpinSuccess') || 'Chat despegado' : t('chat.pinSuccess') || 'Chat fijado' });
     setOpenDropdownId(null);
   };
 
@@ -162,13 +162,13 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
     // Check if user is authenticated
     if (!isAuthenticated) {
-      toast.error(t('auth.registerToArchive'));
+      notify.error({ title: t('auth.registerToArchive') });
       setOpenDropdownId(null);
       return;
     }
 
     toggleArchiveChat(chat.id);
-    toast.success(chat.archived ? t('chat.unarchiveSuccess') || 'Chat desarchivado' : t('chat.archiveSuccess') || 'Chat archivado');
+    notify.success({ title: chat.archived ? t('chat.unarchiveSuccess') || 'Chat desarchivado' : t('chat.archiveSuccess') || 'Chat archivado' });
     setOpenDropdownId(null);
   };
 
@@ -179,7 +179,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     if (!isAuthenticated) {
       // Clear the messages of the current chat
       clearChatMessages(chat.id);
-      toast.success(t('chat.chatReset'));
+      notify.success({ title: t('chat.chatReset') });
       setOpenDropdownId(null);
       return;
     }
@@ -193,9 +193,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
     if (chatToDelete) {
       const success = deleteChat(chatToDelete.id);
       if (success) {
-        toast.success(t('chat.deleteSuccess'));
+        notify.success({ title: t('chat.deleteSuccess') });
       } else {
-        toast.error(t('chat.deleteError'));
+        notify.error({ title: t('chat.deleteError') });
       }
       setChatToDelete(null);
     }
