@@ -26,7 +26,7 @@ import { AvatarPicker } from '@/components/AvatarPicker';
 import { getTecnmCareers, SCHOOL_NAME, LANGUAGES } from '@/lib/constants';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
 import { ArrowLeft, AlertCircle, Lock, Check, Monitor, User, Palette } from 'lucide-react';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function Settings() {
@@ -64,6 +64,8 @@ export function Settings() {
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     localStorage.setItem('language', lng);
+    const label = LANGUAGES.find(l => l.value === lng)?.label || lng;
+    notify.info({ title: t('settings.languageChanged') || 'Language changed', description: label });
   };
 
   const handleSubmit = async (e) => {
@@ -71,7 +73,7 @@ export function Settings() {
     setLoading(true);
 
     if (formData.semester && (formData.semester < 1 || formData.semester > 12)) {
-      toast.error(t('settings.semesterError'));
+      notify.error({ title: t('settings.semesterError') });
       setLoading(false);
       return;
     }
@@ -82,13 +84,13 @@ export function Settings() {
         semester: formData.semester,
         career: formData.career,
       });
-      toast.success(
-        formData.semester && formData.career
+      notify.success({
+        title: formData.semester && formData.career
           ? t('settings.profileCompleteSuccess')
-          : t('settings.updateSuccess')
-      );
+          : t('settings.updateSuccess'),
+      });
     } catch (error) {
-      toast.error(error.message || t('settings.updateError'));
+      notify.error({ title: error.message || t('settings.updateError') });
     } finally {
       setLoading(false);
     }
@@ -97,19 +99,19 @@ export function Settings() {
   const confirmDeleteAccount = async () => {
     try {
       await deleteAccount();
-      toast.success(t('settings.accountDeleted'));
+      notify.success({ title: t('settings.accountDeleted') });
       navigate('/');
     } catch (error) {
-      toast.error(error.message || 'Error al eliminar la cuenta');
+      notify.error({ title: error.message || 'Error al eliminar la cuenta' });
     }
   };
 
   const handleAvatarChange = async (newAvatar) => {
     try {
       await updateUser({ avatar: newAvatar });
-      toast.success(t('settings.avatarUpdateSuccess'));
+      notify.success({ title: t('settings.avatarUpdateSuccess') });
     } catch (error) {
-      toast.error(error.message || t('settings.avatarUpdateError'));
+      notify.error({ title: error.message || t('settings.avatarUpdateError') });
     }
   };
 
@@ -118,22 +120,22 @@ export function Settings() {
     setPasswordLoading(true);
 
     if (passwordData.newPassword.length < 6) {
-      toast.error(t('register.passwordTooShort'));
+      notify.error({ title: t('register.passwordTooShort') });
       setPasswordLoading(false);
       return;
     }
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error(t('register.passwordMismatch'));
+      notify.error({ title: t('register.passwordMismatch') });
       setPasswordLoading(false);
       return;
     }
 
     try {
       await changePassword(passwordData.currentPassword, passwordData.newPassword);
-      toast.success(t('settings.passwordChangeSuccess'));
+      notify.success({ title: t('settings.passwordChangeSuccess') });
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
-      toast.error(error.message || t('settings.passwordChangeError'));
+      notify.error({ title: error.message || t('settings.passwordChangeError') });
     } finally {
       setPasswordLoading(false);
     }

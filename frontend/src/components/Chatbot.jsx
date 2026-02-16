@@ -10,6 +10,7 @@ import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
 import { Button } from '@/components/ui/button';
 import { ArrowDown } from 'lucide-react';
+import { notify } from '@/lib/notify';
 
 function Chatbot({ headerActions }) {
   const { t } = useTranslation();
@@ -76,6 +77,7 @@ function Chatbot({ headerActions }) {
         draft[draft.length - 1].loading = false;
         draft[draft.length - 1].error = true;
       });
+      notify.error({ title: t('chat.error'), description: t('chat.errorDescription') || err.message });
     }
   }
 

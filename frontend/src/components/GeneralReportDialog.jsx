@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 
 export function GeneralReportDialog({ children }) {
   const { t } = useTranslation();
@@ -45,17 +45,17 @@ export function GeneralReportDialog({ children }) {
     e.preventDefault();
 
     if (!category) {
-      toast.error(t('generalReport.selectCategory'));
+      notify.error({ title: t('generalReport.selectCategory') });
       return;
     }
 
     if (!title.trim()) {
-      toast.error(t('generalReport.enterTitle'));
+      notify.error({ title: t('generalReport.enterTitle') });
       return;
     }
 
     if (!description.trim()) {
-      toast.error(t('generalReport.enterDescription'));
+      notify.error({ title: t('generalReport.enterDescription') });
       return;
     }
 
@@ -79,7 +79,7 @@ export function GeneralReportDialog({ children }) {
 
       console.log('General report submitted:', payload);
 
-      toast.success(t('generalReport.success'));
+      notify.success({ title: t('generalReport.success') });
 
       // Reset form
       setCategory('');
@@ -88,7 +88,7 @@ export function GeneralReportDialog({ children }) {
       setOpen(false);
     } catch (err) {
       console.error('Error al enviar el reporte:', err);
-      toast.error(t('generalReport.error'));
+      notify.error({ title: t('generalReport.error') });
     } finally {
       setIsSubmitting(false);
     }

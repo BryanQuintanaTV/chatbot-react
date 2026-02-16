@@ -128,7 +128,8 @@
     "changePassword": "Change Password",
     "changing": "Changing...",
     "passwordChangeSuccess": "Password changed successfully",
-    "passwordChangeError": "Error changing password. Please verify your current password."
+    "passwordChangeError": "Error changing password. Please verify your current password.",
+    "languageChanged": "Language changed"
   },
   "chat": {
     "welcome": "Welcome",
@@ -157,6 +158,8 @@
     "deleteSuccess": "Conversation deleted successfully",
     "deleteError": "You cannot delete the last conversation",
     "cannotDeleteLastChat": "You cannot delete the last chat",
+    "newChatCreated": "New conversation created",
+    "errorDescription": "Could not send message. Please try again.",
     "reset": "Reset Chat",
     "chatReset": "Chat reset. A new conversation has been created",
     "clearChat": "Clear Chat",

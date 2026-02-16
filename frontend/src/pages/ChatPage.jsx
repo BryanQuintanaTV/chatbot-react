@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreVertical, Search, Upload, Download, Share2 } from 'lucide-react';
 import logo from '@/assets/images/itch_II_logo.png';
-import { Toaster, toast } from "sonner";
+import { notify } from '@/lib/notify';
 
 export function ChatPage() {
   const { t } = useTranslation();
@@ -66,7 +66,7 @@ export function ChatPage() {
   const confirmClearChat = useCallback(() => {
     if (activeChatId) {
       clearChatMessages(activeChatId);
-      toast.success(t('shortcuts.clearChatSuccess'));
+      notify.success({ title: t('shortcuts.clearChatSuccess') });
     }
   }, [activeChatId, clearChatMessages, t]);
 
@@ -74,7 +74,7 @@ export function ChatPage() {
     if (chats.length > 1) {
       setShowDeleteConfirm(true);
     } else {
-      toast.error(t('chat.cannotDeleteLastChat') || 'No puedes eliminar el último chat');
+      notify.error({ title: t('chat.cannotDeleteLastChat') || 'No puedes eliminar el último chat' });
     }
   }, [chats.length, t]);
 
@@ -82,9 +82,9 @@ export function ChatPage() {
     if (activeChatId && chats.length > 1) {
       const success = deleteChat(activeChatId);
       if (success) {
-        toast.success(t('chat.deleteSuccess'));
+        notify.success({ title: t('chat.deleteSuccess') });
       } else {
-        toast.error(t('chat.deleteError'));
+        notify.error({ title: t('chat.deleteError') });
       }
     }
   }, [activeChatId, chats.length, deleteChat, t]);
@@ -203,7 +203,6 @@ export function ChatPage() {
           '--sidebar-width': isMobile ? '0px' : (sidebarState === 'expanded' ? '256px' : '64px'),
         }}
       >
-        <Toaster richColors position="top-right" />
         <div className='flex flex-col h-full w-full px-4'>
           <header className='shrink-0 z-20 bg-background border-b'>
             <div className='flex items-center h-full w-full gap-4 py-3 max-w-5xl mx-auto'>

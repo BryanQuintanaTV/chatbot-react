@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function ResetPassword() {
@@ -52,13 +52,13 @@ export function ResetPassword() {
 
     // Validation
     if (formData.newPassword.length < 6) {
-      toast.error(t('register.passwordTooShort'));
+      notify.error({ title: t('register.passwordTooShort') });
       setLoading(false);
       return;
     }
 
     if (formData.newPassword !== formData.confirmPassword) {
-      toast.error(t('register.passwordMismatch'));
+      notify.error({ title: t('register.passwordMismatch') });
       setLoading(false);
       return;
     }
@@ -74,14 +74,14 @@ export function ResetPassword() {
       // });
 
       setSuccess(true);
-      toast.success(t('resetPassword.success'));
+      notify.success({ title: t('resetPassword.success') });
 
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/login');
       }, 3000);
     } catch (error) {
-      toast.error(t('resetPassword.error'));
+      notify.error({ title: t('resetPassword.error') });
     } finally {
       setLoading(false);
     }

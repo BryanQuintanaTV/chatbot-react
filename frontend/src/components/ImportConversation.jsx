@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, FileJson, AlertCircle, CheckCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import {
   Dialog,
   DialogContent,
@@ -88,7 +88,8 @@ export function ImportConversation({ onImport }) {
       }
 
       setSuccess(true);
-      toast.success(t('import.success'), {
+      notify.success({
+        title: t('import.success'),
         description: t('import.successDescription', { count: conversationData.messages.length })
       });
 
@@ -100,7 +101,8 @@ export function ImportConversation({ onImport }) {
     } catch (err) {
       const errorKey = err.message || 'import.processingError';
       setError(t(errorKey));
-      toast.error(t('import.error'), {
+      notify.error({
+        title: t('import.error'),
         description: t(errorKey)
       });
     } finally {

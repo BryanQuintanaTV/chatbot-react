@@ -16,7 +16,7 @@ import {
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { SCHOOL_NAME } from '@/lib/constants';
 import logo from '@/assets/images/itch_II_logo.png';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,7 +50,7 @@ export function Login() {
 
     try {
       await login(email, password);
-      toast.success(t('login.success'));
+      notify.success({ title: t('login.success') });
       navigate('/');
     } catch (error) {
       // Check if this is an account suspension error

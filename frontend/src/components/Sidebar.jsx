@@ -9,7 +9,7 @@ import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LANGUAGES } from '@/lib/constants';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import {
   Popover,
   PopoverContent,
@@ -229,7 +229,7 @@ export function Sidebar({ onShowShortcuts }) {
 
   const handleLogout = () => {
     logout();
-    toast.success(t('auth.logoutSuccess'));
+    notify.success({ title: t('auth.logoutSuccess') });
     navigate('/');
   };
 
@@ -239,16 +239,19 @@ export function Sidebar({ onShowShortcuts }) {
     const nextLanguage = LANGUAGES[nextIndex].value;
     i18n.changeLanguage(nextLanguage);
     localStorage.setItem('language', nextLanguage);
+    const label = LANGUAGES[nextIndex]?.label || nextLanguage;
+    notify.info({ title: t('settings.languageChanged') || 'Language changed', description: label });
   };
 
   const handleNewChat = () => {
     // If user is not authenticated and already has 1 conversation, don't allow more
     if (!isAuthenticated && chats.length >= 1) {
-      toast.error(t('auth.registerToCreateChats'));
+      notify.error({ title: t('auth.registerToCreateChats') });
       return;
     }
 
     createNewChat();
+    notify.success({ title: t('chat.newChatCreated') || 'New chat created' });
     // Ensure we're showing active chats (not archived) so new chat is visible
     setShowArchived(false);
     // Ensure chats section is expanded

@@ -1,6 +1,6 @@
 import { Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import { Button } from '@/components/ui/button';
 import { exportAsText } from '@/lib/exportConversation';
 
@@ -28,13 +28,15 @@ export function ShareConversation({ messages, metadata = {} }) {
         title: title,
         text: content,
       });
-      toast.success(t('share.success'), {
+      notify.success({
+        title: t('share.success'),
         description: t('share.successDescription')
       });
     } catch (error) {
       // User cancelled or error occurred
       if (error.name !== 'AbortError') {
-        toast.error(t('share.error'), {
+        notify.error({
+          title: t('share.error'),
           description: t('share.errorDescription')
         });
       }

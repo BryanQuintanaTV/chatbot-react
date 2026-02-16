@@ -1,7 +1,7 @@
 import { Download, FileJson, FileText, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,11 +33,13 @@ export function ExportConversation({ messages, metadata = {} }) {
       const content = exportAsJSON(messages, metadata);
       const filename = generateFilename('conversacion', 'json');
       downloadFile(content, filename, 'application/json');
-      toast.success(t('export.success'), {
+      notify.success({
+        title: t('export.success'),
         description: t('export.successJSON')
       });
     } catch (error) {
-      toast.error(t('export.error'), {
+      notify.error({
+        title: t('export.error'),
         description: t('export.errorDescription')
       });
     }
@@ -48,11 +50,13 @@ export function ExportConversation({ messages, metadata = {} }) {
       const content = exportAsMarkdown(messages, metadata);
       const filename = generateFilename('conversacion', 'md');
       downloadFile(content, filename, 'text/markdown');
-      toast.success(t('export.success'), {
+      notify.success({
+        title: t('export.success'),
         description: t('export.successMarkdown')
       });
     } catch (error) {
-      toast.error(t('export.error'), {
+      notify.error({
+        title: t('export.error'),
         description: t('export.errorDescription')
       });
     }
@@ -63,11 +67,13 @@ export function ExportConversation({ messages, metadata = {} }) {
       const content = exportAsText(messages, metadata);
       const filename = generateFilename('conversacion', 'txt');
       downloadFile(content, filename, 'text/plain');
-      toast.success(t('export.success'), {
+      notify.success({
+        title: t('export.success'),
         description: t('export.successText')
       });
     } catch (error) {
-      toast.error(t('export.error'), {
+      notify.error({
+        title: t('export.error'),
         description: t('export.errorDescription')
       });
     }
@@ -80,7 +86,8 @@ export function ExportConversation({ messages, metadata = {} }) {
 
       if (success) {
         setCopied(true);
-        toast.success(t('export.copied'), {
+        notify.success({
+          title: t('export.copied'),
           description: t('export.successCopy')
         });
         setTimeout(() => setCopied(false), 2000);
@@ -88,7 +95,8 @@ export function ExportConversation({ messages, metadata = {} }) {
         throw new Error('Failed to copy');
       }
     } catch (error) {
-      toast.error(t('export.errorCopy'), {
+      notify.error({
+        title: t('export.errorCopy'),
         description: t('export.errorCopyDescription')
       });
     }

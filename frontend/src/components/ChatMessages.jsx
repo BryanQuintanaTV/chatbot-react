@@ -25,7 +25,7 @@ import {
 import ReportIssueDialog from '@/components/ReportIssueDialog';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import {
   MoreHorizontal,
   Copy,
@@ -107,7 +107,7 @@ function UserMessage({ content, user, isHighlighted, idx, timestamp }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error(t('export.errorCopy'));
+      notify.error({ title: t('export.errorCopy') });
     }
   };
 
@@ -182,7 +182,7 @@ function AssistantMessage({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error(t('export.errorCopy'));
+      notify.error({ title: t('export.errorCopy') });
     }
   };
 

@@ -16,7 +16,7 @@ import {
 import { Eye, EyeOff, Loader2, Check, X, AlertCircle } from 'lucide-react';
 import { SCHOOL_NAME } from '@/lib/constants';
 import logo from '@/assets/images/itch_II_logo.png';
-import { toast } from 'sonner';
+import { notify } from '@/lib/notify';
 import { calculatePasswordStrength } from '@/lib/passwordStrength';
 import {
   AlertDialog,
@@ -90,7 +90,7 @@ export function Register() {
         email: formData.email,
         password: formData.password,
       });
-      toast.success(t('register.success'));
+      notify.success({ title: t('register.success') });
       navigate('/settings'); // Redirect to settings to complete profile
     } catch (error) {
       // Use AlertDialog for authentication errors
