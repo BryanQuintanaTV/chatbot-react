@@ -23,7 +23,10 @@ function ChatInput({ newMessage, isLoading, setNewMessage, submitNewMessage }) {
 
   return (
     <div className="shrink-0 bg-background px-4 pb-4">
-      <div className="mx-auto max-w-3xl">
+      <div
+        className="max-w-3xl transition-[margin] duration-300 ease-in-out"
+        style={{ marginLeft: 'max(0px, calc(50vw - var(--sidebar-width, 0px) - 384px))', marginRight: 'auto' }}
+      >
         <div
           className={`border-input bg-card relative rounded-3xl border shadow-sm transition-all focus-within:ring-2 focus-within:ring-ring ${isReadOnly ? 'opacity-60' : ''}`}
         >

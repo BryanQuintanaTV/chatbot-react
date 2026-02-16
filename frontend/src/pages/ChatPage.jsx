@@ -198,7 +198,10 @@ export function ChatPage() {
       />
       <div
         className={`flex flex-col h-screen w-full overflow-hidden box-border animate-page-enter transition-[margin-left] duration-300 ease-in-out ${isReadOnly ? 'pt-[60px]' : ''}`}
-        style={{ marginLeft: isMobile ? '0' : (sidebarState === 'expanded' ? '256px' : '64px') }}
+        style={{
+          marginLeft: isMobile ? '0' : (sidebarState === 'expanded' ? '256px' : '64px'),
+          '--sidebar-width': isMobile ? '0px' : (sidebarState === 'expanded' ? '256px' : '64px'),
+        }}
       >
         <Toaster richColors position="top-right" />
         <div className='flex flex-col h-full w-full px-4'>

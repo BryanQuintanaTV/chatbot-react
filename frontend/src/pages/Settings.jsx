@@ -176,9 +176,15 @@ export function Settings() {
       />
       <div
         className="flex flex-col min-h-screen w-full animate-page-enter transition-[margin-left] duration-300 ease-in-out"
-        style={{ marginLeft: isMobile ? '0' : (sidebarState === 'expanded' ? '256px' : '64px') }}
+        style={{
+          marginLeft: isMobile ? '0' : (sidebarState === 'expanded' ? '256px' : '64px'),
+          '--sidebar-width': isMobile ? '0px' : (sidebarState === 'expanded' ? '256px' : '64px'),
+        }}
       >
-        <div className="flex flex-col min-h-full w-full max-w-3xl mx-auto px-4">
+        <div
+          className="flex flex-col min-h-full w-full max-w-3xl px-4 transition-[margin] duration-300 ease-in-out"
+          style={{ marginLeft: 'max(0px, calc(50vw - var(--sidebar-width, 0px) - 384px))', marginRight: 'auto' }}
+        >
           {/* Header */}
           <header className="sticky top-0 shrink-0 z-20 bg-background border-b">
             <div className="flex items-center h-16 gap-4">
