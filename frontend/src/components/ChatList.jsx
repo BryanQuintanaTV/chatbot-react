@@ -328,7 +328,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
             ? 'bg-muted border-l-2 border-l-primary'
             : 'hover:bg-muted/50 border-l-2 border-l-transparent'
         }`}
-        style={chat.id !== activeChat?.id ? { backgroundColor: chat.bgColor || themeBg } : undefined}
+        style={chat.id !== activeChat?.id && chat.bgColor ? { backgroundColor: chat.bgColor } : undefined}
         title={preview}
       >
         {/* Chat Icon */}

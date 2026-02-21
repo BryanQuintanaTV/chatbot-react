@@ -224,6 +224,8 @@ export function Sidebar({ onShowShortcuts }) {
   const { sidebarState, toggleSidebar, closeSidebar, isMobile } = useSidebar();
   const { isReadOnly } = useReadOnly();
   const navigate = useNavigate();
+  const { resolvedTheme } = useTheme();
+  const themeBg = resolvedTheme ? `hsl(${resolvedTheme.variables['--background']})` : undefined;
   const [chatsOpen, setChatsOpen] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
 
@@ -308,6 +310,7 @@ export function Sidebar({ onShowShortcuts }) {
           ${isCollapsed ? 'w-16' : 'w-64'}
           ${isMobile && isCollapsed ? '-translate-x-full' : 'translate-x-0'}
         `}
+        style={themeBg ? { backgroundColor: themeBg } : undefined}
       >
       <div className="flex flex-col h-full">
         {/* Header with Logo/Toggle */}
@@ -385,7 +388,7 @@ export function Sidebar({ onShowShortcuts }) {
                 )}
 
                 {/* Chat List */}
-                <div className="flex-1 overflow-y-auto min-h-0 bg-background">
+                <div className="flex-1 overflow-y-auto min-h-0 bg-background" style={themeBg ? { backgroundColor: themeBg } : undefined}>
                   <ChatList onChatSelect={handleChatSelect} showArchived={showArchived} />
                 </div>
               </CollapsibleContent>
