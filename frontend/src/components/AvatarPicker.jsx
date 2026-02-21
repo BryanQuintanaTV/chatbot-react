@@ -20,14 +20,22 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
   const { uploadAvatar } = useAuth();
   const [open, setOpen] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || null);
+  const [pendingFile, setPendingFile] = useState(null);
+  const [pendingPreviewUrl, setPendingPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handlePredefinedSelect = (avatarId) => {
+    // Clear any pending file when switching to predefined
+    if (pendingPreviewUrl) {
+      URL.revokeObjectURL(pendingPreviewUrl);
+      setPendingPreviewUrl(null);
+    }
+    setPendingFile(null);
     setSelectedAvatar(avatarId);
   };
 
-  const handleFileSelect = async (event) => {
+  const handleFileSelect = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -35,59 +43,82 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
       notify.error({ title: t('settings.invalidImageType') });
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       notify.error({ title: t('settings.imageTooLarge') });
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
-    // Show a local preview immediately while uploading
+    // Revoke previous preview if any
+    if (pendingPreviewUrl) {
+      URL.revokeObjectURL(pendingPreviewUrl);
+    }
+
+    // Show local preview — actual upload happens on Save
     const previewUrl = URL.createObjectURL(file);
+    setPendingFile(file);
+    setPendingPreviewUrl(previewUrl);
     setSelectedAvatar(previewUrl);
-    setUploading(true);
 
-    try {
-      // Upload to MinIO via the backend endpoint
-      // The browser sets Content-Type multipart/form-data with the correct boundary
-      const updatedUser = await uploadAvatar(file);
+    // Reset input so the same file can be re-selected if needed
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
-      // Replace the blob preview with the real MinIO URL from the response
-      URL.revokeObjectURL(previewUrl);
-      setSelectedAvatar(updatedUser.avatar);
-      notify.success({ title: t('settings.imageUploadSuccess') });
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
-      URL.revokeObjectURL(previewUrl);
-      setSelectedAvatar(null);
+  const handleSave = async () => {
+    if (pendingFile) {
+      // Upload the pending file now
+      setUploading(true);
+      try {
+        const updatedUser = await uploadAvatar(pendingFile);
+        URL.revokeObjectURL(pendingPreviewUrl);
+        setPendingPreviewUrl(null);
+        setPendingFile(null);
+        setSelectedAvatar(updatedUser.avatar);
+        notify.success({ title: t('settings.imageUploadSuccess') });
+        setOpen(false);
+      } catch (error) {
+        console.error('Error uploading avatar:', error);
+        URL.revokeObjectURL(pendingPreviewUrl);
+        setPendingPreviewUrl(null);
+        setPendingFile(null);
+        setSelectedAvatar(user?.avatar || null);
 
-      if (error.code === 'INVALID_FILE_TYPE') {
-        notify.error({ title: t('settings.invalidImageType') });
-      } else if (error.code === 'FILE_TOO_LARGE') {
-        notify.error({ title: t('settings.imageTooLarge') });
-      } else {
-        notify.error({ title: t('settings.imageUploadError') });
+        if (error.code === 'INVALID_FILE_TYPE') {
+          notify.error({ title: t('settings.invalidImageType') });
+        } else if (error.code === 'FILE_TOO_LARGE') {
+          notify.error({ title: t('settings.imageTooLarge') });
+        } else {
+          notify.error({ title: t('settings.imageUploadError') });
+        }
+      } finally {
+        setUploading(false);
       }
-    } finally {
-      setUploading(false);
-      // Reset input so the same file can be re-selected after an error
-      if (fileInputRef.current) fileInputRef.current.value = '';
+    } else {
+      // Predefined avatar — persisted via profile update in parent
+      if (selectedAvatar && !selectedAvatar.startsWith('http')) {
+        onAvatarChange(selectedAvatar);
+      }
+      setOpen(false);
     }
   };
 
-  const handleSave = () => {
-    // File uploads are already persisted to MinIO and the user state updated in context.
-    // Only call onAvatarChange for predefined avatar selections.
-    if (!selectedAvatar || !selectedAvatar.startsWith('http')) {
-      onAvatarChange(selectedAvatar);
+  const handleCancel = () => {
+    if (pendingPreviewUrl) {
+      URL.revokeObjectURL(pendingPreviewUrl);
+      setPendingPreviewUrl(null);
     }
+    setPendingFile(null);
+    setSelectedAvatar(user?.avatar || null);
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleCancel(); else setOpen(true); }}>
       <DialogTrigger asChild>
         {children || (
           <Button variant="outline" size="sm">
@@ -112,7 +143,7 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleFileSelect}
                 className="hidden"
               />
@@ -123,9 +154,12 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
                 className="w-full"
               >
                 <Upload className="h-4 w-4 mr-2" />
-                {uploading ? t('common.uploading') : t('settings.uploadImage')}
+                {t('settings.uploadImage')}
               </Button>
             </div>
+            {pendingFile && (
+              <p className="mt-2 text-xs text-muted-foreground">{t('settings.imagePendingSave')}</p>
+            )}
             {selectedAvatar && (selectedAvatar.startsWith('blob:') || selectedAvatar.startsWith('http')) && (
               <div className="mt-3 flex items-center gap-2">
                 <Avatar className="h-16 w-16">
@@ -167,11 +201,11 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="outline" onClick={handleCancel} disabled={uploading}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={handleSave}>
-            {t('common.save')}
+          <Button onClick={handleSave} disabled={uploading}>
+            {uploading ? t('common.uploading') : t('common.save')}
           </Button>
         </div>
       </DialogContent>

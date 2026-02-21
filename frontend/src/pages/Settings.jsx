@@ -23,9 +23,9 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sidebar } from '@/components/Sidebar';
 import { AvatarPicker } from '@/components/AvatarPicker';
-import { getTecnmCareers, SCHOOL_NAME, LANGUAGES } from '@/lib/constants';
+import { getTecnmCareers, SCHOOL_NAME, LANGUAGES, isVacationPeriod } from '@/lib/constants';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
-import { ArrowLeft, AlertCircle, Lock, Check, Monitor, User, Palette } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Lock, Check, Monitor, User, Palette, GraduationCap } from 'lucide-react';
 import { notify } from '@/lib/notify';
 import logo from '@/assets/images/itch_II_logo.png';
 
@@ -52,6 +52,12 @@ export function Settings() {
     newPassword: '',
     confirmPassword: '',
   });
+
+  // Academic fields (semester/career) are locked when the profile is already
+  // complete — students may only update them during vacation periods to confirm
+  // whether they advanced a semester or changed majors.
+  const profileComplete = !!(user?.semester && user?.career);
+  const canEditAcademic = !profileComplete || isVacationPeriod();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -281,19 +287,48 @@ export function Settings() {
                         <p className="text-xs text-muted-foreground">{t('settings.emailReadonly')}</p>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="semester">{t('settings.semester')}</Label>
-                        <Input id="semester" name="semester" type="number" min="1" max="12" placeholder={t('settings.semesterPlaceholder')} value={formData.semester} onChange={handleChange} />
+                        <Label htmlFor="semester" className="flex items-center gap-1.5">
+                          {t('settings.semester')}
+                          {!canEditAcademic && <Lock className="h-3 w-3 text-muted-foreground" />}
+                        </Label>
+                        <Input
+                          id="semester"
+                          name="semester"
+                          type="number"
+                          min="1"
+                          max="12"
+                          placeholder={t('settings.semesterPlaceholder')}
+                          value={formData.semester}
+                          onChange={handleChange}
+                          disabled={!canEditAcademic}
+                          className={!canEditAcademic ? 'bg-muted cursor-not-allowed' : ''}
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="career">{t('settings.career')}</Label>
-                        <Select value={formData.career} onValueChange={handleCareerChange}>
-                          <SelectTrigger><SelectValue placeholder={t('settings.careerPlaceholder')} /></SelectTrigger>
+                        <Label htmlFor="career" className="flex items-center gap-1.5">
+                          {t('settings.career')}
+                          {!canEditAcademic && <Lock className="h-3 w-3 text-muted-foreground" />}
+                        </Label>
+                        <Select
+                          value={formData.career}
+                          onValueChange={handleCareerChange}
+                          disabled={!canEditAcademic}
+                        >
+                          <SelectTrigger className={!canEditAcademic ? 'bg-muted cursor-not-allowed' : ''}>
+                            <SelectValue placeholder={t('settings.careerPlaceholder')} />
+                          </SelectTrigger>
                           <SelectContent>
                             {getTecnmCareers(t).map((career) => (
                               <SelectItem key={career.value} value={career.value}>{career.label}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
+                        {!canEditAcademic && (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <GraduationCap className="h-3 w-3" />
+                            {t('settings.academicFieldsLocked')}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label>{t('settings.institution')}</Label>
