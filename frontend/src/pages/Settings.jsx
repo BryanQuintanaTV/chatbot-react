@@ -68,10 +68,10 @@ export function Settings() {
   };
 
   const changeLanguage = (lng) => {
-    const title = t('settings.languageChanged');
     const label = LANGUAGES.find(l => l.value === lng)?.label || lng;
     i18n.changeLanguage(lng);
     localStorage.setItem('language', lng);
+    const title = t('settings.languageChanged');
     notify.info({ title, description: label });
   };
 
