@@ -13,9 +13,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PREDEFINED_AVATARS, getUserInitials } from '@/lib/avatars';
 import { Camera, Upload, Check } from 'lucide-react';
 import { notify } from '@/lib/notify';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function AvatarPicker({ user, onAvatarChange, children }) {
   const { t } = useTranslation();
+  const { uploadAvatar } = useAuth();
   const [open, setOpen] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || null);
   const [uploading, setUploading] = useState(false);
@@ -29,8 +31,9 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
+    // Validate file type (jpg, jpeg, png, webp, gif — matches backend)
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
       notify.error({ title: t('settings.invalidImageType') });
       return;
     }
@@ -41,31 +44,45 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
       return;
     }
 
+    // Show a local preview immediately while uploading
+    const previewUrl = URL.createObjectURL(file);
+    setSelectedAvatar(previewUrl);
     setUploading(true);
+
     try {
-      // TODO: Replace with actual MinIO upload when backend is ready
-      // For now, create a local preview URL
-      const previewUrl = URL.createObjectURL(file);
+      // Upload to MinIO via the backend endpoint
+      // The browser sets Content-Type multipart/form-data with the correct boundary
+      const updatedUser = await uploadAvatar(file);
 
-      // In production, this would be:
-      // const formData = new FormData();
-      // formData.append('avatar', file);
-      // const response = await api.uploadAvatar(formData);
-      // setSelectedAvatar(response.url);
-
-      // For now, store the preview URL
-      setSelectedAvatar(previewUrl);
+      // Replace the blob preview with the real MinIO URL from the response
+      URL.revokeObjectURL(previewUrl);
+      setSelectedAvatar(updatedUser.avatar);
       notify.success({ title: t('settings.imageUploadSuccess') });
     } catch (error) {
       console.error('Error uploading avatar:', error);
-      notify.error({ title: t('settings.imageUploadError') });
+      URL.revokeObjectURL(previewUrl);
+      setSelectedAvatar(null);
+
+      if (error.code === 'INVALID_FILE_TYPE') {
+        notify.error({ title: t('settings.invalidImageType') });
+      } else if (error.code === 'FILE_TOO_LARGE') {
+        notify.error({ title: t('settings.imageTooLarge') });
+      } else {
+        notify.error({ title: t('settings.imageUploadError') });
+      }
     } finally {
       setUploading(false);
+      // Reset input so the same file can be re-selected after an error
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
   const handleSave = () => {
-    onAvatarChange(selectedAvatar);
+    // File uploads are already persisted to MinIO and the user state updated in context.
+    // Only call onAvatarChange for predefined avatar selections.
+    if (!selectedAvatar || !selectedAvatar.startsWith('http')) {
+      onAvatarChange(selectedAvatar);
+    }
     setOpen(false);
   };
 
@@ -109,7 +126,7 @@ export function AvatarPicker({ user, onAvatarChange, children }) {
                 {uploading ? t('common.uploading') : t('settings.uploadImage')}
               </Button>
             </div>
-            {selectedAvatar && selectedAvatar.startsWith('blob:') && (
+            {selectedAvatar && (selectedAvatar.startsWith('blob:') || selectedAvatar.startsWith('http')) && (
               <div className="mt-3 flex items-center gap-2">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={selectedAvatar} />
