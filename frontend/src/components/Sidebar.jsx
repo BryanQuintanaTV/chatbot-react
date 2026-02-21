@@ -385,7 +385,7 @@ export function Sidebar({ onShowShortcuts }) {
                 )}
 
                 {/* Chat List */}
-                <div className="flex-1 overflow-y-auto min-h-0">
+                <div className="flex-1 overflow-y-auto min-h-0 bg-background">
                   <ChatList onChatSelect={handleChatSelect} showArchived={showArchived} />
                 </div>
               </CollapsibleContent>

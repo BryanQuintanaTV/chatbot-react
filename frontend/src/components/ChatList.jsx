@@ -323,9 +323,11 @@ export function ChatList({ onChatSelect, showArchived = false }) {
         className={`group relative flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
           chat.id === activeChat?.id
             ? 'bg-muted border-l-2 border-l-primary'
-            : `hover:bg-muted/50 border-l-2 border-l-transparent${!chat.bgColor ? ' bg-background' : ''}`
+            : 'hover:!bg-muted/50 border-l-2 border-l-transparent'
         }`}
-        style={chat.id !== activeChat?.id && chat.bgColor ? { backgroundColor: chat.bgColor } : undefined}
+        style={chat.id !== activeChat?.id ? {
+          backgroundColor: chat.bgColor || 'hsl(var(--background))'
+        } : undefined}
         title={preview}
       >
         {/* Chat Icon */}
@@ -419,9 +421,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
   return (
     <>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-background">
         {/* Chat List */}
-        <div className="flex-1 overflow-y-auto space-y-1">
+        <div className="flex-1 overflow-y-auto space-y-1 bg-background">
           {/* Pinned Chats */}
           {organizedChats.pinned.length > 0 && (
             <div className="mb-2">
