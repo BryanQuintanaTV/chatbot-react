@@ -107,6 +107,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const uploadAvatar = async (file) => {
+    if (!token) {
+      throw new Error('No authentication token');
+    }
+
+    try {
+      const updatedUser = await authAPI.uploadAvatar(token, file);
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return updatedUser;
+    } catch (error) {
+      console.error('Upload avatar error:', error);
+      throw error;
+    }
+  };
+
   const changePassword = async (currentPassword, newPassword) => {
     if (!token) {
       throw new Error('No authentication token');
@@ -143,6 +159,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUser,
+    uploadAvatar,
     changePassword,
     deleteAccount,
     loading,

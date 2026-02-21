@@ -178,6 +178,20 @@ const dummyAuth = {
     DUMMY_USERS.splice(userIndex, 1);
     return { success: true };
   },
+
+  async uploadAvatar(token, file) {
+    await simulateDelay();
+    const userId = token.replace('dummy-jwt-token-', '');
+    const userIndex = DUMMY_USERS.findIndex(u => u.id === userId);
+    if (userIndex === -1) {
+      throw new Error('User not found');
+    }
+    // Simulate a MinIO URL response
+    const fakeUrl = `https://chatbots3.bryanquintana.com/avatars/avatars/dummy-${Date.now()}.jpg`;
+    DUMMY_USERS[userIndex].avatar = fakeUrl;
+    const { password: _, ...userWithoutPassword } = DUMMY_USERS[userIndex];
+    return userWithoutPassword;
+  },
 };
 
 // ============================================================================
@@ -376,6 +390,30 @@ const realAuth = {
     if (!response.ok) {
       throw new Error('Delete account failed');
     }
+    return await response.json();
+  },
+
+  async uploadAvatar(token, file) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    // Do NOT set Content-Type — the browser sets it automatically
+    // with the correct multipart/form-data boundary
+    const response = await fetch(`${API_BASE_URL}/auth/avatar`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      const error = new Error(errorData.code || 'Upload failed');
+      error.code = errorData.code;
+      throw error;
+    }
+
     return await response.json();
   },
 };
