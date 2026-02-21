@@ -50,6 +50,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { notify } from '@/lib/notify';
+import { useTheme } from '@/components/theme-provider';
 
 // Icon mapping
 const ICON_MAP = {
@@ -95,6 +96,8 @@ export function ChatList({ onChatSelect, showArchived = false }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [collapsedCategories, setCollapsedCategories] = useState({});
+  const { resolvedTheme } = useTheme();
+  const themeBg = resolvedTheme ? `hsl(${resolvedTheme.variables['--background']})` : undefined;
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const longPressTimerRef = useRef(null);
 
@@ -325,7 +328,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
             ? 'bg-muted border-l-2 border-l-primary'
             : 'hover:bg-muted/50 border-l-2 border-l-transparent'
         }`}
-        style={chat.id !== activeChat?.id && chat.bgColor ? { backgroundColor: chat.bgColor } : undefined}
+        style={chat.id !== activeChat?.id ? { backgroundColor: chat.bgColor || themeBg } : undefined}
         title={preview}
       >
         {/* Chat Icon */}
