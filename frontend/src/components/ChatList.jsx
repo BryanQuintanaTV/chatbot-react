@@ -323,9 +323,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
         className={`group relative flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
           chat.id === activeChat?.id
             ? 'bg-muted border-l-2 border-l-primary'
-            : 'hover:bg-muted/50 border-l-2 border-l-transparent'
+            : `hover:bg-muted/50 border-l-2 border-l-transparent${!chat.bgColor ? ' bg-background' : ''}`
         }`}
-        style={{ backgroundColor: chat.id === activeChat?.id ? undefined : chat.bgColor }}
+        style={chat.id !== activeChat?.id && chat.bgColor ? { backgroundColor: chat.bgColor } : undefined}
         title={preview}
       >
         {/* Chat Icon */}
@@ -365,7 +365,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
             size="icon"
             className="h-8 w-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
           >
-            <MoreVertical className="h-4 w-4" />
+            <MoreVertical className="h-4 w-4" style={{ color: chat.color }} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
