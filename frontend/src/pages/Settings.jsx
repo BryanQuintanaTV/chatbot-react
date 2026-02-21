@@ -26,7 +26,9 @@ import { AvatarPicker } from '@/components/AvatarPicker';
 import { getTecnmCareers, SCHOOL_NAME, LANGUAGES, isVacationPeriod } from '@/lib/constants';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
 import { ArrowLeft, AlertCircle, Lock, Check, Monitor, User, Palette, GraduationCap } from 'lucide-react';
-import { notify } from '@/lib/notify';
+import { notify, getPosition } from '@/lib/notify';
+import { toast } from 'sonner';
+import { LanguageChangeToast } from '@/components/LanguageChangeToast';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function Settings() {
@@ -68,12 +70,13 @@ export function Settings() {
   };
 
   const changeLanguage = (lng) => {
-    const label = LANGUAGES.find(l => l.value === lng)?.label || lng;
+    const fromLang = i18n.language;
     i18n.changeLanguage(lng);
     localStorage.setItem('language', lng);
-    // Use i18n.t() directly — the hook's `t` closure still holds the old language
-    // until the next render, but i18n.t() reflects the new language immediately.
-    notify.info({ title: i18n.t('settings.languageChanged'), description: label });
+    toast.custom(
+      () => <LanguageChangeToast fromLang={fromLang} toLang={lng} />,
+      { position: getPosition(), duration: 3500 }
+    );
   };
 
   const handleSubmit = async (e) => {
