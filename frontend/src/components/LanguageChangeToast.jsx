@@ -1,91 +1,50 @@
 import { useEffect, useState } from 'react';
 
-const FLAG_DATA = {
-  en: { flag: '🇺🇸', label: 'English' },
-  es: { flag: '🇲🇽', label: 'Español' },
+const FLAGS = {
+  en: '🇺🇸',
+  es: '🇲🇽',
 };
 
-export function LanguageChangeToast({ fromLang, toLang }) {
+/** Flag that flips 3D from `fromLang` to `toLang` — used as sileo toast icon. */
+export function LanguageFlagFlip({ fromLang, toLang }) {
   const [flipped, setFlipped] = useState(false);
-  const [textVisible, setTextVisible] = useState(false);
 
-  const from = FLAG_DATA[fromLang] || { flag: '🌐', label: fromLang };
-  const to = FLAG_DATA[toLang] || { flag: '🌐', label: toLang };
+  const fromFlag = FLAGS[fromLang] || '🌐';
+  const toFlag = FLAGS[toLang] || '🌐';
 
   useEffect(() => {
-    const t1 = setTimeout(() => setFlipped(true), 250);
-    const t2 = setTimeout(() => setTextVisible(true), 850);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const t = setTimeout(() => setFlipped(true), 300);
+    return () => clearTimeout(t);
   }, []);
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 12,
-      padding: '10px 14px',
-      background: 'hsl(var(--background))',
-      border: '1px solid hsl(var(--border))',
-      borderRadius: 10,
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-      minWidth: 180,
-      fontFamily: 'inherit',
-    }}>
-
-      {/* 3D flip card */}
-      <div style={{ perspective: '500px', width: 42, height: 32, flexShrink: 0 }}>
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          transformStyle: 'preserve-3d',
-          transition: 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)',
-          transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-        }}>
-          {/* Front — from flag */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 28,
-          }}>
-            {from.flag}
-          </div>
-          {/* Back — to flag */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 28,
-          }}>
-            {to.flag}
-          </div>
-        </div>
-      </div>
-
-      {/* Text */}
+    <div style={{ perspective: '200px', width: 22, height: 22, flexShrink: 0 }}>
       <div style={{
-        opacity: textVisible ? 1 : 0,
-        transform: textVisible ? 'translateX(0)' : 'translateX(-8px)',
-        transition: 'opacity 0.3s ease, transform 0.3s ease',
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        transformStyle: 'preserve-3d',
+        transition: 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)',
+        transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
       }}>
         <div style={{
-          fontWeight: 600,
-          fontSize: 14,
-          color: 'hsl(var(--foreground))',
-          lineHeight: 1.2,
+          position: 'absolute', inset: 0,
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, lineHeight: 1,
         }}>
-          {to.label}
+          {fromFlag}
         </div>
         <div style={{
-          fontSize: 11,
-          color: 'hsl(var(--muted-foreground))',
-          marginTop: 1,
+          position: 'absolute', inset: 0,
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          transform: 'rotateY(180deg)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, lineHeight: 1,
         }}>
-          {to.flag} Idioma cambiado
+          {toFlag}
         </div>
       </div>
     </div>

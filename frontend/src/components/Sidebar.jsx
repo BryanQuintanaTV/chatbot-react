@@ -9,9 +9,8 @@ import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LANGUAGES } from '@/lib/constants';
-import { notify, getPosition } from '@/lib/notify';
-import { toast } from 'sonner';
-import { LanguageChangeToast } from '@/components/LanguageChangeToast';
+import { notify } from '@/lib/notify';
+import { LanguageFlagFlip } from '@/components/LanguageChangeToast';
 import {
   Popover,
   PopoverContent,
@@ -244,10 +243,12 @@ export function Sidebar({ onShowShortcuts }) {
     const nextLanguage = LANGUAGES[nextIndex].value;
     i18n.changeLanguage(nextLanguage);
     localStorage.setItem('language', nextLanguage);
-    toast.custom(
-      () => <LanguageChangeToast fromLang={fromLang} toLang={nextLanguage} />,
-      { position: getPosition(), duration: 3500 }
-    );
+    const label = LANGUAGES[nextIndex]?.label || nextLanguage;
+    notify.show({
+      icon: <LanguageFlagFlip fromLang={fromLang} toLang={nextLanguage} />,
+      title: label,
+      duration: 3500,
+    });
   };
 
   const handleNewChat = () => {
