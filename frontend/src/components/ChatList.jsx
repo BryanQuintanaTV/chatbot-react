@@ -323,11 +323,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
         className={`group relative flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
           chat.id === activeChat?.id
             ? 'bg-muted border-l-2 border-l-primary'
-            : 'hover:!bg-muted/50 border-l-2 border-l-transparent'
+            : 'hover:bg-muted/50 border-l-2 border-l-transparent'
         }`}
-        style={chat.id !== activeChat?.id ? {
-          backgroundColor: chat.bgColor || 'hsl(var(--background))'
-        } : undefined}
+        style={chat.id !== activeChat?.id && chat.bgColor ? { backgroundColor: chat.bgColor } : undefined}
         title={preview}
       >
         {/* Chat Icon */}
