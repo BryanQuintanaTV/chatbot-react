@@ -71,8 +71,9 @@ export function Settings() {
     const label = LANGUAGES.find(l => l.value === lng)?.label || lng;
     i18n.changeLanguage(lng);
     localStorage.setItem('language', lng);
-    const title = t('settings.languageChanged');
-    notify.info({ title, description: label });
+    // Use i18n.t() directly — the hook's `t` closure still holds the old language
+    // until the next render, but i18n.t() reflects the new language immediately.
+    notify.info({ title: i18n.t('settings.languageChanged'), description: label });
   };
 
   const handleSubmit = async (e) => {
