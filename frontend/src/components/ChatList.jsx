@@ -422,9 +422,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
   return (
     <>
-      <div className="flex flex-col h-full bg-background">
+      <div className="flex flex-col h-full bg-background" style={themeBg ? { backgroundColor: themeBg } : undefined}>
         {/* Chat List */}
-        <div className="flex-1 overflow-y-auto space-y-1 bg-background">
+        <div className="flex-1 overflow-y-auto space-y-1 bg-background" style={themeBg ? { backgroundColor: themeBg } : undefined}>
           {/* Pinned Chats */}
           {organizedChats.pinned.length > 0 && (
             <div className="mb-2">
