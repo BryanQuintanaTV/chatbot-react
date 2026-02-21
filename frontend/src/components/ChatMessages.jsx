@@ -144,7 +144,7 @@ function UserMessage({ content, user, isHighlighted, idx, timestamp }) {
         </div>
         <MessageActions className="mr-9 flex items-center gap-1">
           <MessageTimestamp timestamp={timestamp} t={t} />
-          <span className="opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+          <span className="opacity-100 transition-opacity duration-150 sm:opacity-0 sm:group-hover:opacity-100">
             <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
               <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={handleCopy}>
                 {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
@@ -256,7 +256,7 @@ function AssistantMessage({
 
                   <span className={cn(
                     'flex items-center gap-0 transition-opacity duration-150',
-                    isLastMessage ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    isLastMessage ? 'opacity-100' : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
                   )}>
                     <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
                       <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={handleCopy}>

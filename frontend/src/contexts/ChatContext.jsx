@@ -5,6 +5,13 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const ChatContext = createContext();
 
+// Normalize bgColor: only accept the current rgba(r,g,b,0.1) format.
+// Old data may have stored opaque hex/rgb values (e.g. #DBEAFE) — reset those to null.
+const normalizeBgColor = (bgColor) => {
+  if (!bgColor) return null;
+  return /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\.1\s*\)$/.test(bgColor) ? bgColor : null;
+};
+
 export function ChatProvider({ children }) {
   const { isAuthenticated, token } = useAuth();
   const [chats, setChats] = useState(() => {
@@ -16,6 +23,7 @@ export function ChatProvider({ children }) {
       return parsedChats.map(chat => ({
         ...chat,
         modelUsed: chat.modelUsed || 'auto', // Default to 'auto' for old chats
+        bgColor: normalizeBgColor(chat.bgColor), // Normalize old opaque bgColor values
       }));
     }
     // Create default first chat
@@ -160,7 +168,7 @@ export function ChatProvider({ children }) {
                 category: chat.category || 'uncategorized',
                 pinned: chat.pinned === true,
                 archived: chat.archived === true,
-                bgColor: chat.bgColor || null,
+                bgColor: normalizeBgColor(chat.bgColor),
                 modelUsed: chat.modelUsed || 'auto',
                 messageCount: chat.messageCount || 0,
                 isLocal: false, // Backend chats can sync
@@ -269,7 +277,7 @@ export function ChatProvider({ children }) {
           category: backendChat.category || 'uncategorized',
           pinned: backendChat.pinned === true,
           archived: backendChat.archived === true,
-          bgColor: backendChat.bgColor || null,
+          bgColor: normalizeBgColor(backendChat.bgColor),
           modelUsed: backendChat.modelUsed || selectedModel,
           messageCount: 0,
           isLocal: false, // Backend chat - can sync

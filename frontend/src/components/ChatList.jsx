@@ -50,6 +50,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { notify } from '@/lib/notify';
+import { useTheme } from '@/components/theme-provider';
 
 // Icon mapping
 const ICON_MAP = {
@@ -95,6 +96,8 @@ export function ChatList({ onChatSelect, showArchived = false }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [collapsedCategories, setCollapsedCategories] = useState({});
+  const { resolvedTheme } = useTheme();
+  const themeBg = resolvedTheme ? `hsl(${resolvedTheme.variables['--background']})` : undefined;
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const longPressTimerRef = useRef(null);
 
@@ -325,7 +328,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
             ? 'bg-muted border-l-2 border-l-primary'
             : 'hover:bg-muted/50 border-l-2 border-l-transparent'
         }`}
-        style={{ backgroundColor: chat.id === activeChat?.id ? undefined : chat.bgColor }}
+        style={chat.id !== activeChat?.id && chat.bgColor ? { backgroundColor: chat.bgColor } : undefined}
         title={preview}
       >
         {/* Chat Icon */}
@@ -365,7 +368,7 @@ export function ChatList({ onChatSelect, showArchived = false }) {
             size="icon"
             className="h-8 w-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
           >
-            <MoreVertical className="h-4 w-4" />
+            <MoreVertical className="h-4 w-4" style={{ color: chat.color }} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -419,9 +422,9 @@ export function ChatList({ onChatSelect, showArchived = false }) {
 
   return (
     <>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-background" style={themeBg ? { backgroundColor: themeBg } : undefined}>
         {/* Chat List */}
-        <div className="flex-1 overflow-y-auto space-y-1">
+        <div className="flex-1 overflow-y-auto space-y-1 bg-background" style={themeBg ? { backgroundColor: themeBg } : undefined}>
           {/* Pinned Chats */}
           {organizedChats.pinned.length > 0 && (
             <div className="mb-2">
