@@ -237,10 +237,10 @@ export function Sidebar({ onShowShortcuts }) {
     const currentIndex = LANGUAGES.findIndex(lang => lang.value === i18n.language);
     const nextIndex = (currentIndex + 1) % LANGUAGES.length;
     const nextLanguage = LANGUAGES[nextIndex].value;
+    const label = LANGUAGES[nextIndex]?.label || nextLanguage;
     i18n.changeLanguage(nextLanguage);
     localStorage.setItem('language', nextLanguage);
-    const label = LANGUAGES[nextIndex]?.label || nextLanguage;
-    notify.info({ title: t('settings.languageChanged') || 'Language changed', description: label });
+    notify.info({ title: i18n.t('settings.languageChanged'), description: label });
   };
 
   const handleNewChat = () => {
