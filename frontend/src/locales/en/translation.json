@@ -122,6 +122,8 @@
     "imageTooLarge": "Image is too large. Maximum 5MB",
     "imageUploadSuccess": "Image uploaded successfully",
     "imageUploadError": "Error uploading image",
+    "imagePendingSave": "The image will be uploaded when you save.",
+    "academicFieldsLocked": "You can only update your semester and major during vacation periods to confirm your academic progress.",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
     "confirmNewPassword": "Confirm New Password",

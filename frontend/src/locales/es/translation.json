@@ -122,6 +122,8 @@
     "imageTooLarge": "La imagen es demasiado grande. Máximo 5MB",
     "imageUploadSuccess": "Imagen cargada correctamente",
     "imageUploadError": "Error al cargar la imagen",
+    "imagePendingSave": "La imagen se subirá al guardar.",
+    "academicFieldsLocked": "Solo puedes modificar semestre y carrera durante el periodo vacacional para confirmar tu avance académico.",
     "currentPassword": "Contraseña Actual",
     "newPassword": "Nueva Contraseña",
     "confirmNewPassword": "Confirmar Nueva Contraseña",
