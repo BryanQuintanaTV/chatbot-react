@@ -16,7 +16,6 @@ function Chatbot({ headerActions }) {
   const { t } = useTranslation();
   const { activeChat, updateChatMessages, selectedModel } = useChat();
   const { token } = useAuth();
-  const VITE_API_URL = import.meta.env.VITE_VERSION;
   const [messages, setMessages] = useImmer(activeChat?.messages || []);
   const [newMessage, setNewMessage] = useState('');
   const [highlightedMessageIndex, setHighlightedMessageIndex] = useState(null);

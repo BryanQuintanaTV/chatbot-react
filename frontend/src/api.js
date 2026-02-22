@@ -1,7 +1,9 @@
 const BASE_URL = import.meta.env.VITE_API_URL;
+// Derive the /api/v1 base by stripping the trailing '/chat' segment
+const API_V1_BASE = BASE_URL ? BASE_URL.replace(/\/chat\/?$/, '') : '';
 
 async function getAvailableModels() {
-  const res = await fetch(`https://apichat.bryanquintana.com/api/v1/models/available/`, {
+  const res = await fetch(`${API_V1_BASE}/models/available/`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -26,7 +28,7 @@ async function sendChatMessage(chatId, message, model = 'auto', token = null) {
     body.conversationId = chatId;
   }
 
-  const res = await fetch(`https://apichat.bryanquintana.com` + `/api/v1/chat/`, {
+  const res = await fetch(`${BASE_URL}/`, {
     method: 'POST',
     headers,
     body: JSON.stringify(body)
@@ -43,7 +45,7 @@ async function sendChatMessage(chatId, message, model = 'auto', token = null) {
 }
 
 async function sendReport(data) {
-  const res = await fetch(`https://apichat.bryanquintana.com/api/v1/report/`, {
+  const res = await fetch(`${API_V1_BASE}/report/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
