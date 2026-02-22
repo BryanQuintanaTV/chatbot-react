@@ -80,7 +80,7 @@ function AppContent() {
       <SileoToaster position="top-right" />
       <OfflineDetector />
       {/* Banners stacked from top */}
-      <ReadOnlyBanner />
+      {readOnlyMode && <ReadOnlyBanner />}
       <AlertBanners isReadOnly={readOnlyMode} />
 
       <ChatProvider>
