@@ -164,9 +164,8 @@
 
 /* #17 — Language-change toast: widen sileo's badge to fit the flag sweep animation */
 [data-sileo-badge].sileo-lang-badge {
-  width: 220px;
+  width: 112px;
   justify-content: flex-start;
   padding: 0;
   overflow: visible;
-  border-radius: 4px;
 }

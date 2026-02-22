@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { LANGUAGES } from '../lib/constants';
 
 // Eagerly load all SVG flag files from assets/images at build time (Vite).
-// To support a new language, drop its <code>.svg into that folder and add
-// the corresponding entry to LANGUAGES in lib/constants.js.
+// To support a new language, drop its <flag>.svg there and add the entry to LANGUAGES.
 const flagModules = import.meta.glob('../assets/images/*.svg', { eager: true });
 
 function getFlagSrc(flagCode) {
@@ -11,21 +10,22 @@ function getFlagSrc(flagCode) {
   return flagModules[`../assets/images/${flagCode}.svg`]?.default ?? null;
 }
 
-const DURATION = 320; // ms per half of the animation
-const HALF_X   = 60;  // px from start to centre
-const END_X    = 120; // px from start to final resting place
+const DURATION  = 350; // ms per half of the animation
+const CIRCLE_D  = 30;  // circle diameter in px
+const END_X     = 78;  // px: circle's final left-edge position (text lives to its left)
+const HALF_X    = Math.round(END_X / 2);
 
 /**
  * Language-change toast animation.
  *
  * Timeline:
- *  step 0 – flag sitting on the LEFT  (old language)
- *  step 1 – slides to centre + rotates to 90° edge-on  (ease-in, DURATION ms)
- *  step 2 – image swaps to new flag, slides to RIGHT + rotates back to 0°  (ease-out, DURATION ms)
- *  step 3 – language name fades in beside the flag
+ *  step 0 – circle (old flag) sitting on the LEFT
+ *  step 1 – slides to centre + spins 180°  (ease-in, DURATION ms)
+ *  step 2 – image swaps at 180° (flag upside-down → invisible swap),
+ *            continues to RIGHT + finishes 360° spin  (ease-out, DURATION ms)
+ *  step 3 – language name fades in to the LEFT of the circle
  *
- * Dynamic: driven entirely by LANGUAGES[] in lib/constants.js and the SVG
- * files in assets/images/.  Adding a language requires no changes here.
+ * Dynamic: driven by LANGUAGES[] in lib/constants.js + SVGs in assets/images/.
  */
 export function LanguageFlagFlip({ fromLang, toLang }) {
   const [step, setStep] = useState(0);
@@ -38,79 +38,41 @@ export function LanguageFlagFlip({ fromLang, toLang }) {
   const label   = toCfg?.label ?? toLang;
 
   useEffect(() => {
-    const t1 = setTimeout(() => setStep(1), 80);                    // begin slide + spin
-    const t2 = setTimeout(() => setStep(2), 80 + DURATION);         // swap image, continue
+    const t1 = setTimeout(() => setStep(1), 80);                      // begin spin+slide
+    const t2 = setTimeout(() => setStep(2), 80 + DURATION);           // swap image, finish
     const t3 = setTimeout(() => setStep(3), 80 + DURATION * 2 + 60); // show label
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
-  // Show old flag until the swap point (step 2), then new flag
+  // Show old flag until the upside-down swap point, then new flag
   const flagSrc = step < 2 ? fromSrc : toSrc;
   const flagAlt = step < 2 ? (fromCfg?.label ?? fromLang) : label;
 
-  // Horizontal position
   const translateX = step === 0 ? 0 : step === 1 ? HALF_X : END_X;
+  // Full 360° spin: 0 → 180 (first half) → 360 (second half, after image swap)
+  const rotateZ    = step === 0 ? 0 : step === 1 ? 180 : 360;
 
-  // Y rotation: 0° → 90° (edge-on / invisible) → 0° (facing viewer again)
-  const rotateY = step === 1 ? 90 : 0;
-
-  // ease-in for the first half, ease-out for the second
   const easing     = step <= 1 ? 'ease-in' : 'ease-out';
   const transition = step === 0 ? 'none' : `transform ${DURATION}ms ${easing}`;
+
+  // Total container width: text area + gap (8px) + circle
+  const CONTAINER_W = END_X + CIRCLE_D;
 
   return (
     <div
       style={{
         position: 'relative',
-        width: '100%',
-        height: 24,
-        display: 'flex',
-        alignItems: 'center',
+        width: CONTAINER_W,
+        height: CIRCLE_D,
+        flexShrink: 0,
       }}
     >
-      {/* Flag: slides horizontally while flipping on the Y axis */}
+      {/* Language name: fades in on the LEFT once the flag arrives on the right */}
       <div
         style={{
           position: 'absolute',
           left: 0,
-          top: '50%',
-          marginTop: -10, // vertical-centre: flag height is 20px
-          transform: `translateX(${translateX}px)`,
-          transition,
-          willChange: 'transform',
-        }}
-      >
-        <div
-          style={{
-            transform: `perspective(200px) rotateY(${rotateY}deg)`,
-            transition,
-            willChange: 'transform',
-          }}
-        >
-          {flagSrc ? (
-            <img
-              src={flagSrc}
-              alt={flagAlt}
-              style={{
-                width: 28,
-                height: 20,
-                borderRadius: 2,
-                display: 'block',
-                objectFit: 'cover',
-              }}
-            />
-          ) : (
-            // Fallback if no SVG is found for this language
-            <span style={{ fontSize: 16, lineHeight: '20px', display: 'block' }}>🌐</span>
-          )}
-        </div>
-      </div>
-
-      {/* Language name: fades in once the flag arrives on the right */}
-      <div
-        style={{
-          position: 'absolute',
-          left: END_X + 28 + 8, // right edge of flag + 8px gap
+          width: END_X - 8, // fills the space left of the gap before the circle
           top: '50%',
           transform: 'translateY(-50%)',
           opacity: step >= 3 ? 1 : 0,
@@ -119,9 +81,49 @@ export function LanguageFlagFlip({ fromLang, toLang }) {
           fontWeight: 500,
           whiteSpace: 'nowrap',
           lineHeight: 1,
+          textAlign: 'right', // flush against the circle
+          color: 'currentColor',
         }}
       >
         {label}
+      </div>
+
+      {/* Flag circle: rolls from left (START) to right (END_X) with a full 360° Z-spin */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: '50%',
+          marginTop: -(CIRCLE_D / 2),
+          width: CIRCLE_D,
+          height: CIRCLE_D,
+          borderRadius: '50%',
+          overflow: 'hidden',
+          transform: `translateX(${translateX}px) rotateZ(${rotateZ}deg)`,
+          transition,
+          willChange: 'transform',
+        }}
+      >
+        {flagSrc ? (
+          <img
+            src={flagSrc}
+            alt={flagAlt}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          <span
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 16,
+            }}
+          >
+            🌐
+          </span>
+        )}
       </div>
     </div>
   );
