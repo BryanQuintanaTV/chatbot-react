@@ -82,7 +82,7 @@ export function LanguageFlagFlip({ fromLang, toLang }) {
           whiteSpace: 'nowrap',
           lineHeight: 1,
           textAlign: 'right', // flush against the circle
-          color: 'currentColor',
+          color: 'hsl(var(--foreground))',
         }}
       >
         {label}
@@ -99,6 +99,7 @@ export function LanguageFlagFlip({ fromLang, toLang }) {
           height: CIRCLE_D,
           borderRadius: '50%',
           overflow: 'hidden',
+          border: '1.5px solid rgba(0, 0, 0, 0.35)',
           transform: `translateX(${translateX}px) rotateZ(${rotateZ}deg)`,
           transition,
           willChange: 'transform',

@@ -168,8 +168,9 @@
   justify-content: flex-start;
   padding: 0;
   overflow: visible;
-  /* Reset sileo's state-tone colouring so the badge stays neutral (no green tint) */
+  /* Use the theme's muted surface so it's subtly different from the pill background */
+  background-color: hsl(var(--muted));
+  /* Reset sileo's state-tone variables: no green tint, always use theme foreground */
   --sileo-tone-bg: transparent !important;
-  --sileo-tone: currentColor !important;
-  background-color: transparent;
+  --sileo-tone: hsl(var(--foreground)) !important;
 }
