@@ -121,9 +121,9 @@ function SingleAlertBanner({ alert, topOffset, onDismiss }) {
   const { Icon } = styles;
 
   const message =
-    i18n.language === 'en' && alert.messageEn
-      ? alert.messageEn
-      : alert.messageEs || alert.messageEn || '';
+    i18n.language === 'en'
+      ? (alert.messageEn || alert.translations?.en || alert.messageEs || alert.translations?.es || '')
+      : (alert.messageEs || alert.translations?.es || alert.messageEn || alert.translations?.en || '');
 
   return (
     <div
