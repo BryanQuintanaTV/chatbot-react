@@ -324,7 +324,10 @@ export function Sidebar({ onShowShortcuts }) {
         {/* Header with Logo/Toggle */}
         <div className="h-16 flex items-center justify-between px-4 border-b">
           {isExpanded && (
-            <img src={logo} className="h-8" alt="logo" />
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <img src={logo} className="h-8 shrink-0" alt="logo" />
+              <span className="font-urbanist font-semibold text-sm text-foreground truncate">TecBot</span>
+            </div>
           )}
           <Button
             variant="ghost"
