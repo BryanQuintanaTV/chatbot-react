@@ -427,7 +427,7 @@ export function Sidebar({ onShowShortcuts }) {
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
-                  className={`${isCollapsed ? 'w-full px-0' : 'p-2 flex-1 justify-start'} h-auto`}
+                  className={`${isCollapsed ? 'w-full px-0' : 'pl-0 pr-2 py-1 flex-1 justify-start'} h-auto`}
                 >
                   {!isAuthenticated ? (
                     /* Guest avatar when not authenticated */
@@ -438,7 +438,7 @@ export function Sidebar({ onShowShortcuts }) {
                         </AvatarFallback>
                       </Avatar>
                       {isExpanded && (
-                        <div className="ml-2 flex-1 text-left overflow-hidden">
+                        <div className="ml-0.5 flex-1 text-left overflow-hidden">
                           <p className="text-sm font-medium text-foreground">{t('sidebar.menu')}</p>
                         </div>
                       )}
@@ -462,7 +462,7 @@ export function Sidebar({ onShowShortcuts }) {
                         )}
                       </Avatar>
                       {isExpanded && user && (
-                        <div className="ml-2 flex-1 text-left overflow-hidden">
+                        <div className="ml-0.5 flex-1 text-left overflow-hidden">
                           <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
                           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                         </div>

@@ -175,6 +175,7 @@ function AssistantMessage({
   const [copied, setCopied] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [isReported, setIsReported] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -256,7 +257,7 @@ function AssistantMessage({
 
                   <span className={cn(
                     'flex items-center gap-0 transition-opacity duration-150',
-                    isLastMessage ? 'opacity-100' : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
+                    isLastMessage || menuOpen ? 'opacity-100' : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
                   )}>
                     <MessageAction tooltip={copied ? t('export.copied') : t('export.copyClipboard')}>
                       <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={handleCopy}>
@@ -264,7 +265,7 @@ function AssistantMessage({
                       </Button>
                     </MessageAction>
 
-                    <DropdownMenu>
+                    <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
                       <MessageAction tooltip={t('chat.moreActions')}>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
