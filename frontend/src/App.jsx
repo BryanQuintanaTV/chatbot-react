@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
 import { ReadOnlyProvider } from '@/contexts/ReadOnlyContext';
+import { SystemConfigProvider, useSystemConfig } from '@/contexts/SystemConfigContext';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ChatPage } from '@/pages/ChatPage';
@@ -18,28 +19,83 @@ import { ServiceDownPage } from '@/pages/ServiceDownPage';
 import { AccountSuspendedPage } from '@/pages/AccountSuspendedPage';
 import { OfflineDetector } from '@/components/OfflineDetector';
 import { ReadOnlyBanner } from '@/components/ReadOnlyBanner';
+import { AlertBanners } from '@/components/AlertBanners';
 import { Toaster as SileoToaster } from 'sileo';
 import { useBackendHealth } from '@/hooks/useBackendHealth';
 import { useAccountStatus } from '@/hooks/useAccountStatus';
-import { useClientIP } from '@/hooks/useClientIP';
-import { isIPWhitelisted, isMaintenanceBypassEnabled } from '@/lib/ipWhitelist';
 
-function AppContent({ isReadOnly }) {
+/**
+ * Inner component — has access to both AuthContext and SystemConfigContext.
+ * Handles maintenance mode, service-down state, account suspension, and routing.
+ */
+function AppContent() {
   const { isAuthenticated, token } = useAuth();
-  const { isSuspended, suspensionInfo } = useAccountStatus(isAuthenticated, token);
+  const {
+    maintenanceMode,
+    maintenanceStartTime,
+    enableBackendHealthCheck,
+    readOnlyMode,
+    configLoading,
+    alerts,
+    suspensionInfo: sseSupensionInfo,
+  } = useSystemConfig();
+
+  // Poll /auth/me for account suspension (also receives push via SSE)
+  const { isSuspended, suspensionInfo: polledSuspensionInfo } = useAccountStatus(
+    isAuthenticated,
+    token
+  );
+
+  // Merge SSE-pushed suspension with polled suspension
+  const mergedSuspensionInfo = sseSupensionInfo || polledSuspensionInfo;
+  const isAccountSuspended = isSuspended || !!sseSupensionInfo;
+
+  // Backend health check (honours DB config instead of VITE_ENABLE_BACKEND_HEALTH_CHECK)
+  const { isHealthy, retryCount, checkNow } = useBackendHealth(
+    enableBackendHealthCheck && !maintenanceMode,
+    30000
+  );
+
+  // While fetching config show minimal spinner to avoid flash
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  // Maintenance mode — full page takeover
+  if (maintenanceMode) {
+    return <MaintenancePage />;
+  }
+
+  // Backend health check failed
+  if (enableBackendHealthCheck && !isHealthy) {
+    return <ServiceDownPage onRetry={checkNow} retryCount={retryCount} />;
+  }
 
   return (
-    <ReadOnlyProvider isReadOnly={isReadOnly}>
+    <ReadOnlyProvider>
       <SileoToaster position="top-right" />
       <OfflineDetector />
-      {isReadOnly && <ReadOnlyBanner />}
+      {/* Banners stacked from top */}
+      <ReadOnlyBanner />
+      <AlertBanners isReadOnly={readOnlyMode} />
+
       <ChatProvider>
         <SidebarProvider>
           <Router>
-            {/* If account is suspended, show suspension page */}
-            {isSuspended ? (
+            {isAccountSuspended ? (
               <Routes>
-                <Route path="*" element={<AccountSuspendedPage suspensionInfo={suspensionInfo} />} />
+                <Route
+                  path="*"
+                  element={
+                    <AccountSuspendedPage
+                      suspensionInfo={mergedSuspensionInfo}
+                    />
+                  }
+                />
               </Routes>
             ) : (
               <Routes>
@@ -69,73 +125,19 @@ function AppContent({ isReadOnly }) {
 }
 
 function App() {
-  // Check if maintenance mode is enabled
-  const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'true';
-
-  // Check if read-only mode is enabled
-  const isReadOnlyMode = import.meta.env.VITE_READ_ONLY_MODE === 'true';
-
-  // Get client IP for maintenance whitelist check
-  const { ip: clientIP, loading: ipLoading } = useClientIP();
-
-  // Check if IP is whitelisted or bypass is enabled
-  const isWhitelisted = isIPWhitelisted(clientIP);
-  const isBypassEnabled = isMaintenanceBypassEnabled();
-
-  // Determine if we should show maintenance page
-  const shouldShowMaintenance = isMaintenanceMode && !isWhitelisted && !isBypassEnabled;
-
-  // Check backend health (only if not in maintenance mode)
-  const healthCheckEnabled = import.meta.env.VITE_ENABLE_BACKEND_HEALTH_CHECK === 'true';
-  const { isHealthy, retryCount, checkNow } = useBackendHealth(
-    healthCheckEnabled && !shouldShowMaintenance,
-    30000
-  );
-
-  // If in maintenance mode and IP not whitelisted, show maintenance page
-  // Wait for IP check to complete before deciding
-  if (isMaintenanceMode && !ipLoading) {
-    if (shouldShowMaintenance) {
-      return (
-        <ThemeProvider defaultTheme="light" storageKey="tec-bot-theme">
-          <MaintenancePage />
-        </ThemeProvider>
-      );
-    }
-    // If whitelisted or bypass enabled, log it for debugging
-    if (isWhitelisted || isBypassEnabled) {
-      console.info(
-        'Maintenance mode bypassed:',
-        isWhitelisted ? `IP ${clientIP} is whitelisted` : 'Bypass enabled in localStorage'
-      );
-    }
-  }
-
-  // Show loading while checking IP (only if in maintenance mode)
-  if (isMaintenanceMode && ipLoading) {
-    return (
-      <ThemeProvider defaultTheme="light" storageKey="tec-bot-theme">
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </ThemeProvider>
-    );
-  }
-
-  // If backend health check is enabled and backend is down, show service down page
-  if (healthCheckEnabled && !isHealthy) {
-    return (
-      <ThemeProvider defaultTheme="light" storageKey="tec-bot-theme">
-        <ServiceDownPage onRetry={checkNow} retryCount={retryCount} />
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider defaultTheme="light" storageKey="tec-bot-theme">
-      <AuthProvider>
-        <AppContent isReadOnly={isReadOnlyMode} />
-      </AuthProvider>
+      {/*
+        SystemConfigProvider is outside AuthProvider so it can bootstrap
+        maintenance/config state before auth resolves.
+        It subscribes to custom 'auth:login' / 'auth:logout' window events
+        (dispatched by AuthContext) to switch between SSE and polling.
+      */}
+      <SystemConfigProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </SystemConfigProvider>
     </ThemeProvider>
   );
 }

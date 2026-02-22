@@ -506,7 +506,9 @@
     "groq": "Agente Inteligente",
     "pytorch": "Chatbot Básico (Solo Español)",
     "unavailable": "No disponible",
-    "requiresAuth": "Requiere cuenta"
+    "requiresAuth": "Requiere cuenta",
+    "defaultTitle": "Modelo por Defecto (Nuevos Chats)",
+    "defaultDescription": "Este modelo se usará al crear un nuevo chat. Puedes cambiarlo por conversación desde el chat."
   },
   "modelChange": {
     "upgradeTitle": "Cambiar este Chat a Modelo Inteligente",
@@ -559,7 +561,8 @@
     "ok": "Aceptar",
     "testMode": "Beta",
     "yesterday": "Ayer",
-    "locale": "es-MX"
+    "locale": "es-MX",
+    "dismiss": "Descartar"
   },
   "search": {
     "button": "Buscar",
@@ -736,5 +739,32 @@
         "description": "Todas tus conversaciones se guardan automáticamente y puedes acceder a ellas desde cualquier dispositivo."
       }
     }
+  },
+  "systemConfig": {
+    "scheduledMaintenance": "Mantenimiento programado para: {{date}}",
+    "maintenanceEnds": "Termina: {{date}}"
+  },
+  "sessions": {
+    "title": "Sesiones Activas",
+    "description": "Dispositivos donde tienes sesión iniciada. Puedes cerrar sesión en otros dispositivos.",
+    "currentSession": "Esta sesión",
+    "unknownDevice": "Dispositivo desconocido",
+    "lastActivity": "Última actividad",
+    "noSessions": "No hay sesiones activas",
+    "revokeSuccess": "Sesión cerrada correctamente",
+    "revokeOthersSuccess": "Otras sesiones cerradas correctamente",
+    "revokeError": "Error al cerrar la sesión",
+    "revokeOthers": "Cerrar todas las otras sesiones"
+  },
+  "restrictions": {
+    "cannotCreateChats": "Tu cuenta no tiene permiso para crear nuevos chats",
+    "cannotChangeAvatar": "Tu cuenta no tiene permiso para cambiar la foto de perfil",
+    "cannotChangeName": "Tu cuenta no tiene permiso para cambiar el nombre",
+    "cannotChangeEmail": "Tu cuenta no tiene permiso para cambiar el correo",
+    "cannotChangeSemester": "Tu cuenta no tiene permiso para cambiar el semestre",
+    "cannotChangeCareer": "Tu cuenta no tiene permiso para cambiar la carrera",
+    "cannotChangeModel": "Tu cuenta no tiene permiso para cambiar el modelo de IA",
+    "cannotEditChatOptions": "Tu cuenta no tiene permiso para editar las opciones del chat",
+    "cannotChangePassword": "Tu cuenta no tiene permiso para cambiar la contraseña"
   }
 }

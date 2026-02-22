@@ -8,13 +8,16 @@ import api from '@/api';
 import { parseSSEStream } from '@/utils';
 import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
+import { ChatModelSelector } from '@/components/ChatModelSelector';
 import { Button } from '@/components/ui/button';
 import { ArrowDown } from 'lucide-react';
 import { notify } from '@/lib/notify';
 
 function Chatbot({ headerActions }) {
   const { t } = useTranslation();
-  const { activeChat, updateChatMessages, selectedModel } = useChat();
+  const { activeChat, updateChatMessages } = useChat();
+  // Use the per-chat model (new behaviour) instead of the global selectedModel
+  const chatModel = activeChat?.modelUsed || 'auto';
   const { token } = useAuth();
   const VITE_API_URL = import.meta.env.VITE_VERSION;
   const [messages, setMessages] = useImmer(activeChat?.messages || []);
@@ -55,7 +58,7 @@ function Chatbot({ headerActions }) {
       const { stream, modelUsed } = await api.sendChatMessage(
         conversationId,
         trimmedMessage,
-        selectedModel,
+        chatModel,
         token
       );
 
@@ -147,6 +150,11 @@ function Chatbot({ headerActions }) {
               </div>
             </div>
           )}
+
+          {/* Per-chat model selector */}
+          <div className="flex items-center px-2 pb-2">
+            <ChatModelSelector />
+          </div>
 
           <ChatMessages
             messages={messages}

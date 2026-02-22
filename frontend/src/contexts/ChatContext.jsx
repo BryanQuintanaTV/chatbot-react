@@ -537,9 +537,19 @@ export function ChatProvider({ children }) {
     }
   };
 
-  // Handle global model change from settings
+  // Handle global model change from settings (default for new chats)
   const handleModelChange = (newModel) => {
     setSelectedModel(newModel);
+  };
+
+  /**
+   * Change the model used by a specific chat.
+   * Updates `modelUsed` on the chat and syncs to backend.
+   * This is the per-chat model selector (new behaviour).
+   */
+  const setModelForChat = (chatId, model) => {
+    if (!chatId) return;
+    updateChat(chatId, { modelUsed: model });
   };
 
   // Confirm model change when switching to a chat with different model
@@ -578,6 +588,7 @@ export function ChatProvider({ children }) {
     activeChatId,
     selectedModel,
     setSelectedModel: handleModelChange, // Use the wrapper that shows warnings
+    setModelForChat,                     // Per-chat model selector (new)
     createNewChat,
     switchChat,
     updateChatMessages,

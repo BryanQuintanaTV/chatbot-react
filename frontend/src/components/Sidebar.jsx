@@ -220,7 +220,7 @@ function CollapsedChatIcons({ chats, activeChat, showArchived, setShowArchived, 
 
 export function Sidebar({ onShowShortcuts }) {
   const { t, i18n } = useTranslation();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, restrictions } = useAuth();
   const { createNewChat, chats, activeChat, switchChat } = useChat();
   const { sidebarState, toggleSidebar, closeSidebar, isMobile } = useSidebar();
   const { isReadOnly } = useReadOnly();
@@ -257,6 +257,11 @@ export function Sidebar({ onShowShortcuts }) {
     // If user is not authenticated and already has 1 conversation, don't allow more
     if (!isAuthenticated && chats.length >= 1) {
       notify.error({ title: t('auth.registerToCreateChats') });
+      return;
+    }
+    // Admin restriction: canCreateChats
+    if (isAuthenticated && restrictions?.canCreateChats === false) {
+      notify.error({ title: t('restrictions.cannotCreateChats') });
       return;
     }
 
@@ -348,16 +353,20 @@ export function Sidebar({ onShowShortcuts }) {
                   onClick={handleNewChat}
                   variant="outline"
                   className={`w-full ${isCollapsed ? 'px-0' : 'justify-start'}`}
-                  title={isCollapsed && !isReadOnly ? t('chat.newChat') : undefined}
-                  disabled={isReadOnly}
+                  title={isCollapsed && !isReadOnly && restrictions?.canCreateChats !== false ? t('chat.newChat') : undefined}
+                  disabled={isReadOnly || (isAuthenticated && restrictions?.canCreateChats === false)}
                 >
                   <Plus className="h-4 w-4 text-foreground" />
                   {isExpanded && <span className="ml-2 text-foreground">{t('chat.newChat')}</span>}
                 </Button>
               </TooltipTrigger>
-              {isReadOnly && (
+              {(isReadOnly || (isAuthenticated && restrictions?.canCreateChats === false)) && (
                 <TooltipContent>
-                  <p>{t('readOnly.newChatDisabled')}</p>
+                  <p>
+                    {isReadOnly
+                      ? t('readOnly.newChatDisabled')
+                      : t('restrictions.cannotCreateChats')}
+                  </p>
                 </TooltipContent>
               )}
             </Tooltip>
