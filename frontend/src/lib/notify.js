@@ -5,7 +5,7 @@ import { sileo } from 'sileo';
  * - Mobile (< 768px): top-center (great for Dynamic Island on iPhone 14 Pro+)
  * - Desktop (>= 768px): top-right
  */
-const getPosition = () =>
+export const getPosition = () =>
   typeof window !== 'undefined' && window.innerWidth < 768
     ? 'top-center'
     : 'top-right';

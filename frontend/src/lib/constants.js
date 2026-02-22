@@ -55,7 +55,9 @@ export function isVacationPeriod(date = new Date()) {
 }
 
 // Languages supported
+// To add a new language: add its SVG flag to src/assets/images/<flag>.svg
+// and add an entry here with { value, label, flag } where `flag` matches the SVG filename.
 export const LANGUAGES = [
-  { value: 'es', label: 'Español' },
-  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Español', flag: 'mx' },
+  { value: 'en', label: 'English', flag: 'us' },
 ];

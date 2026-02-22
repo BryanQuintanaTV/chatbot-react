@@ -161,3 +161,21 @@
     animation: none;
     mix-blend-mode: normal;
 }
+
+/* #17 — Toasts always above every overlay (sidebar z-50, modals, etc.) */
+[data-sileo-viewport] {
+  z-index: 9999 !important;
+}
+
+/* Language-change toast: widen sileo's badge to fit the flag sweep animation */
+[data-sileo-badge].sileo-lang-badge {
+  width: 112px;
+  justify-content: flex-start;
+  padding: 0;
+  overflow: visible;
+  /* Use the theme's muted surface so it's subtly different from the pill background */
+  background-color: hsl(var(--muted));
+  /* Reset sileo's state-tone variables: no green tint, always use theme foreground */
+  --sileo-tone-bg: transparent !important;
+  --sileo-tone: hsl(var(--foreground)) !important;
+}
