@@ -75,8 +75,9 @@ export function Settings() {
     localStorage.setItem('language', lng);
     notify.show({
       icon: <LanguageFlagFlip fromLang={fromLang} toLang={lng} />,
-      title: label,
+      title: '',
       duration: 3500,
+      styles: { badge: 'sileo-lang-badge' },
     });
   };
 
