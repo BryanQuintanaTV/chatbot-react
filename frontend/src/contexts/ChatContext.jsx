@@ -289,7 +289,11 @@ export function ChatProvider({ children }) {
         return newChat;
       } catch (error) {
         console.error('Error creating chat in backend:', error);
-        // Fall through to create locally
+        // If the server explicitly forbids this action, do NOT create locally
+        if (error.message === 'settings.restricted') {
+          return null;
+        }
+        // Fall through to create locally only for transient errors
       }
     }
 
