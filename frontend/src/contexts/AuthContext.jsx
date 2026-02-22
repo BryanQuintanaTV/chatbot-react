@@ -45,8 +45,18 @@ export const AuthProvider = ({ children }) => {
 
     if (storedToken && storedUser && isTokenValid(storedToken)) {
       try {
+        const parsedUser = JSON.parse(storedUser);
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+        setUser(parsedUser);
+
+        // Refresh user data from server to pick up any restriction/suspension
+        // changes made by admins while this session was inactive.
+        authAPI.me(storedToken).then((freshUser) => {
+          setUser(freshUser);
+          localStorage.setItem('user', JSON.stringify(freshUser));
+        }).catch(() => {
+          // Keep using cached data if the request fails
+        });
       } catch (error) {
         console.error('Error parsing stored user:', error);
         localStorage.removeItem('user');
@@ -58,6 +68,22 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('authToken');
     }
     setLoading(false);
+  }, []);
+
+  // Real-time restrictions updates pushed via SSE → SystemConfigContext dispatches
+  // an 'auth:restrictions_updated' window event so we can update without reload.
+  useEffect(() => {
+    const handleRestrictionsUpdated = (e) => {
+      const { restrictions } = e.detail;
+      setUser((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, restrictions };
+        localStorage.setItem('user', JSON.stringify(updated));
+        return updated;
+      });
+    };
+    window.addEventListener('auth:restrictions_updated', handleRestrictionsUpdated);
+    return () => window.removeEventListener('auth:restrictions_updated', handleRestrictionsUpdated);
   }, []);
 
   const login = async (email, password) => {

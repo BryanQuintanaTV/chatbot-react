@@ -143,6 +143,10 @@ export function SystemConfigProvider({ children }) {
 
       case 'restrictions_updated':
         mergeConfig({ restrictions: data.restrictions });
+        // Notify AuthContext so it can update user.restrictions in real-time
+        window.dispatchEvent(
+          new CustomEvent('auth:restrictions_updated', { detail: { restrictions: data.restrictions } })
+        );
         break;
 
       default:
