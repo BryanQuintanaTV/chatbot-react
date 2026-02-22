@@ -12,7 +12,10 @@
  * effective maintenance state for the requesting client IP.
  */
 
-const API_BASE_URL = 'https://apichat.bryanquintana.com/api';
+// Derive the /api base from VITE_API_URL (strip trailing '/v1/chat')
+const API_BASE_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.replace(/\/v1\/chat\/?$/, '')
+  : '';
 
 /**
  * Fetch the current system configuration from the backend.

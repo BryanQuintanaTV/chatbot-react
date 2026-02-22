@@ -15,7 +15,7 @@ const USE_DUMMY_DATA = false;
 // Derive the /api base from VITE_API_URL (strip trailing '/v1/chat')
 const API_BASE_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace(/\/v1\/chat\/?$/, '')
-  : 'https://apichat.bryanquintana.com/api';
+  : '';
 
 // Helper function to get CSRF token from cookies
 const getCsrfToken = () => {
