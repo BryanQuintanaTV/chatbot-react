@@ -11,6 +11,28 @@ export const useAuth = () => {
   return context;
 };
 
+/**
+ * Default restriction set — all actions allowed.
+ * The backend may return a partial or full restrictions object;
+ * missing keys default to `true` (unrestricted).
+ */
+const DEFAULT_RESTRICTIONS = {
+  canCreateChats: true,
+  canChangeAvatar: true,
+  canChangeName: true,
+  canChangeEmail: true,
+  canChangeSemester: true,
+  canChangeCareer: true,
+  canChangeModel: true,
+  canEditChatOptions: true,
+  canChangePassword: true,
+};
+
+function mergeRestrictions(userRestrictions) {
+  if (!userRestrictions) return DEFAULT_RESTRICTIONS;
+  return { ...DEFAULT_RESTRICTIONS, ...userRestrictions };
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -48,6 +70,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
 
+      // Notify SystemConfigContext to switch to SSE
+      window.dispatchEvent(new Event('auth:login'));
+
       // Check if user is suspended (backend might allow login but mark as suspended)
       if (response.user && response.user.isSuspended) {
         // Create suspension error so Login.jsx knows to navigate to /suspended
@@ -73,6 +98,10 @@ export const AuthProvider = ({ children }) => {
       setToken(response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
+
+      // Notify SystemConfigContext to switch to SSE
+      window.dispatchEvent(new Event('auth:login'));
+
       return { success: true };
     } catch (error) {
       console.error('Register error:', error);
@@ -88,7 +117,9 @@ export const AuthProvider = ({ children }) => {
     // Clear user conversations on logout
     localStorage.removeItem('chatbot-conversations');
     localStorage.removeItem('chatbot-active-chat');
-    // Note: accountSuspension is no longer used in localStorage
+
+    // Notify SystemConfigContext to switch back to polling
+    window.dispatchEvent(new Event('auth:logout'));
   };
 
   const updateUser = async (updates) => {
@@ -152,6 +183,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Merge restrictions from DB (via user object) with defaults.
+  // The backend sends `restrictions` as a nested object on the user.
+  const restrictions = mergeRestrictions(user?.restrictions);
+
   const value = {
     user,
     token,
@@ -164,6 +199,8 @@ export const AuthProvider = ({ children }) => {
     deleteAccount,
     loading,
     isAuthenticated: !!user && !!token && isTokenValid(token),
+    // Admin-defined per-user restrictions (all default to true = unrestricted)
+    restrictions,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

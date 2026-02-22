@@ -25,20 +25,22 @@ import { Sidebar } from '@/components/Sidebar';
 import { AvatarPicker } from '@/components/AvatarPicker';
 import { getTecnmCareers, SCHOOL_NAME, LANGUAGES, isVacationPeriod } from '@/lib/constants';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
-import { ArrowLeft, AlertCircle, Lock, Check, Monitor, User, Palette, GraduationCap, Eye, EyeOff, X } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Lock, Check, Monitor, User, Palette, GraduationCap, Eye, EyeOff, X, Smartphone, MapPin, Clock, Trash2, LogOut, ShieldCheck } from 'lucide-react';
 import { notify } from '@/lib/notify';
 import { LanguageFlagFlip } from '@/components/LanguageChangeToast';
 import { calculatePasswordStrength } from '@/lib/passwordStrength';
+import { useActiveSessions } from '@/hooks/useActiveSessions';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function Settings() {
   const { t, i18n } = useTranslation();
-  const { user, updateUser, changePassword, deleteAccount, logout, isAuthenticated } = useAuth();
+  const { user, updateUser, changePassword, deleteAccount, logout, isAuthenticated, token, restrictions } = useAuth();
   const { theme: currentThemeId, themes: availableThemes, setTheme, toggleTheme, resolvedTheme } = useTheme();
   const themeBg = resolvedTheme ? `hsl(${resolvedTheme.variables['--background']})` : undefined;
   const { isMobile, sidebarState, toggleSidebar, closeSidebar } = useSidebar();
   const { selectedModel, setSelectedModel } = useChat();
   const { models, loading: modelsLoading } = useModels();
+  const { sessions, loading: sessionsLoading, revokeSession, revokeOtherSessions, refetch: refetchSessions } = useActiveSessions(token);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -63,7 +65,10 @@ export function Settings() {
   // complete — students may only update them during vacation periods to confirm
   // whether they advanced a semester or changed majors.
   const profileComplete = !!(user?.semester && user?.career);
-  const canEditAcademic = !profileComplete || isVacationPeriod();
+  // Academic fields editable during vacation period, unless admin restricted it
+  const canEditSemester = (!profileComplete || isVacationPeriod()) && restrictions?.canChangeSemester !== false;
+  const canEditCareer   = (!profileComplete || isVacationPeriod()) && restrictions?.canChangeCareer !== false;
+  const canEditAcademic = canEditSemester || canEditCareer;
 
   const hasProfileChanges =
     formData.semester !== (user?.semester || '') ||
@@ -283,7 +288,14 @@ export function Settings() {
                       <div className="flex-1">
                         <p className="text-sm font-medium">{user?.name}</p>
                         <p className="text-sm text-muted-foreground">{user?.email}</p>
+                        {restrictions?.canChangeAvatar !== false ? (
                         <AvatarPicker user={user} onAvatarChange={handleAvatarChange} />
+                      ) : (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                          <Lock className="h-3 w-3" />
+                          {t('restrictions.cannotChangeAvatar')}
+                        </p>
+                      )}
                       </div>
                     </div>
 
@@ -327,8 +339,8 @@ export function Settings() {
                           placeholder={t('settings.semesterPlaceholder')}
                           value={formData.semester}
                           onChange={handleChange}
-                          disabled={!canEditAcademic}
-                          className={!canEditAcademic ? 'bg-muted cursor-not-allowed' : ''}
+                          disabled={!canEditSemester}
+                          className={!canEditSemester ? 'bg-muted cursor-not-allowed' : ''}
                         />
                       </div>
                       <div className="space-y-2">
@@ -339,9 +351,9 @@ export function Settings() {
                         <Select
                           value={formData.career}
                           onValueChange={handleCareerChange}
-                          disabled={!canEditAcademic}
+                          disabled={!canEditCareer}
                         >
-                          <SelectTrigger className={!canEditAcademic ? 'bg-muted cursor-not-allowed' : ''}>
+                          <SelectTrigger className={!canEditCareer ? 'bg-muted cursor-not-allowed' : ''}>
                             <SelectValue placeholder={t('settings.careerPlaceholder')} />
                           </SelectTrigger>
                           <SelectContent>
@@ -528,10 +540,111 @@ export function Settings() {
                         )}
                       </div>
 
-                      <Button type="submit" disabled={passwordLoading}>
+                      <Button type="submit" disabled={passwordLoading || restrictions?.canChangePassword === false}>
                         {passwordLoading ? t('settings.changing') : t('settings.changePassword')}
                       </Button>
+                      {restrictions?.canChangePassword === false && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-2">
+                          <Lock className="h-3 w-3" />
+                          {t('restrictions.cannotChangePassword')}
+                        </p>
+                      )}
                     </form>
+                  </CardContent>
+                </Card>
+
+                {/* Active Sessions */}
+                <Card className="mt-6">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <ShieldCheck className="h-5 w-5" />
+                      {t('sessions.title')}
+                    </CardTitle>
+                    <CardDescription>{t('sessions.description')}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {sessionsLoading ? (
+                      <div className="flex items-center justify-center py-6">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                      </div>
+                    ) : sessions.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        {t('sessions.noSessions')}
+                      </p>
+                    ) : (
+                      <>
+                        {sessions.map((session) => (
+                          <div
+                            key={session.id}
+                            className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${
+                              session.isCurrent ? 'border-primary/40 bg-primary/5' : 'border-border'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2 min-w-0">
+                              <Smartphone className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                              <div className="space-y-0.5 min-w-0">
+                                <p className="text-sm font-medium truncate">
+                                  {session.userAgent
+                                    ? session.userAgent.split(' ')[0]
+                                    : t('sessions.unknownDevice')}
+                                  {session.isCurrent && (
+                                    <span className="ml-2 text-xs text-primary font-normal">
+                                      ({t('sessions.currentSession')})
+                                    </span>
+                                  )}
+                                </p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {session.ipAddress || '—'}
+                                </p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {t('sessions.lastActivity')}:{' '}
+                                  {session.lastActivity
+                                    ? new Date(session.lastActivity).toLocaleString()
+                                    : '—'}
+                                </p>
+                              </div>
+                            </div>
+                            {!session.isCurrent && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={async () => {
+                                  try {
+                                    await revokeSession(session.id);
+                                    notify.success({ title: t('sessions.revokeSuccess') });
+                                  } catch {
+                                    notify.error({ title: t('sessions.revokeError') });
+                                  }
+                                }}
+                              >
+                                <LogOut className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        {sessions.filter((s) => !s.isCurrent).length > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full text-destructive hover:text-destructive border-destructive/40 hover:bg-destructive/10"
+                            onClick={async () => {
+                              try {
+                                await revokeOtherSessions();
+                                notify.success({ title: t('sessions.revokeOthersSuccess') });
+                              } catch {
+                                notify.error({ title: t('sessions.revokeError') });
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            {t('sessions.revokeOthers')}
+                          </Button>
+                        )}
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -597,10 +710,10 @@ export function Settings() {
 
                     <div className="space-y-3">
                       <div>
-                        <p className="font-medium">{t('models.title')}</p>
-                        <p className="text-sm text-muted-foreground">{t('models.description')}</p>
+                        <p className="font-medium">{t('models.defaultTitle')}</p>
+                        <p className="text-sm text-muted-foreground">{t('models.defaultDescription')}</p>
                       </div>
-                      <Select value={selectedModel} onValueChange={setSelectedModel} disabled={modelsLoading}>
+                      <Select value={selectedModel} onValueChange={setSelectedModel} disabled={modelsLoading || restrictions?.canChangeModel === false}>
                         <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {models.map((model) => {
@@ -621,6 +734,12 @@ export function Settings() {
                       </Select>
                       {selectedModel && models.find(m => m.id === selectedModel) && (
                         <p className="text-xs text-muted-foreground">{models.find(m => m.id === selectedModel)?.message}</p>
+                      )}
+                      {restrictions?.canChangeModel === false && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                          <Lock className="h-3 w-3" />
+                          {t('restrictions.cannotChangeModel')}
+                        </p>
                       )}
                     </div>
                   </CardContent>

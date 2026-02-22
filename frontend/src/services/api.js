@@ -680,3 +680,80 @@ const realConversations = {
 };
 
 export const conversationsAPI = USE_DUMMY_DATA ? dummyConversations : realConversations;
+
+// ============================================================================
+// SESSIONS API - For managing active user sessions
+// ============================================================================
+// Backend endpoints required (new — to be implemented):
+//   GET    /auth/sessions/        → list active sessions for current user
+//   DELETE /auth/sessions/{id}/   → revoke a specific session
+//   DELETE /auth/sessions/others/ → revoke all sessions except current
+
+const dummySessions = {
+  async getAll(_token) {
+    await simulateDelay(400);
+    return {
+      sessions: [
+        {
+          id: 1,
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0',
+          ipAddress: '127.0.0.1',
+          createdAt: new Date(Date.now() - 3600_000).toISOString(),
+          lastActivity: new Date().toISOString(),
+          isCurrent: true,
+        },
+      ],
+    };
+  },
+
+  async revoke(_token, _sessionId) {
+    await simulateDelay();
+    return { success: true };
+  },
+
+  async revokeOthers(_token) {
+    await simulateDelay();
+    return { success: true };
+  },
+};
+
+const realSessions = {
+  async getAll(token) {
+    const response = await fetch(`${API_BASE_URL}/auth/sessions/`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Failed to fetch sessions');
+    return await response.json();
+  },
+
+  async revoke(token, sessionId) {
+    const csrfToken = getCsrfToken();
+    const headers = { Authorization: `Bearer ${token}` };
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
+    const response = await fetch(`${API_BASE_URL}/auth/sessions/${sessionId}/`, {
+      method: 'DELETE',
+      headers,
+      ...(csrfToken ? { credentials: 'include' } : {}),
+    });
+    if (!response.ok) throw new Error('Failed to revoke session');
+    return await response.json();
+  },
+
+  async revokeOthers(token) {
+    const csrfToken = getCsrfToken();
+    const headers = { Authorization: `Bearer ${token}` };
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
+    const response = await fetch(`${API_BASE_URL}/auth/sessions/others/`, {
+      method: 'DELETE',
+      headers,
+      ...(csrfToken ? { credentials: 'include' } : {}),
+    });
+    if (!response.ok) throw new Error('Failed to revoke other sessions');
+    return await response.json();
+  },
+};
+
+export const sessionsAPI = USE_DUMMY_DATA ? dummySessions : realSessions;

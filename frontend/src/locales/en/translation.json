@@ -506,7 +506,9 @@
     "groq": "Smart Agent",
     "pytorch": "Basic Chatbot (Spanish Only)",
     "unavailable": "Unavailable",
-    "requiresAuth": "Requires account"
+    "requiresAuth": "Requires account",
+    "defaultTitle": "Default Model (New Chats)",
+    "defaultDescription": "This model will be used when creating a new chat. You can change it per conversation from inside the chat."
   },
   "modelChange": {
     "upgradeTitle": "Switch this Chat to Smart Model",
@@ -559,7 +561,8 @@
     "ok": "OK",
     "testMode": "Beta",
     "yesterday": "Yesterday",
-    "locale": "en-US"
+    "locale": "en-US",
+    "dismiss": "Dismiss"
   },
   "search": {
     "button": "Search",
@@ -705,7 +708,7 @@
     "title": "Themes",
     "light": "Light",
     "darkBlue": "Dark Blue",
-    "tealHeritage":"Teal Heritage",
+    "tealHeritage": "Teal Heritage",
     "system": "System"
   },
   "readOnly": {
@@ -736,5 +739,32 @@
         "description": "All your conversations are automatically saved and you can access them from any device."
       }
     }
+  },
+  "systemConfig": {
+    "scheduledMaintenance": "Scheduled maintenance on: {{date}}",
+    "maintenanceEnds": "Ends: {{date}}"
+  },
+  "sessions": {
+    "title": "Active Sessions",
+    "description": "Devices where you are logged in. You can sign out from other devices.",
+    "currentSession": "This session",
+    "unknownDevice": "Unknown device",
+    "lastActivity": "Last activity",
+    "noSessions": "No active sessions",
+    "revokeSuccess": "Session closed successfully",
+    "revokeOthersSuccess": "Other sessions closed successfully",
+    "revokeError": "Failed to close session",
+    "revokeOthers": "Close all other sessions"
+  },
+  "restrictions": {
+    "cannotCreateChats": "Your account is not allowed to create new chats",
+    "cannotChangeAvatar": "Your account is not allowed to change the profile picture",
+    "cannotChangeName": "Your account is not allowed to change the name",
+    "cannotChangeEmail": "Your account is not allowed to change the email",
+    "cannotChangeSemester": "Your account is not allowed to change the semester",
+    "cannotChangeCareer": "Your account is not allowed to change the career",
+    "cannotChangeModel": "Your account is not allowed to change the AI model",
+    "cannotEditChatOptions": "Your account is not allowed to edit chat options",
+    "cannotChangePassword": "Your account is not allowed to change the password"
   }
 }

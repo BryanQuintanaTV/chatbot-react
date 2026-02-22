@@ -1,4 +1,14 @@
+/**
+ * ReadOnlyContext
+ *
+ * Previously sourced from VITE_READ_ONLY_MODE env variable.
+ * Now reads `readOnlyMode` from SystemConfigContext (DB-driven).
+ *
+ * All consumer components continue to use `useReadOnly()` unchanged.
+ */
+
 import { createContext, useContext } from 'react';
+import { useSystemConfig } from '@/contexts/SystemConfigContext';
 
 const ReadOnlyContext = createContext({ isReadOnly: false });
 
@@ -10,9 +20,11 @@ export const useReadOnly = () => {
   return context;
 };
 
-export function ReadOnlyProvider({ children, isReadOnly }) {
+export function ReadOnlyProvider({ children }) {
+  const { readOnlyMode } = useSystemConfig();
+
   return (
-    <ReadOnlyContext.Provider value={{ isReadOnly }}>
+    <ReadOnlyContext.Provider value={{ isReadOnly: readOnlyMode }}>
       {children}
     </ReadOnlyContext.Provider>
   );
