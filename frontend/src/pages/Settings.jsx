@@ -25,9 +25,10 @@ import { Sidebar } from '@/components/Sidebar';
 import { AvatarPicker } from '@/components/AvatarPicker';
 import { getTecnmCareers, SCHOOL_NAME, LANGUAGES, isVacationPeriod } from '@/lib/constants';
 import { getAvatarDisplay, getUserInitials } from '@/lib/avatars';
-import { ArrowLeft, AlertCircle, Lock, Check, Monitor, User, Palette, GraduationCap } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Lock, Check, Monitor, User, Palette, GraduationCap, Eye, EyeOff, X } from 'lucide-react';
 import { notify } from '@/lib/notify';
 import { LanguageFlagFlip } from '@/components/LanguageChangeToast';
+import { calculatePasswordStrength } from '@/lib/passwordStrength';
 import logo from '@/assets/images/itch_II_logo.png';
 
 export function Settings() {
@@ -54,6 +55,9 @@ export function Settings() {
     newPassword: '',
     confirmPassword: '',
   });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Academic fields (semester/career) are locked when the profile is already
   // complete — students may only update them during vacation periods to confirm
@@ -138,7 +142,7 @@ export function Settings() {
     e.preventDefault();
     setPasswordLoading(true);
 
-    if (passwordData.newPassword.length < 6) {
+    if (passwordData.newPassword.length < 8) {
       notify.error({ title: t('register.passwordTooShort') });
       setPasswordLoading(false);
       return;
@@ -153,8 +157,14 @@ export function Settings() {
       await changePassword(passwordData.currentPassword, passwordData.newPassword);
       notify.success({ title: t('settings.passwordChangeSuccess') });
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setShowCurrentPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
     } catch (error) {
-      notify.error({ title: error.message || t('settings.passwordChangeError') });
+      const msg = error.message?.startsWith('auth.')
+        ? t(error.message)
+        : (error.message || t('settings.passwordChangeError'));
+      notify.error({ title: msg });
     } finally {
       setPasswordLoading(false);
     }
@@ -383,18 +393,141 @@ export function Settings() {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handlePasswordChange} className="space-y-4">
+                      {/* Current password */}
                       <div className="space-y-2">
                         <Label htmlFor="currentPassword">{t('settings.currentPassword')}</Label>
-                        <Input id="currentPassword" name="currentPassword" type="password" value={passwordData.currentPassword} onChange={handlePasswordInputChange} required />
+                        <div className="relative">
+                          <Input
+                            id="currentPassword"
+                            name="currentPassword"
+                            type={showCurrentPassword ? 'text' : 'password'}
+                            value={passwordData.currentPassword}
+                            onChange={handlePasswordInputChange}
+                            className="pr-10"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowCurrentPassword(v => !v)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                       </div>
+
+                      {/* New password + strength */}
                       <div className="space-y-2">
                         <Label htmlFor="newPassword">{t('settings.newPassword')}</Label>
-                        <Input id="newPassword" name="newPassword" type="password" value={passwordData.newPassword} onChange={handlePasswordInputChange} required minLength={6} />
+                        <div className="relative">
+                          <Input
+                            id="newPassword"
+                            name="newPassword"
+                            type={showNewPassword ? 'text' : 'password'}
+                            value={passwordData.newPassword}
+                            onChange={handlePasswordInputChange}
+                            className="pr-10"
+                            required
+                            minLength={8}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(v => !v)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        {passwordData.newPassword && (() => {
+                          const strength = calculatePasswordStrength(passwordData.newPassword);
+                          return (
+                            <div className="space-y-2 pt-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">{t('auth.passwordStrength')}:</span>
+                                <span className={`text-xs font-medium ${
+                                  strength.level === 'strong' ? 'text-green-600 dark:text-green-500' :
+                                  strength.level === 'medium' ? 'text-yellow-600 dark:text-yellow-500' :
+                                  'text-red-600 dark:text-red-500'
+                                }`}>
+                                  {strength.level === 'strong' ? t('auth.passwordStrong') :
+                                   strength.level === 'medium' ? t('auth.passwordMedium') :
+                                   t('auth.passwordWeak')}
+                                </span>
+                              </div>
+                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full transition-all duration-300 ${
+                                    strength.level === 'strong' ? 'bg-green-600' :
+                                    strength.level === 'medium' ? 'bg-yellow-600' :
+                                    'bg-red-600'
+                                  }`}
+                                  style={{ width: `${strength.percentage}%` }}
+                                />
+                              </div>
+                              <div className="text-xs space-y-1 text-muted-foreground">
+                                {[
+                                  { key: 'length',    label: t('auth.passwordReqLength') },
+                                  { key: 'uppercase', label: t('auth.passwordReqUpper') },
+                                  { key: 'lowercase', label: t('auth.passwordReqLower') },
+                                  { key: 'number',    label: t('auth.passwordReqNumber') },
+                                  { key: 'symbol',    label: t('auth.passwordReqSymbol') },
+                                ].map(({ key, label }) => (
+                                  <div key={key} className={`flex items-center gap-1 ${strength.checks[key] ? 'text-green-600 dark:text-green-500' : ''}`}>
+                                    {strength.checks[key] ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                                    <span>{label}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
+
+                      {/* Confirm password */}
                       <div className="space-y-2">
                         <Label htmlFor="confirmPassword">{t('settings.confirmNewPassword')}</Label>
-                        <Input id="confirmPassword" name="confirmPassword" type="password" value={passwordData.confirmPassword} onChange={handlePasswordInputChange} required minLength={6} />
+                        <div className="relative">
+                          <Input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            value={passwordData.confirmPassword}
+                            onChange={handlePasswordInputChange}
+                            className={`pr-10 ${
+                              passwordData.confirmPassword && passwordData.newPassword === passwordData.confirmPassword
+                                ? 'border-green-500 focus-visible:ring-green-500'
+                                : passwordData.confirmPassword
+                                  ? 'border-red-500 focus-visible:ring-red-500'
+                                  : ''
+                            }`}
+                            required
+                            minLength={8}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(v => !v)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        {passwordData.confirmPassword && (
+                          <div className="flex items-center gap-1 text-xs">
+                            {passwordData.newPassword === passwordData.confirmPassword ? (
+                              <>
+                                <Check className="h-3 w-3 text-green-600 dark:text-green-500" />
+                                <span className="text-green-600 dark:text-green-500">{t('auth.passwordsMatch')}</span>
+                              </>
+                            ) : (
+                              <>
+                                <X className="h-3 w-3 text-red-600 dark:text-red-500" />
+                                <span className="text-red-600 dark:text-red-500">{t('register.passwordMismatch')}</span>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
+
                       <Button type="submit" disabled={passwordLoading}>
                         {passwordLoading ? t('settings.changing') : t('settings.changePassword')}
                       </Button>
