@@ -11,6 +11,8 @@ export function useBackendHealth(enabled = true, interval = 30000) {
   const [isChecking, setIsChecking] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
+  const apiV1Base = (import.meta.env.VITE_API_URL || '').replace(/\/chat\/?$/, '');
+
   const checkHealth = async () => {
     if (!enabled) return;
 
@@ -21,7 +23,7 @@ export function useBackendHealth(enabled = true, interval = 30000) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
-      const response = await fetch('https://apichat.bryanquintana.com/api/v1/models/available/', {
+      const response = await fetch(`${apiV1Base}/models/available/`, {
         method: 'GET',
         signal: controller.signal,
       });
