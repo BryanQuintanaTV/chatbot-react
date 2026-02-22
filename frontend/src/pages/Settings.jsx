@@ -33,7 +33,8 @@ import logo from '@/assets/images/itch_II_logo.png';
 export function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser, changePassword, deleteAccount, logout, isAuthenticated } = useAuth();
-  const { theme: currentThemeId, themes: availableThemes, setTheme, toggleTheme } = useTheme();
+  const { theme: currentThemeId, themes: availableThemes, setTheme, toggleTheme, resolvedTheme } = useTheme();
+  const themeBg = resolvedTheme ? `hsl(${resolvedTheme.variables['--background']})` : undefined;
   const { isMobile, sidebarState, toggleSidebar, closeSidebar } = useSidebar();
   const { selectedModel, setSelectedModel } = useChat();
   const { models, loading: modelsLoading } = useModels();
@@ -78,6 +79,7 @@ export function Settings() {
       title: '',
       duration: 3500,
       styles: { badge: 'sileo-lang-badge' },
+      fill: themeBg,
     });
   };
 

@@ -168,4 +168,8 @@
   justify-content: flex-start;
   padding: 0;
   overflow: visible;
+  /* Reset sileo's state-tone colouring so the badge stays neutral (no green tint) */
+  --sileo-tone-bg: transparent !important;
+  --sileo-tone: currentColor !important;
+  background-color: transparent;
 }

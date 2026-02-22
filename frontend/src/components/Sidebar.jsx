@@ -249,6 +249,7 @@ export function Sidebar({ onShowShortcuts }) {
       title: '',
       duration: 3500,
       styles: { badge: 'sileo-lang-badge' },
+      fill: themeBg,
     });
   };
 
