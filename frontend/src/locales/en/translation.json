@@ -89,6 +89,7 @@
     "name": "Full Name",
     "email": "Email",
     "emailReadonly": "Email cannot be changed",
+    "nameReadonly": "Full name cannot be changed",
     "semester": "Semester (1-12)",
     "semesterPlaceholder": "Ex: 5",
     "career": "Major",

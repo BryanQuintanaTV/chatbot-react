@@ -61,6 +61,10 @@ export function Settings() {
   const profileComplete = !!(user?.semester && user?.career);
   const canEditAcademic = !profileComplete || isVacationPeriod();
 
+  const hasProfileChanges =
+    formData.semester !== (user?.semester || '') ||
+    formData.career !== (user?.career || '');
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -287,8 +291,12 @@ export function Settings() {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">{t('settings.name')}</Label>
-                        <Input id="name" name="name" type="text" value={formData.name} onChange={handleChange} required />
+                        <Label htmlFor="name" className="flex items-center gap-1.5">
+                          {t('settings.name')}
+                          <Lock className="h-3 w-3 text-muted-foreground" />
+                        </Label>
+                        <Input id="name" name="name" type="text" value={formData.name} disabled className="bg-muted cursor-not-allowed" />
+                        <p className="text-xs text-muted-foreground">{t('settings.nameReadonly')}</p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">{t('settings.email')}</Label>
@@ -343,7 +351,7 @@ export function Settings() {
                         <Label>{t('settings.institution')}</Label>
                         <div className="rounded-md bg-muted p-3 text-sm">{SCHOOL_NAME}</div>
                       </div>
-                      <Button type="submit" disabled={loading}>
+                      <Button type="submit" disabled={loading || !hasProfileChanges}>
                         {loading ? t('settings.saving') : t('settings.saveChanges')}
                       </Button>
                     </form>

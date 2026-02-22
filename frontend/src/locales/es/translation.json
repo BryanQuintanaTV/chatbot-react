@@ -89,6 +89,7 @@
     "name": "Nombre Completo",
     "email": "Correo Electrónico",
     "emailReadonly": "El correo electrónico no se puede modificar",
+    "nameReadonly": "El nombre completo no se puede modificar",
     "semester": "Semestre (1-12)",
     "semesterPlaceholder": "Ej: 5",
     "career": "Carrera",
