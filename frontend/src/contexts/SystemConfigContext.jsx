@@ -116,20 +116,31 @@ export function SystemConfigProvider({ children }) {
   const handleSSEEvent = useCallback((eventType, data) => {
     switch (eventType) {
       case 'system_config':
-        setConfig((prev) => ({ ...prev, ...data, _usingEnvFallback: false }));
+      case 'system_config_update': {
+        // Normalize enableHealthCheck (SSE field) → enableBackendHealthCheck (frontend field)
+        const normalized = { ...data };
+        if ('enableHealthCheck' in normalized && !('enableBackendHealthCheck' in normalized)) {
+          normalized.enableBackendHealthCheck = normalized.enableHealthCheck;
+        }
+        delete normalized.enableHealthCheck;
+        setConfig((prev) => ({ ...prev, ...normalized, _usingEnvFallback: false }));
         break;
+      }
 
       case 'alert_created':
+        // Backend sends the alert object directly, not wrapped in { alert: ... }
         setConfig((prev) => ({
           ...prev,
-          alerts: [...(prev.alerts || []), data.alert],
+          alerts: [...(prev.alerts || []), data.alert ?? data],
         }));
         break;
 
+      case 'alert_deleted':
       case 'alert_removed':
+        // Backend may use alertId or id field
         setConfig((prev) => ({
           ...prev,
-          alerts: (prev.alerts || []).filter((a) => a.id !== data.alertId),
+          alerts: (prev.alerts || []).filter((a) => a.id !== (data.alertId ?? data.id)),
         }));
         break;
 
@@ -142,10 +153,12 @@ export function SystemConfigProvider({ children }) {
         break;
 
       case 'restrictions_updated':
-        mergeConfig({ restrictions: data.restrictions });
+        // The backend sends the restrictions object directly as the event data,
+        // not wrapped in a { restrictions: ... } envelope.
+        mergeConfig({ restrictions: data });
         // Notify AuthContext so it can update user.restrictions in real-time
         window.dispatchEvent(
-          new CustomEvent('auth:restrictions_updated', { detail: { restrictions: data.restrictions } })
+          new CustomEvent('auth:restrictions_updated', { detail: { restrictions: data } })
         );
         break;
 
