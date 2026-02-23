@@ -100,54 +100,81 @@ export function getEnvFallbackConfig() {
  */
 export function connectSSEStream(token, onEvent, onError) {
   const controller = new AbortController();
+  const MIN_DELAY = 1000;
+  const MAX_DELAY = 30000;
 
   (async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/events/stream/`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'text/event-stream',
-        },
-        signal: controller.signal,
-      });
+    let delay = MIN_DELAY;
 
-      if (!response.ok) {
-        throw new Error(`SSE stream failed: ${response.status}`);
-      }
+    while (!controller.signal.aborted) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/v1/events/stream/`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'text/event-stream',
+          },
+          signal: controller.signal,
+        });
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
+        if (!response.ok) {
+          // Auth failures — do not reconnect, propagate to caller
+          if (response.status === 401 || response.status === 403) {
+            onError(new Error(`SSE auth failed: ${response.status}`));
+            return;
+          }
+          throw new Error(`SSE stream failed: ${response.status}`);
+        }
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        // Successful connection — reset backoff delay
+        delay = MIN_DELAY;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop(); // Keep incomplete last line in buffer
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-        let eventType = 'message';
-        for (const line of lines) {
-          if (line.startsWith('event:')) {
-            eventType = line.slice(6).trim();
-          } else if (line.startsWith('data:')) {
-            const raw = line.slice(5).trim();
-            try {
-              const data = JSON.parse(raw);
-              onEvent(eventType, data);
-            } catch {
-              // Non-JSON data line, skip
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // Keep incomplete last line in buffer
+
+          let eventType = 'message';
+          for (const line of lines) {
+            if (line.startsWith('event:')) {
+              eventType = line.slice(6).trim();
+            } else if (line.startsWith('data:')) {
+              const raw = line.slice(5).trim();
+              try {
+                const data = JSON.parse(raw);
+                onEvent(eventType, data);
+              } catch {
+                // Non-JSON data line, skip
+              }
+              eventType = 'message'; // Reset after data
             }
-            eventType = 'message'; // Reset after data
           }
         }
+
+        // Stream closed gracefully — reconnect after short delay
+      } catch (err) {
+        if (err.name === 'AbortError' || controller.signal.aborted) return;
+        // Transient error — fall through to reconnect with backoff
       }
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        onError(err);
-      }
+
+      // Wait before reconnecting
+      await new Promise((resolve) => {
+        const timer = setTimeout(resolve, delay);
+        // Abort the wait immediately if the connection is aborted
+        controller.signal.addEventListener('abort', () => {
+          clearTimeout(timer);
+          resolve();
+        }, { once: true });
+      });
+
+      delay = Math.min(delay * 2, MAX_DELAY);
     }
   })();
 
